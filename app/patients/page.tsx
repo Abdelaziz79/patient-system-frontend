@@ -20,11 +20,14 @@ import {
 import { motion } from "framer-motion";
 import {
   ArrowUpDown,
+  CalendarIcon,
+  ChevronDown,
   FilterIcon,
   Loader2,
+  PhoneIcon,
   SearchIcon,
+  UserIcon,
   UserPlusIcon,
-  ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,6 +54,24 @@ export default function PatientsPage() {
   const [insuranceFilter, setInsuranceFilter] = useState("");
   const [sortField, setSortField] = useState<keyof Patient>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  useEffect(() => {
+    // Check for mobile view
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobileView();
+
+    // Add resize listener
+    window.addEventListener("resize", checkMobileView);
+
+    return () => {
+      window.removeEventListener("resize", checkMobileView);
+    };
+  }, []);
 
   useEffect(() => {
     // Simulate API call to fetch patients
@@ -226,12 +247,67 @@ export default function PatientsPage() {
     return date.toLocaleDateString("ar-SA");
   };
 
+  // Render mobile patient card
+  const renderMobilePatientCard = (patient: Patient, index: number) => {
+    return (
+      <div
+        key={patient.id}
+        onClick={() => handlePatientClick(patient.id)}
+        className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 mb-3 cursor-pointer hover:bg-green-50 dark:hover:bg-slate-700 transition-colors border border-green-100 dark:border-slate-700"
+      >
+        <div className="flex justify-between items-start mb-2">
+          <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
+            {patient.fileNumber}
+          </span>
+          <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
+            {index + 1}
+          </span>
+        </div>
+
+        <h3 className="text-lg font-bold mb-2 text-green-800 dark:text-green-300">
+          {patient.name}
+        </h3>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center text-sm">
+            <UserIcon className="ml-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span>
+              {patient.age} سنة - {patient.gender}
+            </span>
+          </div>
+
+          <div className="flex items-center text-sm">
+            <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-0.5 rounded-full text-xs font-medium">
+              {patient.bloodType}
+            </span>
+          </div>
+
+          <div className="flex items-center text-sm">
+            <CalendarIcon className="ml-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span>{formatDate(patient.lastVisit)}</span>
+          </div>
+
+          <div className="flex items-center justify-end text-sm">
+            <PhoneIcon className="ml-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span className="font-mono">{patient.phone}</span>
+          </div>
+        </div>
+
+        <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            شركة التأمين: {patient.insuranceProvider}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
-      className="min-h-screen  dark:from-slate-900 dark:to-slate-800"
+      className="min-h-screen dark:from-slate-900 dark:to-slate-800"
       dir="rtl"
     >
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -239,37 +315,37 @@ export default function PatientsPage() {
           className="w-full"
         >
           <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-green-100 dark:border-green-900 shadow-xl">
-            <CardHeader>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <CardHeader className="px-4 sm:px-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <CardTitle className="text-2xl font-bold text-green-800 dark:text-green-300">
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">
                     قائمة المرضى
                   </CardTitle>
-                  <CardDescription className="text-green-600 dark:text-green-400 mt-1">
+                  <CardDescription className="text-green-600 dark:text-green-400 mt-1 text-sm">
                     إدارة ملفات المرضى في المنشأة الطبية
                   </CardDescription>
                 </div>
                 <Button
                   onClick={handleAddPatient}
-                  className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
                 >
                   <UserPlusIcon className="ml-2 h-4 w-4" />
                   <span>إضافة مريض</span>
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="mb-6 flex flex-col md:flex-row gap-4">
+            <CardContent className="px-3 sm:px-6">
+              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative flex-1">
                   <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                   <Input
-                    placeholder="البحث عن مريض (الاسم، رقم الهاتف، رقم الملف)..."
+                    placeholder="البحث عن مريض..."
                     className="text-right pr-10 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     value={searchQuery}
                     onChange={handleSearch}
                   />
                 </div>
-                <div className="relative md:w-1/4">
+                <div className="relative sm:w-1/4">
                   <div className="relative">
                     <FilterIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                     <ChevronDown className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
@@ -290,136 +366,165 @@ export default function PatientsPage() {
               </div>
 
               {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-12 w-12 animate-spin text-green-600 dark:text-green-400" />
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-green-600 dark:text-green-400" />
                 </div>
               ) : (
                 <>
-                  <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-                    <Table>
-                      <TableHeader className="bg-green-50 dark:bg-slate-700">
-                        <TableRow>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300 w-12">
-                            #
-                          </TableHead>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300 w-24">
-                            رقم الملف
-                          </TableHead>
-                          <TableHead
-                            className="text-right font-bold text-green-800 dark:text-green-300 cursor-pointer"
-                            onClick={() => handleSort("name")}
-                          >
-                            <div className="flex items-center justify-end">
-                              اسم المريض
-                              <ArrowUpDown className="mr-2 h-4 w-4" />
-                              {sortField === "name" && (
-                                <span className="mr-1 text-xs">
-                                  {sortDirection === "asc" ? "↑" : "↓"}
-                                </span>
-                              )}
-                            </div>
-                          </TableHead>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300">
-                            العمر
-                          </TableHead>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell">
-                            الجنس
-                          </TableHead>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell">
-                            فصيلة الدم
-                          </TableHead>
-                          <TableHead
-                            className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell cursor-pointer"
-                            onClick={() => handleSort("insuranceProvider")}
-                          >
-                            <div className="flex items-center justify-end">
-                              شركة التأمين
-                              <ArrowUpDown className="mr-2 h-4 w-4" />
-                              {sortField === "insuranceProvider" && (
-                                <span className="mr-1 text-xs">
-                                  {sortDirection === "asc" ? "↑" : "↓"}
-                                </span>
-                              )}
-                            </div>
-                          </TableHead>
-                          <TableHead
-                            className="text-right font-bold text-green-800 dark:text-green-300 cursor-pointer"
-                            onClick={() => handleSort("lastVisit")}
-                          >
-                            <div className="flex items-center justify-end">
-                              آخر زيارة
-                              <ArrowUpDown className="mr-2 h-4 w-4" />
-                              {sortField === "lastVisit" && (
-                                <span className="mr-1 text-xs">
-                                  {sortDirection === "asc" ? "↑" : "↓"}
-                                </span>
-                              )}
-                            </div>
-                          </TableHead>
-                          <TableHead className="text-right font-bold text-green-800 dark:text-green-300">
-                            رقم الهاتف
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredPatients.length > 0 ? (
-                          filteredPatients.map((patient, index) => (
-                            <TableRow
-                              key={patient.id}
-                              onClick={() => handlePatientClick(patient.id)}
-                              className="cursor-pointer hover:bg-green-50 dark:hover:bg-slate-700 transition-colors"
-                            >
-                              <TableCell className="font-medium text-right">
-                                {index + 1}
-                              </TableCell>
-                              <TableCell className="font-medium text-right">
-                                <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
-                                  {patient.fileNumber}
-                                </span>
-                              </TableCell>
-                              <TableCell className="font-medium text-right">
-                                {patient.name}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {patient.age}
-                              </TableCell>
-                              <TableCell className="text-right hidden md:table-cell">
-                                {patient.gender}
-                              </TableCell>
-                              <TableCell className="text-right hidden md:table-cell">
-                                <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-1 rounded-full text-xs font-medium">
-                                  {patient.bloodType}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-right hidden md:table-cell">
-                                {patient.insuranceProvider}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {formatDate(patient.lastVisit)}
-                              </TableCell>
-                              <TableCell className="text-left ltr:text-left rtl:text-right font-mono">
-                                {patient.phone}
-                              </TableCell>
+                  {/* Mobile View - Card Layout */}
+                  {isMobileView ? (
+                    <div className="space-y-1">
+                      {filteredPatients.length > 0 ? (
+                        filteredPatients.map((patient, index) =>
+                          renderMobilePatientCard(patient, index)
+                        )
+                      ) : (
+                        <div className="rounded-lg border dark:border-gray-700 p-8 text-center">
+                          <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                            <SearchIcon className="h-12 w-12 mb-2 opacity-20" />
+                            <p className="text-lg font-medium">
+                              لم يتم العثور على أي مرضى
+                            </p>
+                            <p className="text-sm">
+                              حاول تغيير معايير البحث أو إضافة مرضى جدد
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Desktop View - Table Layout */
+                    <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader className="bg-green-50 dark:bg-slate-700">
+                            <TableRow>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300 w-12">
+                                #
+                              </TableHead>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300 w-24">
+                                رقم الملف
+                              </TableHead>
+                              <TableHead
+                                className="text-right font-bold text-green-800 dark:text-green-300 cursor-pointer"
+                                onClick={() => handleSort("name")}
+                              >
+                                <div className="flex items-center justify-end">
+                                  اسم المريض
+                                  <ArrowUpDown className="mr-2 h-4 w-4" />
+                                  {sortField === "name" && (
+                                    <span className="mr-1 text-xs">
+                                      {sortDirection === "asc" ? "↑" : "↓"}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableHead>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300">
+                                العمر
+                              </TableHead>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell">
+                                الجنس
+                              </TableHead>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell">
+                                فصيلة الدم
+                              </TableHead>
+                              <TableHead
+                                className="text-right font-bold text-green-800 dark:text-green-300 hidden md:table-cell cursor-pointer"
+                                onClick={() => handleSort("insuranceProvider")}
+                              >
+                                <div className="flex items-center justify-end">
+                                  شركة التأمين
+                                  <ArrowUpDown className="mr-2 h-4 w-4" />
+                                  {sortField === "insuranceProvider" && (
+                                    <span className="mr-1 text-xs">
+                                      {sortDirection === "asc" ? "↑" : "↓"}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableHead>
+                              <TableHead
+                                className="text-right font-bold text-green-800 dark:text-green-300 cursor-pointer"
+                                onClick={() => handleSort("lastVisit")}
+                              >
+                                <div className="flex items-center justify-end">
+                                  آخر زيارة
+                                  <ArrowUpDown className="mr-2 h-4 w-4" />
+                                  {sortField === "lastVisit" && (
+                                    <span className="mr-1 text-xs">
+                                      {sortDirection === "asc" ? "↑" : "↓"}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableHead>
+                              <TableHead className="text-right font-bold text-green-800 dark:text-green-300">
+                                رقم الهاتف
+                              </TableHead>
                             </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={9} className="h-32 text-center">
-                              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                                <SearchIcon className="h-12 w-12 mb-2 opacity-20" />
-                                <p className="text-lg font-medium">
-                                  لم يتم العثور على أي مرضى
-                                </p>
-                                <p className="text-sm">
-                                  حاول تغيير معايير البحث أو إضافة مرضى جدد
-                                </p>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredPatients.length > 0 ? (
+                              filteredPatients.map((patient, index) => (
+                                <TableRow
+                                  key={patient.id}
+                                  onClick={() => handlePatientClick(patient.id)}
+                                  className="cursor-pointer hover:bg-green-50 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                  <TableCell className="font-medium text-right">
+                                    {index + 1}
+                                  </TableCell>
+                                  <TableCell className="font-medium text-right">
+                                    <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
+                                      {patient.fileNumber}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="font-medium text-right">
+                                    {patient.name}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {patient.age}
+                                  </TableCell>
+                                  <TableCell className="text-right hidden md:table-cell">
+                                    {patient.gender}
+                                  </TableCell>
+                                  <TableCell className="text-right hidden md:table-cell">
+                                    <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-1 rounded-full text-xs font-medium">
+                                      {patient.bloodType}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-right hidden md:table-cell">
+                                    {patient.insuranceProvider}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {formatDate(patient.lastVisit)}
+                                  </TableCell>
+                                  <TableCell className="text-left ltr:text-left rtl:text-right font-mono">
+                                    {patient.phone}
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={9}
+                                  className="h-32 text-center"
+                                >
+                                  <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                                    <SearchIcon className="h-12 w-12 mb-2 opacity-20" />
+                                    <p className="text-lg font-medium">
+                                      لم يتم العثور على أي مرضى
+                                    </p>
+                                    <p className="text-sm">
+                                      حاول تغيير معايير البحث أو إضافة مرضى جدد
+                                    </p>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  )}
                   <div className="mt-4 text-right text-sm text-gray-500 dark:text-gray-400">
                     إجمالي المرضى:{" "}
                     <span className="font-medium">

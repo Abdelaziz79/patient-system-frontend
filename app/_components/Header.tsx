@@ -1,13 +1,15 @@
 // components/Header.tsx
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { HeartPulseIcon, MoonIcon, SunIcon } from "lucide-react";
+import { HeartPulseIcon, MoonIcon, SunIcon, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useThemeMode } from "../_hooks/useThemeMode";
 
 export default function Header() {
   const { mounted, theme, toggleTheme } = useThemeMode();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Don't render theme toggle until mounted to prevent hydration mismatch
   const renderThemeToggle = () => {
@@ -28,33 +30,85 @@ export default function Header() {
     );
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
     <header className="sticky top-0 w-full p-4 backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 border-b border-blue-100 dark:border-blue-900 z-20">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+      <div className="container mx-auto">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex justify-between items-center">
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+            >
+              المساعدة
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+            >
+              اتصل بنا
+            </Button>
+          </div>
+
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
           >
-            المساعدة
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
-          >
-            اتصل بنا
-          </Button>
+            <span className="font-bold text-xl">نظام المرضى</span>
+            <HeartPulseIcon className="h-6 w-6" />
+          </Link>
+
+          {renderThemeToggle()}
         </div>
 
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
-        >
-          <span className="font-bold text-xl"> نظام إدارة المرضى</span>
-          <HeartPulseIcon className="h-6 w-6" />
-        </Link>
+        {/* Mobile Navigation */}
+        <div className="flex md:hidden justify-between items-center">
+          <button
+            onClick={toggleMenu}
+            className="p-2 rounded-md text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
 
-        {renderThemeToggle()}
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
+          >
+            <span className="font-bold text-xl">نظام المرضى</span>
+            <HeartPulseIcon className="h-6 w-6" />
+          </Link>
+
+          {renderThemeToggle()}
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg">
+            <div className="flex flex-col space-y-2">
+              <Button
+                variant="ghost"
+                className="justify-start text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+              >
+                المساعدة
+              </Button>
+              <Button
+                variant="ghost"
+                className="justify-start text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+              >
+                اتصل بنا
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

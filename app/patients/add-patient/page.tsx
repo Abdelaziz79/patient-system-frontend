@@ -31,7 +31,7 @@ export default function AddPatientPage() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 py-12">
+    <div className="flex items-center justify-center p-2 sm:p-4 py-6 sm:py-12">
       {/* Background animation for the entire site */}
 
       <motion.div
@@ -41,31 +41,42 @@ export default function AddPatientPage() {
         className="z-10 w-full max-w-5xl"
       >
         <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
-          <CardHeader className="text-right">
-            <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+          <CardHeader className="text-right px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-300">
               إضافة مريض جديد
             </CardTitle>
-            <CardDescription className="text-blue-600 dark:text-blue-400">
+            <CardDescription className="text-blue-600 dark:text-blue-400 text-sm sm:text-base">
               أدخل بيانات المريض الأساسية والفحوصات الطبية
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Tabs defaultValue="basic" dir="rtl">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="basic">المعلومات الأساسية</TabsTrigger>
-                  <TabsTrigger value="vitals">العلامات الحيوية</TabsTrigger>
-                  <TabsTrigger value="labs">التحاليل المخبرية</TabsTrigger>
-                  <TabsTrigger value="treatment">التشخيص والعلاج</TabsTrigger>
+          <CardContent className="px-3 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <Tabs defaultValue="basic" dir="rtl" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-2">
+                  <TabsTrigger value="basic" className="text-xs sm:text-sm">
+                    المعلومات الأساسية
+                  </TabsTrigger>
+                  <TabsTrigger value="vitals" className="text-xs sm:text-sm">
+                    العلامات الحيوية
+                  </TabsTrigger>
+                  <TabsTrigger value="labs" className="text-xs sm:text-sm">
+                    التحاليل المخبرية
+                  </TabsTrigger>
+                  <TabsTrigger value="treatment" className="text-xs sm:text-sm">
+                    التشخيص والعلاج
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Basic Information Tab */}
-                <TabsContent value="basic" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="basic"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="patientName"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         اسم المريض
                       </Label>
@@ -73,7 +84,7 @@ export default function AddPatientPage() {
                         <Input
                           id="patientName"
                           placeholder="أدخل اسم المريض الكامل"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                           required
                           dir="rtl"
                         />
@@ -81,10 +92,10 @@ export default function AddPatientPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="patientId"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         رقم الملف
                       </Label>
@@ -92,7 +103,7 @@ export default function AddPatientPage() {
                         <Input
                           id="patientId"
                           placeholder="أدخل رقم ملف المريض"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                           required
                           dir="rtl"
                         />
@@ -100,10 +111,10 @@ export default function AddPatientPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="age"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         العمر
                       </Label>
@@ -111,22 +122,22 @@ export default function AddPatientPage() {
                         id="age"
                         type="number"
                         placeholder="أدخل عمر المريض"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         required
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="gender"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الجنس
                       </Label>
                       <select
                         id="gender"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       >
                         <option value="">اختر الجنس</option>
@@ -135,47 +146,47 @@ export default function AddPatientPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-1 sm:space-y-2 sm:col-span-2">
                       <Label
                         htmlFor="address"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         العنوان
                       </Label>
                       <Input
                         id="address"
                         placeholder="أدخل عنوان المريض"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="phone"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         رقم الهاتف
                       </Label>
                       <Input
                         id="phone"
                         placeholder="أدخل رقم هاتف المريض"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="date"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         تاريخ الزيارة
                       </Label>
                       <Input
                         id="date"
                         type="date"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         required
                         dir="rtl"
                       />
@@ -184,27 +195,30 @@ export default function AddPatientPage() {
                 </TabsContent>
 
                 {/* Vitals Tab */}
-                <TabsContent value="vitals" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="vitals"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="bp"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         ضغط الدم (BP)
                       </Label>
                       <Input
                         id="bp"
                         placeholder="مثال: 120/80"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="hr"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         معدل ضربات القلب (HR)
                       </Label>
@@ -212,15 +226,15 @@ export default function AddPatientPage() {
                         id="hr"
                         placeholder="مثال: 72"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="temp"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         درجة الحرارة (Temp)
                       </Label>
@@ -229,15 +243,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 37.0"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="rr"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         معدل التنفس (RR)
                       </Label>
@@ -245,15 +259,15 @@ export default function AddPatientPage() {
                         id="rr"
                         placeholder="مثال: 16"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="o2sat"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         تشبع الأكسجين (O2 sat)
                       </Label>
@@ -261,15 +275,15 @@ export default function AddPatientPage() {
                         id="o2sat"
                         placeholder="مثال: 98"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="gcs"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         مقياس غلاسكو (GCS)
                       </Label>
@@ -279,35 +293,38 @@ export default function AddPatientPage() {
                         type="number"
                         min="3"
                         max="15"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 mt-4">
+                  <div className="space-y-1 sm:space-y-2 mt-2 sm:mt-4">
                     <Label
                       htmlFor="examination"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       الفحص السريري
                     </Label>
                     <Textarea
                       id="examination"
                       placeholder="أدخل نتائج الفحص السريري"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                       dir="rtl"
                     />
                   </div>
                 </TabsContent>
 
                 {/* Labs Tab */}
-                <TabsContent value="labs" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="labs"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="hb"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الهيموغلوبين (HB)
                       </Label>
@@ -316,15 +333,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 14.5"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="wbc"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         خلايا الدم البيضاء (WBC)
                       </Label>
@@ -333,15 +350,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 7.5"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="plt"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الصفائح الدموية (PLT)
                       </Label>
@@ -349,15 +366,15 @@ export default function AddPatientPage() {
                         id="plt"
                         placeholder="مثال: 250"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="crp"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         بروتين سي التفاعلي (CRP)
                       </Label>
@@ -366,15 +383,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 0.5"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="urea"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         اليوريا (Urea)
                       </Label>
@@ -382,15 +399,15 @@ export default function AddPatientPage() {
                         id="urea"
                         placeholder="مثال: 25"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="creat"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الكرياتينين (Creat)
                       </Label>
@@ -399,15 +416,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 0.9"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="ast"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         AST
                       </Label>
@@ -415,15 +432,15 @@ export default function AddPatientPage() {
                         id="ast"
                         placeholder="مثال: 32"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="alt"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         ALT
                       </Label>
@@ -431,15 +448,15 @@ export default function AddPatientPage() {
                         id="alt"
                         placeholder="مثال: 28"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="na"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الصوديوم (Na)
                       </Label>
@@ -447,15 +464,15 @@ export default function AddPatientPage() {
                         id="na"
                         placeholder="مثال: 138"
                         type="number"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="k"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         البوتاسيوم (K)
                       </Label>
@@ -464,15 +481,15 @@ export default function AddPatientPage() {
                         placeholder="مثال: 4.2"
                         type="number"
                         step="0.1"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="troponin"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         التروبونين (Troponin)
                       </Label>
@@ -481,56 +498,59 @@ export default function AddPatientPage() {
                         placeholder="مثال: 0.01"
                         type="number"
                         step="0.01"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 mt-4">
+                  <div className="space-y-1 sm:space-y-2 mt-2 sm:mt-4">
                     <Label
                       htmlFor="otherLabs"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       تحاليل أخرى
                     </Label>
                     <Textarea
                       id="otherLabs"
                       placeholder="أدخل نتائج التحاليل الأخرى"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                       dir="rtl"
                     />
                   </div>
                 </TabsContent>
 
                 {/* Treatment Tab */}
-                <TabsContent value="treatment" className="space-y-4 mt-4">
-                  <div className="space-y-2">
+                <TabsContent
+                  value="treatment"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="space-y-1 sm:space-y-2">
                     <Label
                       htmlFor="diagnosis"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       التشخيص
                     </Label>
                     <Textarea
                       id="diagnosis"
                       placeholder="أدخل التشخيص"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                       dir="rtl"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="cardiacDiagnosis"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         التشخيص القلبي
                       </Label>
                       <select
                         id="cardiacDiagnosis"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                       >
                         <option value="">اختر التشخيص</option>
@@ -541,18 +561,19 @@ export default function AddPatientPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="investigations"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الفحوص المطلوبة
                       </Label>
                       <select
                         id="investigations"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                         dir="rtl"
                         multiple
+                        size={3}
                       >
                         <option value="ecg">تخطيط القلب (ECG)</option>
                         <option value="echo">ايكو القلب (ECHO)</option>
@@ -563,32 +584,32 @@ export default function AddPatientPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <Label
                       htmlFor="treatment"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       خطة العلاج
                     </Label>
                     <Textarea
                       id="treatment"
                       placeholder="أدخل خطة العلاج التفصيلية"
-                      className="text-right h-32 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right h-24 sm:h-32 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                       dir="rtl"
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <Label
                       htmlFor="notes"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       ملاحظات
                     </Label>
                     <Textarea
                       id="notes"
                       placeholder="أدخل أي ملاحظات إضافية"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm sm:text-base"
                       dir="rtl"
                     />
                   </div>
@@ -596,10 +617,10 @@ export default function AddPatientPage() {
               </Tabs>
             </form>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="px-4 sm:px-6 pt-2 sm:pt-4">
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white transition-all duration-200 font-bold"
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white transition-all duration-200 font-bold text-sm sm:text-base py-2 sm:py-3"
               onClick={handleSubmit}
               disabled={isLoading}
             >

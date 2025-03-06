@@ -1,4 +1,3 @@
-// app/add-doctor/page.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ export default function AddDoctorPage() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 py-12">
+    <div className="flex items-center justify-center p-2 sm:p-4 py-6 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,32 +46,42 @@ export default function AddDoctorPage() {
         className="z-10 w-full max-w-5xl"
       >
         <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
-          <CardHeader className="text-right">
-            <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+          <CardHeader className="text-right px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-300">
               إضافة طبيب جديد
             </CardTitle>
-            <CardDescription className="text-blue-600 dark:text-blue-400">
+            <CardDescription className="text-sm sm:text-base text-blue-600 dark:text-blue-400">
               أدخل بيانات الطبيب وتخصصه والمعلومات المهنية
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Tabs defaultValue="basic" dir="rtl">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="basic">المعلومات الأساسية</TabsTrigger>
-                  <TabsTrigger value="professional">
+          <CardContent className="px-4 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <Tabs defaultValue="basic" dir="rtl" className="w-full">
+                <TabsList className="w-full grid grid-cols-3 mb-2">
+                  <TabsTrigger value="basic" className="text-xs sm:text-sm">
+                    المعلومات الأساسية
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="professional"
+                    className="text-xs sm:text-sm"
+                  >
                     المعلومات المهنية
                   </TabsTrigger>
-                  <TabsTrigger value="schedule">جدول المواعيد</TabsTrigger>
+                  <TabsTrigger value="schedule" className="text-xs sm:text-sm">
+                    جدول المواعيد
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Basic Information Tab */}
-                <TabsContent value="basic" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="basic"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="doctorName"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         اسم الطبيب
                       </Label>
@@ -80,7 +89,7 @@ export default function AddDoctorPage() {
                         <Input
                           id="doctorName"
                           placeholder="أدخل اسم الطبيب الكامل"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           required
                           dir="rtl"
                         />
@@ -88,10 +97,10 @@ export default function AddDoctorPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="doctorId"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الرقم الوظيفي
                       </Label>
@@ -99,7 +108,7 @@ export default function AddDoctorPage() {
                         <Input
                           id="doctorId"
                           placeholder="أدخل الرقم الوظيفي للطبيب"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           required
                           dir="rtl"
                         />
@@ -107,16 +116,16 @@ export default function AddDoctorPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="specialty"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         التخصص
                       </Label>
                       <select
                         id="specialty"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                         required
                       >
@@ -133,16 +142,16 @@ export default function AddDoctorPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="gender"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الجنس
                       </Label>
                       <select
                         id="gender"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       >
                         <option value="">اختر الجنس</option>
@@ -151,10 +160,10 @@ export default function AddDoctorPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="phone"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         رقم الهاتف
                       </Label>
@@ -162,17 +171,17 @@ export default function AddDoctorPage() {
                         <Input
                           id="phone"
                           placeholder="أدخل رقم هاتف الطبيب"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           dir="rtl"
                         />
                         <PhoneIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="email"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         البريد الإلكتروني
                       </Label>
@@ -181,24 +190,24 @@ export default function AddDoctorPage() {
                           id="email"
                           type="email"
                           placeholder="أدخل البريد الإلكتروني للطبيب"
-                          className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           dir="rtl"
                         />
                         <MailIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
                     </div>
 
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-1 sm:space-y-2 col-span-1 sm:col-span-2">
                       <Label
                         htmlFor="address"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         العنوان
                       </Label>
                       <Input
                         id="address"
                         placeholder="أدخل عنوان الطبيب"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
@@ -206,18 +215,21 @@ export default function AddDoctorPage() {
                 </TabsContent>
 
                 {/* Professional Information Tab */}
-                <TabsContent value="professional" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="professional"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="qualification"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         المؤهل العلمي
                       </Label>
                       <select
                         id="qualification"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       >
                         <option value="">اختر المؤهل</option>
@@ -229,10 +241,10 @@ export default function AddDoctorPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="graduationYear"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         سنة التخرج
                       </Label>
@@ -240,81 +252,81 @@ export default function AddDoctorPage() {
                         id="graduationYear"
                         type="number"
                         placeholder="أدخل سنة التخرج"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="university"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الجامعة
                       </Label>
                       <Input
                         id="university"
                         placeholder="أدخل اسم الجامعة"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="licenseNumber"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         رقم الترخيص المهني
                       </Label>
                       <Input
                         id="licenseNumber"
                         placeholder="أدخل رقم الترخيص المهني"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="licenseExpiry"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         تاريخ انتهاء الترخيص
                       </Label>
                       <Input
                         id="licenseExpiry"
                         type="date"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="department"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         القسم
                       </Label>
                       <Input
                         id="department"
                         placeholder="أدخل اسم القسم"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="position"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         المنصب
                       </Label>
                       <select
                         id="position"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       >
                         <option value="">اختر المنصب</option>
@@ -326,10 +338,10 @@ export default function AddDoctorPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="yearsOfExperience"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         سنوات الخبرة
                       </Label>
@@ -337,16 +349,16 @@ export default function AddDoctorPage() {
                         id="yearsOfExperience"
                         type="number"
                         placeholder="أدخل عدد سنوات الخبرة"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 mt-4">
+                  <div className="space-y-1 sm:space-y-2 mt-2 sm:mt-4">
                     <Label
                       htmlFor="biography"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       السيرة الذاتية
                     </Label>
@@ -354,40 +366,43 @@ export default function AddDoctorPage() {
                       <Textarea
                         id="biography"
                         placeholder="أدخل نبذة عن السيرة الذاتية للطبيب"
-                        className="text-right h-24 pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base h-20 sm:h-24 pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                         dir="rtl"
                       />
                       <BookIcon className="absolute right-3 top-3 h-4 w-4 text-blue-500 dark:text-blue-400" />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <Label
                       htmlFor="specialInterests"
-                      className="text-right block dark:text-gray-200"
+                      className="text-right block dark:text-gray-200 text-sm sm:text-base"
                     >
                       الاهتمامات الخاصة
                     </Label>
                     <Textarea
                       id="specialInterests"
                       placeholder="أدخل الاهتمامات المهنية الخاصة للطبيب"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      className="text-right text-sm sm:text-base h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                       dir="rtl"
                     />
                   </div>
                 </TabsContent>
 
                 {/* Schedule Tab */}
-                <TabsContent value="schedule" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                    <div className="space-y-2">
+                <TabsContent
+                  value="schedule"
+                  className="space-y-3 sm:space-y-4 mt-2 sm:mt-4"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-right">
+                    <div className="space-y-1 sm:space-y-2 col-span-1 sm:col-span-2">
                       <Label
                         htmlFor="workDays"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         أيام العمل
                       </Label>
-                      <div className="flex flex-wrap gap-2 justify-end">
+                      <div className="flex flex-wrap gap-1 sm:gap-2 justify-end text-xs sm:text-sm">
                         {[
                           "الأحد",
                           "الإثنين",
@@ -399,7 +414,7 @@ export default function AddDoctorPage() {
                         ].map((day) => (
                           <div
                             key={day}
-                            className="flex items-center space-x-2 space-x-reverse"
+                            className="flex items-center space-x-1 sm:space-x-2 space-x-reverse"
                           >
                             <input
                               type="checkbox"
@@ -408,7 +423,7 @@ export default function AddDoctorPage() {
                             />
                             <label
                               htmlFor={`day-${day}`}
-                              className="text-sm dark:text-gray-200"
+                              className="text-xs sm:text-sm dark:text-gray-200"
                             >
                               {day}
                             </label>
@@ -417,16 +432,16 @@ export default function AddDoctorPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="clinicLocation"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         موقع العيادة
                       </Label>
                       <select
                         id="clinicLocation"
-                        className="w-full rounded-md border text-right px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       >
                         <option value="">اختر الموقع</option>
@@ -437,70 +452,10 @@ export default function AddDoctorPage() {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="morningShiftStart"
-                        className="text-right block dark:text-gray-200"
-                      >
-                        بداية الفترة الصباحية
-                      </Label>
-                      <Input
-                        id="morningShiftStart"
-                        type="time"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="morningShiftEnd"
-                        className="text-right block dark:text-gray-200"
-                      >
-                        نهاية الفترة الصباحية
-                      </Label>
-                      <Input
-                        id="morningShiftEnd"
-                        type="time"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="eveningShiftStart"
-                        className="text-right block dark:text-gray-200"
-                      >
-                        بداية الفترة المسائية
-                      </Label>
-                      <Input
-                        id="eveningShiftStart"
-                        type="time"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="eveningShiftEnd"
-                        className="text-right block dark:text-gray-200"
-                      >
-                        نهاية الفترة المسائية
-                      </Label>
-                      <Input
-                        id="eveningShiftEnd"
-                        type="time"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="appointmentDuration"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         مدة الموعد (دقائق)
                       </Label>
@@ -508,15 +463,75 @@ export default function AddDoctorPage() {
                         id="appointmentDuration"
                         type="number"
                         placeholder="مثال: 15"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label
+                        htmlFor="morningShiftStart"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
+                      >
+                        بداية الفترة الصباحية
+                      </Label>
+                      <Input
+                        id="morningShiftStart"
+                        type="time"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label
+                        htmlFor="morningShiftEnd"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
+                      >
+                        نهاية الفترة الصباحية
+                      </Label>
+                      <Input
+                        id="morningShiftEnd"
+                        type="time"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label
+                        htmlFor="eveningShiftStart"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
+                      >
+                        بداية الفترة المسائية
+                      </Label>
+                      <Input
+                        id="eveningShiftStart"
+                        type="time"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label
+                        htmlFor="eveningShiftEnd"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
+                      >
+                        نهاية الفترة المسائية
+                      </Label>
+                      <Input
+                        id="eveningShiftEnd"
+                        type="time"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:space-y-2">
                       <Label
                         htmlFor="maxAppointmentsPerDay"
-                        className="text-right block dark:text-gray-200"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
                       >
                         الحد الأقصى للمواعيد اليومية
                       </Label>
@@ -524,34 +539,34 @@ export default function AddDoctorPage() {
                         id="maxAppointmentsPerDay"
                         type="number"
                         placeholder="مثال: 20"
-                        className="text-right focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                         dir="rtl"
                       />
                     </div>
-                  </div>
 
-                  <div className="space-y-2 mt-4">
-                    <Label
-                      htmlFor="scheduleNotes"
-                      className="text-right block dark:text-gray-200"
-                    >
-                      ملاحظات على الجدول
-                    </Label>
-                    <Textarea
-                      id="scheduleNotes"
-                      placeholder="أدخل أي ملاحظات خاصة بجدول الطبيب"
-                      className="text-right h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                      dir="rtl"
-                    />
+                    <div className="space-y-1 sm:space-y-2 col-span-1 sm:col-span-2">
+                      <Label
+                        htmlFor="scheduleNotes"
+                        className="text-right block dark:text-gray-200 text-sm sm:text-base"
+                      >
+                        ملاحظات على الجدول
+                      </Label>
+                      <Textarea
+                        id="scheduleNotes"
+                        placeholder="أدخل أي ملاحظات خاصة بجدول الطبيب"
+                        className="text-right text-sm sm:text-base h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        dir="rtl"
+                      />
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
             </form>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="px-4 sm:px-6">
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white transition-all duration-200 font-bold"
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white transition-all duration-200 font-bold text-sm sm:text-base py-2 h-9 sm:h-10"
               onClick={handleSubmit}
               disabled={isLoading}
             >

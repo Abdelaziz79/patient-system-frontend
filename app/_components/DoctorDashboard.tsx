@@ -63,7 +63,7 @@ export default function DoctorDashboardPage() {
   }, []);
 
   const handleAddDoctor = () => {
-    router.push("/add-doctor");
+    router.push("/doctors/add-doctor");
   };
 
   const handleViewDoctors = () => {

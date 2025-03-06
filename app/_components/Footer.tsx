@@ -4,9 +4,10 @@ import { HeartPulseIcon } from "lucide-react";
 function Footer() {
   return (
     <footer className="w-full backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 border-t border-blue-100 dark:border-blue-900 z-10">
-      <div className="container mx-auto p-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-center md:text-right order-2 md:order-1">
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Logo and description - stacked on mobile, right-aligned on desktop */}
+          <div className="w-full md:w-auto text-center md:text-right order-2 md:order-1">
             <div className="flex items-center justify-center md:justify-end gap-2 text-blue-700 dark:text-blue-300 mb-2">
               <span className="font-bold">نظام المرضى</span>
               <HeartPulseIcon className="h-5 w-5" />
@@ -16,7 +17,8 @@ function Footer() {
             </p>
           </div>
 
-          <div className="flex gap-6 order-1 md:order-2">
+          {/* Links section - grid on mobile, flex on desktop */}
+          <div className="w-full md:w-auto grid grid-cols-2 gap-6 md:flex md:gap-8 order-1 md:order-2">
             <div className="text-right">
               <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
                 المساعدة
@@ -83,7 +85,7 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-4 border-t border-blue-100 dark:border-blue-900 text-center text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-6 md:mt-8 pt-4 border-t border-blue-100 dark:border-blue-900 text-center text-xs text-gray-500 dark:text-gray-400">
           <p>© {new Date().getFullYear()} نظام المرضى - جميع الحقوق محفوظة</p>
         </div>
       </div>
