@@ -56,7 +56,7 @@ export default function AddDoctorPage() {
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-              <Tabs defaultValue="basic" dir="rtl" className="w-full">
+              <Tabs defaultValue="basic" className="w-full">
                 <TabsList className="w-full grid grid-cols-3 mb-2">
                   <TabsTrigger value="basic" className="text-xs sm:text-sm">
                     المعلومات الأساسية
@@ -91,7 +91,6 @@ export default function AddDoctorPage() {
                           placeholder="أدخل اسم الطبيب الكامل"
                           className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           required
-                          dir="rtl"
                         />
                         <UserPlusIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
@@ -110,7 +109,6 @@ export default function AddDoctorPage() {
                           placeholder="أدخل الرقم الوظيفي للطبيب"
                           className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
                           required
-                          dir="rtl"
                         />
                         <BadgeIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
@@ -126,7 +124,6 @@ export default function AddDoctorPage() {
                       <select
                         id="specialty"
                         className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                         required
                       >
                         <option value="">اختر التخصص</option>
@@ -152,7 +149,6 @@ export default function AddDoctorPage() {
                       <select
                         id="gender"
                         className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       >
                         <option value="">اختر الجنس</option>
                         <option value="male">ذكر</option>
@@ -172,7 +168,6 @@ export default function AddDoctorPage() {
                           id="phone"
                           placeholder="أدخل رقم هاتف الطبيب"
                           className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                          dir="rtl"
                         />
                         <PhoneIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
@@ -191,7 +186,6 @@ export default function AddDoctorPage() {
                           type="email"
                           placeholder="أدخل البريد الإلكتروني للطبيب"
                           className="text-right pr-10 text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                          dir="rtl"
                         />
                         <MailIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                       </div>
@@ -208,7 +202,6 @@ export default function AddDoctorPage() {
                         id="address"
                         placeholder="أدخل عنوان الطبيب"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
                   </div>
@@ -230,7 +223,6 @@ export default function AddDoctorPage() {
                       <select
                         id="qualification"
                         className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       >
                         <option value="">اختر المؤهل</option>
                         <option value="md">بكالوريوس طب وجراحة</option>
@@ -253,7 +245,6 @@ export default function AddDoctorPage() {
                         type="number"
                         placeholder="أدخل سنة التخرج"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -268,7 +259,6 @@ export default function AddDoctorPage() {
                         id="university"
                         placeholder="أدخل اسم الجامعة"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -283,7 +273,6 @@ export default function AddDoctorPage() {
                         id="licenseNumber"
                         placeholder="أدخل رقم الترخيص المهني"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -298,7 +287,6 @@ export default function AddDoctorPage() {
                         id="licenseExpiry"
                         type="date"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -313,7 +301,6 @@ export default function AddDoctorPage() {
                         id="department"
                         placeholder="أدخل اسم القسم"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -327,7 +314,6 @@ export default function AddDoctorPage() {
                       <select
                         id="position"
                         className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       >
                         <option value="">اختر المنصب</option>
                         <option value="resident">طبيب مقيم</option>
@@ -350,7 +336,6 @@ export default function AddDoctorPage() {
                         type="number"
                         placeholder="أدخل عدد سنوات الخبرة"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
                   </div>
@@ -367,7 +352,6 @@ export default function AddDoctorPage() {
                         id="biography"
                         placeholder="أدخل نبذة عن السيرة الذاتية للطبيب"
                         className="text-right text-sm sm:text-base h-20 sm:h-24 pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
                       />
                       <BookIcon className="absolute right-3 top-3 h-4 w-4 text-blue-500 dark:text-blue-400" />
                     </div>
@@ -384,7 +368,6 @@ export default function AddDoctorPage() {
                       id="specialInterests"
                       placeholder="أدخل الاهتمامات المهنية الخاصة للطبيب"
                       className="text-right text-sm sm:text-base h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                      dir="rtl"
                     />
                   </div>
                 </TabsContent>
@@ -442,7 +425,6 @@ export default function AddDoctorPage() {
                       <select
                         id="clinicLocation"
                         className="w-full rounded-md border text-right px-3 py-1 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       >
                         <option value="">اختر الموقع</option>
                         <option value="mainBuilding">المبنى الرئيسي</option>
@@ -464,7 +446,6 @@ export default function AddDoctorPage() {
                         type="number"
                         placeholder="مثال: 15"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -479,7 +460,6 @@ export default function AddDoctorPage() {
                         id="morningShiftStart"
                         type="time"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -494,7 +474,6 @@ export default function AddDoctorPage() {
                         id="morningShiftEnd"
                         type="time"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -509,7 +488,6 @@ export default function AddDoctorPage() {
                         id="eveningShiftStart"
                         type="time"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -524,7 +502,6 @@ export default function AddDoctorPage() {
                         id="eveningShiftEnd"
                         type="time"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -540,7 +517,6 @@ export default function AddDoctorPage() {
                         type="number"
                         placeholder="مثال: 20"
                         className="text-right text-sm sm:text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white h-9 sm:h-10"
-                        dir="rtl"
                       />
                     </div>
 
@@ -555,7 +531,6 @@ export default function AddDoctorPage() {
                         id="scheduleNotes"
                         placeholder="أدخل أي ملاحظات خاصة بجدول الطبيب"
                         className="text-right text-sm sm:text-base h-20 sm:h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                        dir="rtl"
                       />
                     </div>
                   </div>

@@ -303,10 +303,7 @@ export default function PatientsPage() {
   };
 
   return (
-    <div
-      className="min-h-screen dark:from-slate-900 dark:to-slate-800"
-      dir="rtl"
-    >
+    <div className="min-h-screen dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

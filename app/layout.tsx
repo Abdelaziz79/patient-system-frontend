@@ -29,13 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${cairo.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div
-            className="font-cairo min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative"
-            dir="rtl"
-          >
+          <div className="font-cairo min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
             {/* Sidebar */}
             <Sidebar />
 

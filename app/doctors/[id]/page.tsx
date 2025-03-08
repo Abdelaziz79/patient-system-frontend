@@ -121,7 +121,7 @@ export default function DoctorDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen" dir="rtl">
+      <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
     );
@@ -129,7 +129,7 @@ export default function DoctorDetailsPage() {
 
   if (!doctor) {
     return (
-      <div className="flex items-center justify-center h-screen" dir="rtl">
+      <div className="flex items-center justify-center h-screen">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-red-600">
@@ -178,7 +178,7 @@ export default function DoctorDetailsPage() {
   );
 
   return (
-    <div className="flex items-center justify-center p-4 py-6" dir="rtl">
+    <div className="flex items-center justify-center p-4 py-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -71,7 +71,7 @@ export default function DoctorDashboardPage() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 py-6" dir="rtl">
+    <div className="flex items-center justify-center p-4 py-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

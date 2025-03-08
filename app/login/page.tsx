@@ -59,7 +59,6 @@ export default function LoginPage() {
                     placeholder="أدخل اسم المستخدم"
                     className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
-                    dir="rtl"
                   />
                   <UserIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                 </div>
@@ -78,7 +77,6 @@ export default function LoginPage() {
                     placeholder="أدخل كلمة المرور"
                     className="text-right pr-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
-                    dir="rtl"
                   />
                   <KeyIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <button
