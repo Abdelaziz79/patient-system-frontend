@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRightIcon, HomeIcon } from "lucide-react";
+import { ArrowLeftIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function NotFoundPage() {
@@ -98,7 +98,7 @@ export default function NotFoundPage() {
           transition={{ delay: 0.5 }}
           className="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-white"
         >
-          الصفحة غير موجودة
+          Page Not Found
         </motion.h1>
 
         <motion.p
@@ -107,7 +107,8 @@ export default function NotFoundPage() {
           transition={{ delay: 0.7 }}
           className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-lg mx-auto"
         >
-          عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها أو حذفها.
+          Sorry, the page you are looking for doesn&apos;t exist, has been
+          moved, or deleted.
         </motion.p>
 
         <motion.div
@@ -119,7 +120,7 @@ export default function NotFoundPage() {
           <Link href="/" passHref>
             <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white flex items-center gap-2 px-6">
               <HomeIcon className="h-4 w-4" />
-              <span>العودة للصفحة الرئيسية</span>
+              <span>Return to Home</span>
             </Button>
           </Link>
 
@@ -128,8 +129,8 @@ export default function NotFoundPage() {
             className="border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/50 flex items-center gap-2 px-6"
             onClick={() => window.history.back()}
           >
-            <span>العودة للصفحة السابقة</span>
-            <ArrowRightIcon className="h-4 w-4" />
+            <ArrowLeftIcon className="h-4 w-4" />
+            <span>Go Back</span>
           </Button>
         </motion.div>
       </motion.div>

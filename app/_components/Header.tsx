@@ -1,6 +1,5 @@
 // components/Header.tsx
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HeartPulseIcon, MoonIcon, SunIcon, Menu, X } from "lucide-react";
@@ -14,7 +13,6 @@ export default function Header() {
   // Don't render theme toggle until mounted to prevent hydration mismatch
   const renderThemeToggle = () => {
     if (!mounted) return null;
-
     return (
       <button
         onClick={toggleTheme}
@@ -44,24 +42,22 @@ export default function Header() {
               variant="ghost"
               className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
-              المساعدة
+              Help
             </Button>
             <Button
               variant="ghost"
               className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
-              اتصل بنا
+              Contact Us
             </Button>
           </div>
-
           <Link
             href="/"
             className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
           >
-            <span className="font-bold text-xl">نظام المرضى</span>
+            <span className="font-bold text-xl">Patient System</span>
             <HeartPulseIcon className="h-6 w-6" />
           </Link>
-
           {renderThemeToggle()}
         </div>
 
@@ -78,15 +74,13 @@ export default function Header() {
               <Menu className="h-6 w-6" />
             )}
           </button>
-
           <Link
             href="/"
             className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
           >
-            <span className="font-bold text-xl">نظام المرضى</span>
+            <span className="font-bold text-xl">Patient System</span>
             <HeartPulseIcon className="h-6 w-6" />
           </Link>
-
           {renderThemeToggle()}
         </div>
 
@@ -98,13 +92,13 @@ export default function Header() {
                 variant="ghost"
                 className="justify-start text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
               >
-                المساعدة
+                Help
               </Button>
               <Button
                 variant="ghost"
                 className="justify-start text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
               >
-                اتصل بنا
+                Contact Us
               </Button>
             </div>
           </div>

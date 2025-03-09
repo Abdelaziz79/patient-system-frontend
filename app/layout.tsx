@@ -13,6 +13,7 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
+
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: "--font-cairo",
@@ -20,8 +21,9 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "نظام إدارة المرضى",
-  description: "منصة متكاملة لإدارة المرضى والمواعيد الطبية",
+  title: "Patient Management System",
+  description:
+    "Integrated platform for patient and medical appointment management",
 };
 
 export default function RootLayout({
@@ -34,12 +36,12 @@ export default function RootLayout({
       <body className={`${inter.variable} ${cairo.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <PatientProvider>
-            <div className="font-cairo min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
+            <div className="font-inter min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
               {/* Sidebar */}
               <Sidebar />
 
               {/* Main content container - adjust margin for sidebar */}
-              <div className="flex flex-col flex-1 lg:mr-[70px] transition-all duration-300">
+              <div className="flex flex-col flex-1 lg:ml-[70px] transition-all duration-300">
                 {/* Header */}
                 <Header />
 
