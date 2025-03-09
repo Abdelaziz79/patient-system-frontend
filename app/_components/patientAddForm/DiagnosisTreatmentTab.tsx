@@ -1,23 +1,27 @@
 "use client";
 
+import { useDiagnosisTreatment } from "@/app/_contexts/NewPatientContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 
 function DiagnosisTreatmentTab() {
-  // States for diagnosis and treatment
-  const [diagnosis, setDiagnosis] = useState("");
-  const [differentialDiagnosis, setDifferentialDiagnosis] = useState("");
-  const [treatmentApproach, setTreatmentApproach] = useState("");
-  const [currentMedications, setCurrentMedications] = useState("");
-  const [ivFluids, setIvFluids] = useState("");
-  const [antibiotics, setAntibiotics] = useState("");
-  const [oxygenTherapy, setOxygenTherapy] = useState("");
-  const [treatmentPlan, setTreatmentPlan] = useState("");
-  const [followUpPlan, setFollowUpPlan] = useState("");
-  const [notes, setNotes] = useState("");
+  const {
+    diagnosisAndTreatment: {
+      diagnosis,
+      differentialDiagnosis,
+      treatmentApproach,
+      currentMedications,
+      antibiotics,
+      followUpPlan,
+      ivFluids,
+      notes,
+      oxygenTherapy,
+      treatmentPlan,
+    },
+    updateDiagnosisTreatment,
+  } = useDiagnosisTreatment();
 
   return (
     <TabsContent value="diagnosistreatment" className="space-y-6 mt-4">
@@ -39,7 +43,9 @@ function DiagnosisTreatmentTab() {
               <Textarea
                 id="diagnosis"
                 value={diagnosis}
-                onChange={(e) => setDiagnosis(e.target.value)}
+                onChange={(e) =>
+                  updateDiagnosisTreatment("diagnosis", e.target.value)
+                }
                 placeholder="Enter primary diagnosis"
                 className="h-20 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />
@@ -55,7 +61,12 @@ function DiagnosisTreatmentTab() {
               <Textarea
                 id="differentialDiagnosis"
                 value={differentialDiagnosis}
-                onChange={(e) => setDifferentialDiagnosis(e.target.value)}
+                onChange={(e) =>
+                  updateDiagnosisTreatment(
+                    "differentialDiagnosis",
+                    e.target.value
+                  )
+                }
                 placeholder="Enter differential diagnoses"
                 className="h-20 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />
@@ -82,7 +93,9 @@ function DiagnosisTreatmentTab() {
               <Textarea
                 id="treatmentApproach"
                 value={treatmentApproach}
-                onChange={(e) => setTreatmentApproach(e.target.value)}
+                onChange={(e) =>
+                  updateDiagnosisTreatment("treatmentApproach", e.target.value)
+                }
                 placeholder="Enter overall treatment approach"
                 className="h-20 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />
@@ -99,7 +112,12 @@ function DiagnosisTreatmentTab() {
                 <Textarea
                   id="currentMedications"
                   value={currentMedications}
-                  onChange={(e) => setCurrentMedications(e.target.value)}
+                  onChange={(e) =>
+                    updateDiagnosisTreatment(
+                      "currentMedications",
+                      e.target.value
+                    )
+                  }
                   placeholder="List current medications with dosages"
                   className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
                 />
@@ -115,7 +133,9 @@ function DiagnosisTreatmentTab() {
                 <Textarea
                   id="ivFluids"
                   value={ivFluids}
-                  onChange={(e) => setIvFluids(e.target.value)}
+                  onChange={(e) =>
+                    updateDiagnosisTreatment("ivFluids", e.target.value)
+                  }
                   placeholder="Specify IV fluids type, rate, and additives"
                   className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
                 />
@@ -131,7 +151,9 @@ function DiagnosisTreatmentTab() {
                 <Textarea
                   id="antibiotics"
                   value={antibiotics}
-                  onChange={(e) => setAntibiotics(e.target.value)}
+                  onChange={(e) =>
+                    updateDiagnosisTreatment("antibiotics", e.target.value)
+                  }
                   placeholder="Specify antimicrobial regimen, duration"
                   className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
                 />
@@ -147,7 +169,9 @@ function DiagnosisTreatmentTab() {
                 <Textarea
                   id="oxygenTherapy"
                   value={oxygenTherapy}
-                  onChange={(e) => setOxygenTherapy(e.target.value)}
+                  onChange={(e) =>
+                    updateDiagnosisTreatment("oxygenTherapy", e.target.value)
+                  }
                   placeholder="Specify oxygen delivery method, ventilator settings, etc."
                   className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
                 />
@@ -175,7 +199,9 @@ function DiagnosisTreatmentTab() {
               <Textarea
                 id="treatmentPlan"
                 value={treatmentPlan}
-                onChange={(e) => setTreatmentPlan(e.target.value)}
+                onChange={(e) =>
+                  updateDiagnosisTreatment("treatmentPlan", e.target.value)
+                }
                 placeholder="Outline comprehensive treatment plan and goals"
                 className="h-32 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />
@@ -191,7 +217,9 @@ function DiagnosisTreatmentTab() {
               <Textarea
                 id="followUpPlan"
                 value={followUpPlan}
-                onChange={(e) => setFollowUpPlan(e.target.value)}
+                onChange={(e) =>
+                  updateDiagnosisTreatment("followUpPlan", e.target.value)
+                }
                 placeholder="Specify follow-up schedule and monitoring plan"
                 className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />
@@ -217,7 +245,9 @@ function DiagnosisTreatmentTab() {
             <Textarea
               id="notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) =>
+                updateDiagnosisTreatment("notes", e.target.value)
+              }
               placeholder="Enter any additional information, concerns, or special instructions"
               className="h-32 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
             />

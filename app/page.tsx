@@ -1,10 +1,10 @@
-import DoctorDashboardPage from "./_components/DoctorDashboard";
-import PatientDashboardPage from "./_components/PatientDashboard";
+// import DoctorDashboardPage from "@/app/_components/DoctorDashboard";
+import PatientDashboardPage from "@/app/_components/PatientDashboard";
 
 function page() {
   return (
     <div>
-      <DoctorDashboardPage />
+      {/* <DoctorDashboardPage /> */}
       <PatientDashboardPage />
     </div>
   );

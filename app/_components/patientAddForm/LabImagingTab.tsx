@@ -1,94 +1,96 @@
 "use client";
 
+import {
+  useImagingResults,
+  useLabResults,
+} from "@/app/_contexts/NewPatientContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import React, { useState } from "react";
 
 type Test = {
   id: string;
   label: string;
   state: string;
-  setState: React.Dispatch<React.SetStateAction<string>>;
+  setState: (value: string) => void;
   unit?: string;
 };
 
 function LabImagingTab() {
-  // States for lab results - CBC
-  const [tlc, setTlc] = useState("");
-  const [hb, setHb] = useState("");
-  const [plt, setPlt] = useState("");
-  const [crp, setCrp] = useState("");
+  const {
+    labResults: {
+      alb,
+      alt,
+      ast,
+      ca,
+      ck,
+      ckmb,
+      co2,
+      creat,
+      crp,
+      hb,
+      hco3,
+      inr,
+      k,
+      lactate,
+      na,
+      o2sat,
+      ph,
+      plt,
+      pt,
+      ptt,
+      trop,
+      urea,
+      tlc,
+    },
+    updateLabResult,
+  } = useLabResults();
 
-  // States for lab results - Chemistry
-  const [urea, setUrea] = useState("");
-  const [creat, setCreat] = useState("");
-  const [na, setNa] = useState("");
-  const [k, setK] = useState("");
-  const [ca, setCa] = useState("");
-  const [alt, setAlt] = useState("");
-  const [ast, setAst] = useState("");
-  const [alb, setAlb] = useState("");
-
-  // States for lab results - Cardiac enzymes
-  const [ck, setCk] = useState("");
-  const [ckmb, setCkmb] = useState("");
-  const [trop, setTrop] = useState("");
-
-  // States for lab results - ABG
-  const [ph, setPh] = useState("");
-  const [co2, setCo2] = useState("");
-  const [hco3, setHco3] = useState("");
-  const [lactate, setLactate] = useState("");
-  const [o2sat, setO2sat] = useState("");
-
-  // States for lab results - Coagulation
-  const [pt, setPt] = useState("");
-  const [ptt, setPtt] = useState("");
-  const [inr, setInr] = useState("");
-
-  // States for imaging results
-  const [ctBrain, setCtBrain] = useState("");
-  const [ctChest, setCtChest] = useState("");
-  const [cxr, setCxr] = useState("");
-  const [us, setUs] = useState("");
-  const [dupplex, setDupplex] = useState("");
-  const [ecg, setEcg] = useState("");
-  const [echo, setEcho] = useState("");
-  const [mpi, setMpi] = useState("");
-  const [ctAngio, setCtAngio] = useState("");
-  const [others, setOthers] = useState("");
-
+  const {
+    imagingResults: {
+      ctBrain,
+      ctChest,
+      cxr,
+      us,
+      dupplex,
+      ecg,
+      echo,
+      mpi,
+      ctAngio,
+      others,
+    },
+    updateImagingResult,
+  } = useImagingResults();
   // Define lab tests for cleaner rendering
   const cbcTests = [
     {
       id: "tlc",
       label: "TLC (Total Leukocyte Count)",
       state: tlc,
-      setState: setTlc,
+      setState: (value: string) => updateLabResult("tlc", value),
       unit: "×10³/μL",
     },
     {
       id: "hb",
       label: "Hb (Hemoglobin)",
       state: hb,
-      setState: setHb,
+      setState: (value: string) => updateLabResult("hb", value),
       unit: "g/dL",
     },
     {
       id: "plt",
       label: "PLT (Platelets)",
       state: plt,
-      setState: setPlt,
+      setState: (value: string) => updateLabResult("plt", value),
       unit: "×10³/μL",
     },
     {
       id: "crp",
       label: "CRP (C-Reactive Protein)",
       state: crp,
-      setState: setCrp,
+      setState: (value: string) => updateLabResult("crp", value),
       unit: "mg/L",
     },
   ];
@@ -98,56 +100,56 @@ function LabImagingTab() {
       id: "urea",
       label: "Urea",
       state: urea,
-      setState: setUrea,
+      setState: (value: string) => updateLabResult("urea", value),
       unit: "mg/dL",
     },
     {
       id: "creat",
       label: "Creatinine",
       state: creat,
-      setState: setCreat,
+      setState: (value: string) => updateLabResult("creat", value),
       unit: "mg/dL",
     },
     {
       id: "na",
       label: "Na (Sodium)",
       state: na,
-      setState: setNa,
+      setState: (value: string) => updateLabResult("na", value),
       unit: "mEq/L",
     },
     {
       id: "k",
       label: "K (Potassium)",
       state: k,
-      setState: setK,
+      setState: (value: string) => updateLabResult("k", value),
       unit: "mEq/L",
     },
     {
       id: "ca",
       label: "Ca (Calcium)",
       state: ca,
-      setState: setCa,
+      setState: (value: string) => updateLabResult("ca", value),
       unit: "mg/dL",
     },
     {
       id: "alt",
       label: "ALT (Alanine Transaminase)",
       state: alt,
-      setState: setAlt,
+      setState: (value: string) => updateLabResult("alt", value),
       unit: "U/L",
     },
     {
       id: "ast",
       label: "AST (Aspartate Transaminase)",
       state: ast,
-      setState: setAst,
+      setState: (value: string) => updateLabResult("ast", value),
       unit: "U/L",
     },
     {
       id: "alb",
       label: "Alb (Albumin)",
       state: alb,
-      setState: setAlb,
+      setState: (value: string) => updateLabResult("alb", value),
       unit: "g/dL",
     },
   ];
@@ -157,21 +159,21 @@ function LabImagingTab() {
       id: "ck",
       label: "CK (Creatine Kinase)",
       state: ck,
-      setState: setCk,
+      setState: (value: string) => updateLabResult("ck", value),
       unit: "U/L",
     },
     {
       id: "ckmb",
       label: "CK-MB",
       state: ckmb,
-      setState: setCkmb,
+      setState: (value: string) => updateLabResult("ckmb", value),
       unit: "ng/mL",
     },
     {
       id: "trop",
       label: "Troponin",
       state: trop,
-      setState: setTrop,
+      setState: (value: string) => updateLabResult("trop", value),
       unit: "ng/mL",
     },
   ];
@@ -181,35 +183,35 @@ function LabImagingTab() {
       id: "ph",
       label: "pH",
       state: ph,
-      setState: setPh,
+      setState: (value: string) => updateLabResult("ph", value),
       unit: "",
     },
     {
       id: "co2",
       label: "CO₂",
       state: co2,
-      setState: setCo2,
+      setState: (value: string) => updateLabResult("co2", value),
       unit: "mmHg",
     },
     {
       id: "hco3",
       label: "HCO₃",
       state: hco3,
-      setState: setHco3,
+      setState: (value: string) => updateLabResult("hco3", value),
       unit: "mEq/L",
     },
     {
       id: "lactate",
       label: "Lactate",
       state: lactate,
-      setState: setLactate,
+      setState: (value: string) => updateLabResult("lactate", value),
       unit: "mmol/L",
     },
     {
       id: "o2sat",
       label: "O₂ Saturation",
       state: o2sat,
-      setState: setO2sat,
+      setState: (value: string) => updateLabResult("o2sat", value),
       unit: "%",
     },
   ];
@@ -219,21 +221,21 @@ function LabImagingTab() {
       id: "pt",
       label: "PT (Prothrombin Time)",
       state: pt,
-      setState: setPt,
+      setState: (value: string) => updateLabResult("pt", value),
       unit: "sec",
     },
     {
       id: "ptt",
       label: "PTT (Partial Thromboplastin Time)",
       state: ptt,
-      setState: setPtt,
+      setState: (value: string) => updateLabResult("ptt", value),
       unit: "sec",
     },
     {
       id: "inr",
       label: "INR (International Normalized Ratio)",
       state: inr,
-      setState: setInr,
+      setState: (value: string) => updateLabResult("inr", value),
       unit: "",
     },
   ];
@@ -244,55 +246,55 @@ function LabImagingTab() {
       id: "ctBrain",
       label: "CT Brain",
       state: ctBrain,
-      setState: setCtBrain,
+      setState: (value: string) => updateImagingResult("ctBrain", value),
     },
     {
       id: "ctChest",
       label: "CT Chest",
       state: ctChest,
-      setState: setCtChest,
+      setState: (value: string) => updateImagingResult("ctChest", value),
     },
     {
       id: "cxr",
       label: "CXR (Chest X-Ray)",
       state: cxr,
-      setState: setCxr,
+      setState: (value: string) => updateImagingResult("cxr", value),
     },
     {
       id: "us",
       label: "U/S (Ultrasound)",
       state: us,
-      setState: setUs,
+      setState: (value: string) => updateImagingResult("us", value),
     },
     {
       id: "dupplex",
       label: "Duplex",
       state: dupplex,
-      setState: setDupplex,
+      setState: (value: string) => updateImagingResult("dupplex", value),
     },
     {
       id: "ecg",
       label: "ECG",
       state: ecg,
-      setState: setEcg,
+      setState: (value: string) => updateImagingResult("ecg", value),
     },
     {
       id: "echo",
       label: "ECHO",
       state: echo,
-      setState: setEcho,
+      setState: (value: string) => updateImagingResult("echo", value),
     },
     {
       id: "mpi",
       label: "MPI (Myocardial Perfusion Imaging)",
       state: mpi,
-      setState: setMpi,
+      setState: (value: string) => updateImagingResult("mpi", value),
     },
     {
       id: "ctAngio",
       label: "CT Angiography",
       state: ctAngio,
-      setState: setCtAngio,
+      setState: (value: string) => updateImagingResult("ctAngio", value),
     },
   ];
 
@@ -420,7 +422,7 @@ function LabImagingTab() {
               <Textarea
                 id="others"
                 value={others}
-                onChange={(e) => setOthers(e.target.value)}
+                onChange={(e) => updateImagingResult("others", e.target.value)}
                 placeholder="Enter any additional imaging studies and findings"
                 className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
               />

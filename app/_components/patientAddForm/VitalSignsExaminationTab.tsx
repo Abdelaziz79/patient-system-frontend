@@ -1,77 +1,63 @@
 "use client";
 
+import { useVitalSigns } from "@/app/_contexts/NewPatientContext";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import React, { useState } from "react";
 
 function VitalSignsExaminationTab() {
-  // States for vital signs
-  const [rbs, setRbs] = useState("");
-  const [o2Sat, setO2Sat] = useState("");
-  const [hr, setHr] = useState("");
-  const [bp, setBp] = useState("");
-  const [temp, setTemp] = useState("");
-  const [gcs, setGcs] = useState("");
-  const [rr, setRr] = useState("");
-  const [uop, setUop] = useState("");
-  const [intake, setIntake] = useState("");
-  const [balance, setBalance] = useState("");
-  const [cvp, setCvp] = useState("");
-  const [ivc, setIvc] = useState("");
-  const [diuretic, setDiuretic] = useState("");
-
+  const { vitalSigns, updateVitalSign } = useVitalSigns();
   // Define vital signs for cleaner rendering
-  const vitalSigns = [
+  const vitalSignsMap = [
     {
       id: "rbs",
       label: "RBS (Random Blood Sugar)",
-      state: rbs,
-      setState: setRbs,
+      state: vitalSigns.rbs,
+      setState: (value: string) => updateVitalSign("rbs", value),
       unit: "mg/dL",
     },
     {
       id: "o2Sat",
       label: "O₂ Saturation",
-      state: o2Sat,
-      setState: setO2Sat,
+      state: vitalSigns.o2Sat,
+      setState: (value: string) => updateVitalSign("o2Sat", value),
       unit: "%",
     },
     {
       id: "hr",
       label: "HR (Heart Rate)",
-      state: hr,
-      setState: setHr,
+      state: vitalSigns.hr,
+      setState: (value: string) => updateVitalSign("hr", value),
       unit: "bpm",
     },
     {
       id: "bp",
       label: "BP (Blood Pressure)",
-      state: bp,
-      setState: setBp,
+      state: vitalSigns.bp,
+      setState: (value: string) => updateVitalSign("bp", value),
       unit: "mmHg",
     },
     {
       id: "temp",
       label: "Temperature",
-      state: temp,
-      setState: setTemp,
+      state: vitalSigns.temp,
+      setState: (value: string) => updateVitalSign("temp", value),
       unit: "°C",
     },
     {
       id: "gcs",
       label: "GCS (Glasgow Coma Scale)",
-      state: gcs,
-      setState: setGcs,
+      state: vitalSigns.gcs,
+      setState: (value: string) => updateVitalSign("gcs", value),
       unit: "",
     },
     {
       id: "rr",
       label: "RR (Respiratory Rate)",
-      state: rr,
-      setState: setRr,
+      state: vitalSigns.rr,
+      setState: (value: string) => updateVitalSign("rr", value),
       unit: "breaths/min",
     },
   ];
@@ -81,43 +67,43 @@ function VitalSignsExaminationTab() {
     {
       id: "uop",
       label: "UOP (Urine Output)",
-      state: uop,
-      setState: setUop,
+      state: vitalSigns.uop,
+      setState: (value: string) => updateVitalSign("uop", value),
       unit: "mL",
     },
     {
       id: "intake",
       label: "Fluid Intake",
-      state: intake,
-      setState: setIntake,
+      state: vitalSigns.intake,
+      setState: (value: string) => updateVitalSign("intake", value),
       unit: "mL",
     },
     {
       id: "balance",
       label: "Fluid Balance",
-      state: balance,
-      setState: setBalance,
+      state: vitalSigns.balance,
+      setState: (value: string) => updateVitalSign("balance", value),
       unit: "mL",
     },
     {
       id: "cvp",
       label: "CVP (Central Venous Pressure)",
-      state: cvp,
-      setState: setCvp,
+      state: vitalSigns.cvp,
+      setState: (value: string) => updateVitalSign("cvp", value),
       unit: "cmH₂O",
     },
     {
       id: "ivc",
       label: "IVC (Inferior Vena Cava)",
-      state: ivc,
-      setState: setIvc,
+      state: vitalSigns.ivc,
+      setState: (value: string) => updateVitalSign("ivc", value),
       unit: "",
     },
     {
       id: "diuretic",
       label: "Diuretic",
-      state: diuretic,
-      setState: setDiuretic,
+      state: vitalSigns.diuretic,
+      setState: (value: string) => updateVitalSign("diuretic", value),
       unit: "mg",
     },
   ];
@@ -131,7 +117,7 @@ function VitalSignsExaminationTab() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {vitalSigns.map((sign) => (
+            {vitalSignsMap.map((sign) => (
               <div
                 key={sign.id}
                 className="flex flex-col space-y-2 bg-gray-50 dark:bg-slate-700 p-3 rounded-md border border-gray-100 dark:border-slate-600/80"
@@ -214,6 +200,8 @@ function VitalSignsExaminationTab() {
               Examination Notes
             </Label>
             <Textarea
+              value={vitalSigns.examination}
+              onChange={(e) => updateVitalSign("examination", e.target.value)}
               id="examination"
               placeholder="Enter detailed examination findings"
               className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"

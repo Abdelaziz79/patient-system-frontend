@@ -6,6 +6,7 @@ import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 import Sidebar from "./_components/Sidebar";
 import "./globals.css";
+import { PatientProvider } from "./_contexts/NewPatientContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,24 +33,26 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${cairo.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="font-cairo min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
-            {/* Sidebar */}
-            <Sidebar />
+          <PatientProvider>
+            <div className="font-cairo min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
+              {/* Sidebar */}
+              <Sidebar />
 
-            {/* Main content container - adjust margin for sidebar */}
-            <div className="flex flex-col flex-1 lg:mr-[70px] transition-all duration-300">
-              {/* Header */}
-              <Header />
+              {/* Main content container - adjust margin for sidebar */}
+              <div className="flex flex-col flex-1 lg:mr-[70px] transition-all duration-300">
+                {/* Header */}
+                <Header />
 
-              {/* Main content */}
-              <main className="flex-1 p-4 md:p-6 lg:p-8">
-                <div className="lg:pt-4 pt-16">{children}</div>
-              </main>
+                {/* Main content */}
+                <main className="flex-1 p-4 md:p-6 lg:p-8">
+                  <div className="lg:pt-4 pt-16">{children}</div>
+                </main>
 
-              {/* Footer */}
-              <Footer />
+                {/* Footer */}
+                <Footer />
+              </div>
             </div>
-          </div>
+          </PatientProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,10 +1,12 @@
 "use client";
 
-import BasicInfoTab from "@/app/_components/patient/BasicInfoTap";
-import DiagnosisTreatmentTab from "@/app/_components/patient/DiagnosisTreatmentTab";
-import LabImagingTab from "@/app/_components/patient/LabImagingTab";
-import PathologicalHistoryTab from "@/app/_components/patient/PathologicalHistoryTab";
-import VitalSignsExaminationTab from "@/app/_components/patient/VitalSignsExaminationTab";
+import BasicInfoTab from "@/app/_components/patientAddForm/BasicInfoTabs";
+import DiagnosisTreatmentTab from "@/app/_components/patientAddForm/DiagnosisTreatmentTab";
+import LabImagingTab from "@/app/_components/patientAddForm/LabImagingTab";
+import { MedicalRecordTabs } from "@/app/_components/patientAddForm/MedicalRecordTabs";
+import PathologicalHistoryTab from "@/app/_components/patientAddForm/PathologicalHistoryTab";
+import VitalSignsExaminationTab from "@/app/_components/patientAddForm/VitalSignsExaminationTab";
+import { usePatientData } from "@/app/_contexts/NewPatientContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,36 +16,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import {
-  ClipboardCheck,
-  FileText,
-  Loader2,
-  SaveIcon,
-  User,
-} from "lucide-react";
+import { Loader2, SaveIcon, User } from "lucide-react";
 import { useState } from "react";
 
 export default function AddPatientPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
+  const patientData = usePatientData();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  };
-
-  const tabIcons = {
-    basic: <User className="h-4 w-4 mr-1" />,
-    pathological: <FileText className="h-4 w-4 mr-1" />,
-    vitalsigns: <ClipboardCheck className="h-4 w-4 mr-1" />,
-    labimaging: <FileText className="h-4 w-4 mr-1" />,
-    diagnosistreatment: <ClipboardCheck className="h-4 w-4 mr-1" />,
+    console.log(patientData);
+    setIsLoading(false);
   };
 
   return (
@@ -82,29 +69,7 @@ export default function AddPatientPage() {
                 value={activeTab}
                 onValueChange={setActiveTab}
               >
-                <TabsList className=" grid w-full grid-cols-3 lg:grid-cols-5 mb-6 bg-blue-50 dark:bg-slate-700 rounded-lg pb-10">
-                  {[
-                    { value: "basic", label: "Basic Information" },
-                    { value: "pathological", label: "Medical History" },
-                    { value: "vitalsigns", label: "Vital Signs" },
-                    { value: "labimaging", label: "Lab & Imaging" },
-                    { value: "diagnosistreatment", label: "Treatment Plan" },
-                  ].map((tab) => (
-                    <TabsTrigger
-                      key={tab.value}
-                      value={tab.value}
-                      className=" text-sm py-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-600 data-[state=active]:text-blue-700 dark:data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
-                    >
-                      <div className="flex items-center">
-                        {tabIcons[tab.value as keyof typeof tabIcons]}
-                        <span className="hidden sm:inline">{tab.label}</span>
-                        <span className="sm:hidden">
-                          {tab.label.split(" ")[0]}
-                        </span>
-                      </div>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                <MedicalRecordTabs />
 
                 {/* Tab Contents */}
                 <div className="transition-all duration-300 ease-in-out">
