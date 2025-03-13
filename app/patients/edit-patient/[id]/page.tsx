@@ -20,7 +20,7 @@ import { Tabs } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Loader2, SaveIcon, User } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function EditPatientPage() {
   const params = useParams();
@@ -28,36 +28,36 @@ function EditPatientPage() {
   const id = params.id as string;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  // const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic");
   const patientData = usePatientData();
 
   // Fetch patient data on component mount
-  useEffect(() => {
-    const fetchPatientData = async () => {
-      try {
-        setIsInitialLoading(true);
-        // Replace with your actual API endpoint
-        const response = await fetch(`/api/patients/${id}`);
+  // useEffect(() => {
+  //   const fetchPatientData = async () => {
+  //     try {
+  //       setIsInitialLoading(true);
+  //       // Replace with your actual API endpoint
+  //       const response = await fetch(`/api/patients/${id}`);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch patient data");
-        }
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch patient data");
+  //       }
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        // Initialize the form with the patient data
-        patientData.initializePatientData(data);
-      } catch (error) {
-        console.error("Error fetching patient data:", error);
-        // Show error notification to user
-      } finally {
-        setIsInitialLoading(false);
-      }
-    };
+  //       // Initialize the form with the patient data
+  //       patientData.initializePatientData(data);
+  //     } catch (error) {
+  //       console.error("Error fetching patient data:", error);
+  //       // Show error notification to user
+  //     } finally {
+  //       setIsInitialLoading(false);
+  //     }
+  //   };
 
-    fetchPatientData();
-  }, [id]);
+  //   fetchPatientData();
+  // }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,18 +88,18 @@ function EditPatientPage() {
     }
   };
 
-  if (isInitialLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600 dark:text-gray-300">
-            Loading patient data...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // if (isInitialLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <div className="text-center">
+  //         <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
+  //         <p className="mt-4 text-gray-600 dark:text-gray-300">
+  //           Loading patient data...
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex items-center justify-center p-2 py-8">

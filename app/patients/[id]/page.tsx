@@ -149,6 +149,10 @@ export default function PatientDetailsPage() {
           treatmentPlan: "Monitor symptoms, adjust medication if needed",
           followUpPlan: "Re-evaluate in 1 week, smoking cessation counseling",
           notes: "Encourage smoking cessation and pulmonary rehabilitation",
+          problemList: "Cough, shortness of breath, chest pain",
+          solutionList: "Inhaled corticosteroids, nasal steroid inhalers",
+          infusions: "None",
+          sedations: "None",
         },
       };
 
