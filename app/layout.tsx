@@ -1,12 +1,11 @@
-// app/layout.tsx
+import Footer from "@/app/_components/Footer";
+import Header from "@/app/_components/Header";
+import Sidebar from "@/app/_components/Sidebar";
+import { PatientProvider } from "@/app/_contexts/PatientContext";
+import "@/app/globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Cairo, Inter } from "next/font/google";
-import Footer from "./_components/Footer";
-import Header from "./_components/Header";
-import Sidebar from "./_components/Sidebar";
-import "./globals.css";
-import { PatientProvider } from "./_contexts/NewPatientContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,7 +45,7 @@ export default function RootLayout({
                 <Header />
 
                 {/* Main content */}
-                <main className="flex-1 p-4 md:p-6 lg:p-8">
+                <main className="flex-1  md:p-6 lg:p-8">
                   <div className="lg:pt-4 pt-16">{children}</div>
                 </main>
 

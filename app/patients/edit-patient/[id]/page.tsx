@@ -19,19 +19,87 @@ import {
 import { Tabs } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Loader2, SaveIcon, User } from "lucide-react";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function AddPatientPage() {
+function EditPatientPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic");
   const patientData = usePatientData();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch patient data on component mount
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        setIsInitialLoading(true);
+        // Replace with your actual API endpoint
+        const response = await fetch(`/api/patients/${id}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch patient data");
+        }
+
+        const data = await response.json();
+
+        // Initialize the form with the patient data
+        patientData.initializePatientData(data);
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+        // Show error notification to user
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log(patientData);
-    setIsLoading(false);
+
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch(`/api/patients/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update patient data");
+      }
+
+      // Handle successful update
+      // For example, redirect to patient details page or show success notification
+      router.push(`/patients/${id}`);
+    } catch (error) {
+      console.error("Error updating patient data:", error);
+      // Show error notification to user
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            Loading patient data...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center p-2 py-8">
@@ -46,10 +114,10 @@ export default function AddPatientPage() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="text-2xl font-bold">
-                  New Patient Registration
+                  Edit Patient Information
                 </CardTitle>
                 <CardDescription className="text-blue-100 mt-1">
-                  Complete patient information and medical examination details
+                  Update patient information and medical examination details
                 </CardDescription>
               </div>
               <motion.div
@@ -88,6 +156,7 @@ export default function AddPatientPage() {
                 type="button"
                 variant="outline"
                 className="w-full sm:w-1/2 border-gray-300 hover:bg-gray-100 dark:border-slate-600 dark:hover:bg-slate-700 transition-all duration-200 font-medium"
+                onClick={() => router.push(`/patients/${id}`)}
               >
                 Cancel
               </Button>
@@ -100,12 +169,12 @@ export default function AddPatientPage() {
                 {isLoading ? (
                   <div className="flex items-center justify-center">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    <span>Saving...</span>
+                    <span>Updating...</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
                     <SaveIcon className="mr-2 h-4 w-4" />
-                    <span>Save Patient Data</span>
+                    <span>Update Patient Data</span>
                   </div>
                 )}
               </Button>
@@ -116,3 +185,5 @@ export default function AddPatientPage() {
     </div>
   );
 }
+
+export default EditPatientPage;

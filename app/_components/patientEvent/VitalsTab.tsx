@@ -1,127 +1,147 @@
 "use client";
 
-import { useVitalSigns } from "@/app/_contexts/PatientContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
-function VitalSignsExaminationTab() {
-  const { vitalSigns, updateVitalSign } = useVitalSigns();
+function VitalsTab() {
+  // Basic vitals
+  const [hr, setHr] = useState("");
+  const [bp, setBp] = useState("");
+  const [temp, setTemp] = useState("");
+  const [rr, setRr] = useState("");
+  const [o2Sat, setO2Sat] = useState("");
+  const [gcs, setGcs] = useState("");
+  const [rbs, setRbs] = useState("");
+
+  // Fluid balance parameters
+  const [uop, setUop] = useState("");
+  const [intake, setIntake] = useState("");
+  const [balance, setBalance] = useState("");
+  const [cvp, setCvp] = useState("");
+  const [ivc, setIvc] = useState("");
+  const [diuretic, setDiuretic] = useState("");
+
+  // Additional fields
+  const [examination, setExamination] = useState("");
+
+  // Update fluid balance when either intake or uop changes
+  const updateFluidBalance = () => {
+    const intakeValue = Number(intake) || 0;
+    const uopValue = Number(uop) || 0;
+    setBalance(String(intakeValue - uopValue));
+  };
+
   // Define vital signs for cleaner rendering
-  const vitalSignsMap = [
-    {
-      id: "rbs",
-      label: "RBS (Random Blood Sugar)",
-      state: vitalSigns.rbs,
-      setState: (value: string) => updateVitalSign("rbs", value),
-      unit: "mg/dL",
-    },
-    {
-      id: "o2Sat",
-      label: "O₂ Saturation",
-      state: vitalSigns.o2Sat,
-      setState: (value: string) => updateVitalSign("o2Sat", value),
-      unit: "%",
-    },
+  const vitalSignsData = [
     {
       id: "hr",
       label: "HR (Heart Rate)",
-      state: vitalSigns.hr,
-      setState: (value: string) => updateVitalSign("hr", value),
+      value: hr,
+      onChange: (value: string) => setHr(value),
       unit: "bpm",
     },
     {
       id: "bp",
       label: "BP (Blood Pressure)",
-      state: vitalSigns.bp,
-      setState: (value: string) => updateVitalSign("bp", value),
+      value: bp,
+      onChange: (value: string) => setBp(value),
       unit: "mmHg",
     },
     {
       id: "temp",
       label: "Temperature",
-      state: vitalSigns.temp,
-      setState: (value: string) => updateVitalSign("temp", value),
+      value: temp,
+      onChange: (value: string) => setTemp(value),
       unit: "°C",
-    },
-    {
-      id: "gcs",
-      label: "GCS (Glasgow Coma Scale)",
-      state: vitalSigns.gcs,
-      setState: (value: string) => updateVitalSign("gcs", value),
-      unit: "",
     },
     {
       id: "rr",
       label: "RR (Respiratory Rate)",
-      state: vitalSigns.rr,
-      setState: (value: string) => updateVitalSign("rr", value),
+      value: rr,
+      onChange: (value: string) => setRr(value),
       unit: "breaths/min",
+    },
+    {
+      id: "o2Sat",
+      label: "O₂ Saturation",
+      value: o2Sat,
+      onChange: (value: string) => setO2Sat(value),
+      unit: "%",
+    },
+    {
+      id: "gcs",
+      label: "GCS (Glasgow Coma Scale)",
+      value: gcs,
+      onChange: (value: string) => setGcs(value),
+      unit: "",
+    },
+    {
+      id: "rbs",
+      label: "RBS (Random Blood Sugar)",
+      value: rbs,
+      onChange: (value: string) => setRbs(value),
+      unit: "mg/dL",
     },
   ];
 
   // Define fluid balance parameters
-  const fluidParameters = [
+  const fluidParametersData = [
     {
       id: "uop",
       label: "UOP (Urine Output)",
-      state: vitalSigns.uop,
-      setState: (value: string) => {
-        updateVitalSign("uop", value);
-        updateVitalSign(
-          "balance",
-          String(Number(vitalSigns.intake) - Number(value))
-        );
+      value: uop,
+      onChange: (value: string) => {
+        setUop(value);
+        updateFluidBalance();
       },
       unit: "mL",
     },
     {
       id: "intake",
       label: "Fluid Intake",
-      state: vitalSigns.intake,
-      setState: (value: string) => {
-        updateVitalSign("intake", value);
-        updateVitalSign(
-          "balance",
-          String(Number(value) - Number(vitalSigns.uop))
-        );
+      value: intake,
+      onChange: (value: string) => {
+        setIntake(value);
+        updateFluidBalance();
       },
       unit: "mL",
     },
     {
       id: "balance",
       label: "Fluid Balance",
-      state: vitalSigns.balance,
-      setState: () => {},
+      value: balance,
+      onChange: () => {}, // Read-only
       unit: "mL",
     },
     {
       id: "cvp",
       label: "CVP (Central Venous Pressure)",
-      state: vitalSigns.cvp,
-      setState: (value: string) => updateVitalSign("cvp", value),
+      value: cvp,
+      onChange: (value: string) => setCvp(value),
       unit: "cmH₂O",
     },
     {
       id: "ivc",
       label: "IVC (Inferior Vena Cava)",
-      state: vitalSigns.ivc,
-      setState: (value: string) => updateVitalSign("ivc", value),
+      value: ivc,
+      onChange: (value: string) => setIvc(value),
       unit: "",
     },
     {
       id: "diuretic",
       label: "Diuretic",
-      state: vitalSigns.diuretic,
-      setState: (value: string) => updateVitalSign("diuretic", value),
+      value: diuretic,
+      onChange: (value: string) => setDiuretic(value),
       unit: "mg",
     },
   ];
 
   return (
-    <TabsContent value="vitalsigns" className="space-y-6 mt-4">
+    <TabsContent value="vitals" className="space-y-6 mt-4">
       <Card className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800">
         <CardContent className="p-6">
           <h3 className="font-semibold text-lg mb-4 text-primary dark:text-blue-300">
@@ -129,7 +149,7 @@ function VitalSignsExaminationTab() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {vitalSignsMap.map((sign) => (
+            {vitalSignsData.map((sign) => (
               <div
                 key={sign.id}
                 className="flex flex-col space-y-2 bg-gray-50 dark:bg-slate-700 p-3 rounded-md border border-gray-100 dark:border-slate-600/80"
@@ -144,10 +164,10 @@ function VitalSignsExaminationTab() {
                   <div className="flex">
                     <Input
                       id={sign.id}
-                      value={sign.state}
-                      onChange={(e) => sign.setState(e.target.value)}
+                      value={sign.value}
+                      onChange={(e) => sign.onChange(e.target.value)}
                       placeholder={`Enter ${sign.label}`}
-                      className="focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm "
+                      className="focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm"
                     />
                     {sign.unit && (
                       <span className="ml-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
@@ -169,7 +189,7 @@ function VitalSignsExaminationTab() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fluidParameters.map((param) => (
+            {fluidParametersData.map((param) => (
               <div
                 key={param.id}
                 className="flex flex-col space-y-2 bg-gray-50 dark:bg-slate-700 p-3 rounded-md border border-gray-100 dark:border-slate-600/80"
@@ -184,8 +204,8 @@ function VitalSignsExaminationTab() {
                   <div className="flex">
                     <Input
                       id={param.id}
-                      value={param.state}
-                      onChange={(e) => param.setState(e.target.value)}
+                      value={param.value}
+                      onChange={(e) => param.onChange(e.target.value)}
                       placeholder={`Enter ${param.label}`}
                       className="focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm"
                     />
@@ -212,8 +232,8 @@ function VitalSignsExaminationTab() {
               Examination Notes
             </Label>
             <Textarea
-              value={vitalSigns.examination}
-              onChange={(e) => updateVitalSign("examination", e.target.value)}
+              value={examination}
+              onChange={(e) => setExamination(e.target.value)}
               id="examination"
               placeholder="Enter detailed examination findings"
               className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
@@ -225,4 +245,4 @@ function VitalSignsExaminationTab() {
   );
 }
 
-export default VitalSignsExaminationTab;
+export default VitalsTab;

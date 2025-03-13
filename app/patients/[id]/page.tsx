@@ -10,7 +10,7 @@ import OverviewTab from "@/app/_components/patinetInfo/OverviewTab";
 import { PatientDashboardTabs } from "@/app/_components/patinetInfo/PatientDashboardTabs";
 import PatientNotFound from "@/app/_components/patinetInfo/PatientNotFound";
 import VitalSigns from "@/app/_components/patinetInfo/VitalSigns";
-import { NewPatient } from "@/app/_types/newPatient";
+import { Patient } from "@/app/_types/Patient";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,7 +31,7 @@ export default function PatientDetailsPage() {
   const router = useRouter();
   const id = params.id as string;
   const [isLoading, setIsLoading] = useState(true);
-  const [patient, setPatient] = useState<NewPatient | null>(null);
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -158,15 +158,15 @@ export default function PatientDetailsPage() {
   }, [id]);
 
   const handleEdit = () => {
-    router.push(`/edit-patient/${id}`);
+    router.push(`/patients/edit-patient/${id}`);
   };
 
   const handleBack = () => {
     router.back();
   };
 
-  const handleAddVisit = () => {
-    router.push(`/add-visit/${id}`);
+  const handleAddEvent = () => {
+    router.push(`/patients/add-event/${id}`);
   };
 
   if (isLoading) {
@@ -275,11 +275,11 @@ export default function PatientDetailsPage() {
             Edit Patient Information
           </Button>
           <Button
-            onClick={handleAddVisit}
+            onClick={handleAddEvent}
             className="flex-1 bg-green-600 hover:bg-green-700 text-white"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            Add New Visit
+            Add New Event
           </Button>
         </CardFooter>
       </Card>

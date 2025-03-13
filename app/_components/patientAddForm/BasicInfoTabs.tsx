@@ -1,6 +1,6 @@
 "use client";
 
-import { usePersonalInfo } from "@/app/_contexts/NewPatientContext";
+import { usePersonalInfo } from "@/app/_contexts/PatientContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,7 +106,7 @@ function BasicInfoTab() {
                 htmlFor="bloodType"
                 className="font-medium text-sm dark:text-gray-300"
               >
-                Blood Type
+                Blood Group
               </Label>
               <select
                 value={personalInfo.bloodType || ""}

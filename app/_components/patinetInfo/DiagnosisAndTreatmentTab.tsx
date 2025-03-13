@@ -3,7 +3,7 @@
 import InfoItem from "@/app/_components/InfoItem";
 import { TabsContent } from "@/components/ui/tabs";
 import {
-  CalendarIcon,
+  // CalendarIcon,
   ClipboardEditIcon,
   FileTextIcon,
   PillIcon,
@@ -21,7 +21,6 @@ type Props = {
     antibiotics: string;
     ivFluids: string;
     oxygenTherapy: string;
-    followUpPlan: string;
   };
 };
 
@@ -84,12 +83,12 @@ function DiagnosisAndTreatmentTab({ diagnosisAndTreatment }: Props) {
             value={diagnosisAndTreatment.treatmentPlan}
             fullWidth={true}
           />
-          <InfoItem
+          {/* <InfoItem
             icon={CalendarIcon}
             label="Follow-up Plan"
             value={diagnosisAndTreatment.followUpPlan}
             fullWidth={true}
-          />
+          /> */}
           <InfoItem
             icon={ClipboardEditIcon}
             label="Additional Notes"

@@ -29,9 +29,9 @@ export const MedicalRecordTabs = () => {
     <TabsNav
       tabs={tabs}
       icons={icons}
-      containerClassName="grid grid-cols-3 lg:grid-cols-5 mb-6 bg-blue-50 dark:bg-slate-700 rounded-lg pb-10"
-      triggerClassName="text-sm py-2"
       activeTriggerClassName="bg-white dark:bg-slate-600 text-blue-700 dark:text-white shadow-md"
+      containerClassName="grid grid-cols-5 md:grid-cols-5 gap-1 p-1 bg-blue-50 dark:bg-slate-700 rounded-lg"
+      triggerClassName="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-200"
       showLabels="responsive"
     />
   );

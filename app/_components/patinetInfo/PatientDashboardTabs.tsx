@@ -31,8 +31,8 @@ export const PatientDashboardTabs = () => {
     <TabsNav
       tabs={tabs}
       icons={icons}
-      containerClassName="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-6 bg-blue-50 dark:bg-slate-700 rounded-lg"
-      triggerClassName="text-xs md:text-sm"
+      containerClassName="flex flex-row justify-between gap-0.5 p-1 bg-blue-50 dark:bg-slate-700 rounded-lg"
+      triggerClassName="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-200"
       showLabels="responsive"
     />
   );

@@ -23,19 +23,28 @@ const TabsNav = ({
         <TabsTrigger
           key={tab.value}
           value={tab.value}
-          className={cn("transition-all duration-200", triggerClassName)}
+          className={cn(
+            "transition-all duration-200 flex-1 min-w-0 px-1",
+            triggerClassName
+          )}
         >
-          <div className="flex items-center">
+          <div className="flex items-center justify-center w-full">
             {icons && icons[tab.value] && (
-              <span className="mr-1 md:mr-2">{icons[tab.value]}</span>
+              <span className="mr-1 md:mr-2 flex-shrink-0">
+                {icons[tab.value]}
+              </span>
             )}
 
-            {showLabels === "always" && <span>{tab.label}</span>}
+            {showLabels === "always" && (
+              <span className="truncate">{tab.label}</span>
+            )}
 
             {showLabels === "responsive" && (
               <>
-                <span className="hidden sm:inline">{tab.label}</span>
-                <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
+                <span className="hidden sm:inline truncate">{tab.label}</span>
+                <span className="sm:hidden truncate">
+                  {tab.label.split(" ")[0]}
+                </span>
               </>
             )}
 

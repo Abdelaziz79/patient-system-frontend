@@ -118,11 +118,14 @@ export type DiagnosisAndTreatment = {
   antibiotics: string;
   oxygenTherapy: string;
   treatmentPlan: string;
-  followUpPlan: string;
   notes: string;
+  problemList: string;
+  solutionList: string;
+  infusions: string;
+  sedations: string;
 };
 
-export type NewPatient = {
+export type Patient = {
   id?: string;
   personalInfo: PersonalInfo;
   medicalConditions: MedicalConditions;

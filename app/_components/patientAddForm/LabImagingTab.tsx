@@ -3,7 +3,7 @@
 import {
   useImagingResults,
   useLabResults,
-} from "@/app/_contexts/NewPatientContext";
+} from "@/app/_contexts/PatientContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -6,14 +6,14 @@ import {
   labResults,
   MedicalConditions,
   MedicalNotes,
-  NewPatient,
+  Patient,
   PersonalInfo,
   VitalSigns,
-} from "@/app/_types/newPatient";
+} from "@/app/_types/Patient";
 import React, { createContext, useContext, useReducer } from "react";
 
 // Initial state organized by sections
-const initialState: NewPatient = {
+const initialState: Patient = {
   // Personal information
   personalInfo: {
     patientName: "",
@@ -141,8 +141,11 @@ const initialState: NewPatient = {
     antibiotics: "",
     oxygenTherapy: "",
     treatmentPlan: "",
-    followUpPlan: "",
     notes: "",
+    problemList: "",
+    solutionList: "",
+    infusions: "",
+    sedations: "",
   },
 };
 
@@ -154,16 +157,41 @@ const UPDATE_VITAL_SIGN = "UPDATE_VITAL_SIGN";
 const UPDATE_LAB_RESULT = "UPDATE_LAB_RESULT";
 const UPDATE_IMAGING_RESULT = "UPDATE_IMAGING_RESULT";
 const UPDATE_DIAGNOSIS_TREATMENT = "UPDATE_DIAGNOSIS_TREATMENT";
+const INITIALIZE_PATIENT_DATA = "INITIALIZE_PATIENT_DATA";
+
+// Define action types with TypeScript
+type PatientAction =
+  | {
+      type: typeof UPDATE_PERSONAL_INFO;
+      field: keyof PersonalInfo;
+      value: string | boolean;
+    }
+  | {
+      type: typeof UPDATE_MEDICAL_CONDITION;
+      field: keyof MedicalConditions;
+      value: boolean;
+    }
+  | {
+      type: typeof UPDATE_MEDICAL_NOTE;
+      field: keyof MedicalNotes;
+      value: string;
+    }
+  | { type: typeof UPDATE_VITAL_SIGN; field: keyof VitalSigns; value: string }
+  | { type: typeof UPDATE_LAB_RESULT; field: keyof labResults; value: string }
+  | {
+      type: typeof UPDATE_IMAGING_RESULT;
+      field: keyof ImagingResults;
+      value: string;
+    }
+  | {
+      type: typeof UPDATE_DIAGNOSIS_TREATMENT;
+      field: keyof DiagnosisAndTreatment;
+      value: string;
+    }
+  | { type: typeof INITIALIZE_PATIENT_DATA; patientData: Patient };
 
 // Reducer function
-function patientReducer(
-  state: NewPatient,
-  action: {
-    type: string;
-    field: string;
-    value: string | boolean;
-  }
-) {
+function patientReducer(state: Patient, action: PatientAction): Patient {
   switch (action.type) {
     case UPDATE_PERSONAL_INFO:
       return {
@@ -228,21 +256,24 @@ function patientReducer(
         },
       };
 
+    case INITIALIZE_PATIENT_DATA:
+      return {
+        ...action.patientData,
+      };
+
     default:
       return state;
   }
 }
 
 // Create context
-const PatientContext = createContext(
-  {} as {
-    state: NewPatient;
-    dispatch: React.Dispatch<{
-      type: string;
-      field: string;
-      value: string | boolean;
-    }>;
-  }
+interface PatientContextType {
+  state: Patient;
+  dispatch: React.Dispatch<PatientAction>;
+}
+
+const PatientContext = createContext<PatientContextType>(
+  {} as PatientContextType
 );
 
 // Provider component
@@ -259,6 +290,7 @@ export const PatientProvider = ({
     </PatientContext.Provider>
   );
 };
+
 // Custom hooks for each section
 export const usePersonalInfo = () => {
   const { state, dispatch } = useContext(PatientContext);
@@ -388,8 +420,20 @@ export const useDiagnosisTreatment = () => {
   };
 };
 
-// General hook to access the entire state
+// General hook to access the entire state and add initialization
 export const usePatientData = () => {
-  const { state } = useContext(PatientContext);
-  return state;
+  const { state, dispatch } = useContext(PatientContext);
+
+  // Add function to initialize patient data for editing
+  const initializePatientData = (patientData: Patient) => {
+    dispatch({
+      type: INITIALIZE_PATIENT_DATA,
+      patientData,
+    });
+  };
+
+  return {
+    ...state,
+    initializePatientData,
+  };
 };
