@@ -57,7 +57,7 @@ function TreatmentTab() {
             <RadioGroup
               value={treatmentAction}
               onValueChange={setTreatmentAction}
-              className="flex space-x-4"
+              className="flex gap-2 flex-wrap"
             >
               <div className="flex items-center space-x-1">
                 <RadioGroupItem value="add" id="add" />

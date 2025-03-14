@@ -270,7 +270,7 @@ export default function PatientDetailsPage() {
           </Tabs>
         </CardHeader>
 
-        <CardFooter className="flex justify-between gap-4 pt-6">
+        <CardFooter className="flex justify-between gap-4 pt-6 flex-wrap">
           <Button
             onClick={handleEdit}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"

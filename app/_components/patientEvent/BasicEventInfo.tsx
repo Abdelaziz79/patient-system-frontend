@@ -130,7 +130,7 @@ function BasicEventInfo() {
               >
                 Date & Time
               </Label>
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2">
                 <div className="">
                   <DatePicker date={eventDate} setDate={setEventDate} />
                 </div>
@@ -206,7 +206,7 @@ function BasicEventInfo() {
                 </Label>
                 <RadioGroup
                   id="eventPriority"
-                  className="flex space-x-4"
+                  className="flex flex-wrap gap-2"
                   value={eventPriority}
                   onValueChange={setEventPriority}
                 >
