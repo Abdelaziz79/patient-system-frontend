@@ -1,6 +1,7 @@
 "use client";
 
 import InfoItem from "@/app/_components/InfoItem";
+import { PersonalInfo } from "@/app/_types/Patient";
 import { TabsContent } from "@/components/ui/tabs";
 import {
   BadgeIcon,
@@ -15,14 +16,7 @@ import {
 } from "lucide-react";
 
 type Props = {
-  personalInfo: {
-    patientName: string;
-    phone: string;
-    date: string;
-    address: string;
-    companion: string;
-    companionPhone: string;
-  };
+  personalInfo: PersonalInfo;
   id: string;
   complaints: string;
   diagnosis: string;
@@ -52,7 +46,11 @@ function OverviewTab({
           <InfoItem icon={UserIcon} label="Patient Name" value={patientName} />
           <InfoItem icon={BadgeIcon} label="Patient ID" value={id || "N/A"} />
           <InfoItem icon={PhoneIcon} label="Phone Number" value={phone} />
-          <InfoItem icon={CalendarIcon} label="Visit Date" value={date} />
+          <InfoItem
+            icon={CalendarIcon}
+            label="Visit Date"
+            value={date?.toISOString() ?? "N/A"}
+          />
           <InfoItem
             icon={MapPinIcon}
             label="Address"

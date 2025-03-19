@@ -1,6 +1,7 @@
 "use client";
 
 import InfoItem from "@/app/_components/InfoItem";
+import { DiagnosisAndTreatment } from "@/app/_types/Patient";
 import { TabsContent } from "@/components/ui/tabs";
 import {
   // CalendarIcon,
@@ -11,17 +12,7 @@ import {
 } from "lucide-react";
 
 type Props = {
-  diagnosisAndTreatment: {
-    diagnosis: string;
-    differentialDiagnosis: string;
-    treatmentPlan: string;
-    notes: string;
-    treatmentApproach: string;
-    currentMedications: string;
-    antibiotics: string;
-    ivFluids: string;
-    oxygenTherapy: string;
-  };
+  diagnosisAndTreatment: DiagnosisAndTreatment;
 };
 
 function DiagnosisAndTreatmentTab({ diagnosisAndTreatment }: Props) {
@@ -80,7 +71,7 @@ function DiagnosisAndTreatmentTab({ diagnosisAndTreatment }: Props) {
           <InfoItem
             icon={FileTextIcon}
             label="Treatment Plan"
-            value={diagnosisAndTreatment.treatmentPlan}
+            value={diagnosisAndTreatment?.treatmentPlans?.at(0)?.plan || ""}
             fullWidth={true}
           />
           {/* <InfoItem

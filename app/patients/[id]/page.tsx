@@ -39,7 +39,7 @@ export default function PatientDetailsPage() {
     setIsLoading(true);
     setTimeout(() => {
       // This would typically come from an API
-      const patientData = {
+      const patientData: Patient = {
         id,
         personalInfo: {
           bloodType: "A+",
@@ -48,7 +48,7 @@ export default function PatientDetailsPage() {
           gender: "Male",
           address: "Mean ABC Street, City",
           phone: "123456789",
-          date: "2025-03-10",
+          date: new Date(),
           companion: "Ahmed",
           companionPhone: "987654321",
           isSmoker: true,
@@ -146,8 +146,14 @@ export default function PatientDetailsPage() {
           ivFluids: "Maintenance fluids as needed",
           antibiotics: "Amoxicillin-Clavulanate 875/125 mg BID",
           oxygenTherapy: "Nasal cannula if O₂ saturation drops below 92%",
-          treatmentPlan: "Monitor symptoms, adjust medication if needed",
-          followUpPlan: "Re-evaluate in 1 week, smoking cessation counseling",
+          treatmentPlans: [
+            {
+              plan: "Inhaled corticosteroids, nasal steroid inhalers",
+              planNumber: 1,
+              reminder: new Date(),
+            },
+          ],
+          // followUpPlan: "Re-evaluate in 1 week, smoking cessation counseling",
           notes: "Encourage smoking cessation and pulmonary rehabilitation",
           problemList: "Cough, shortness of breath, chest pain",
           solutionList: "Inhaled corticosteroids, nasal steroid inhalers",
