@@ -62,7 +62,7 @@ export default function AddPatientPage() {
             </div>
           </CardHeader>
           <CardContent className="px-6 pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               <Tabs
                 defaultValue="basic"
                 className="w-full"
@@ -80,7 +80,7 @@ export default function AddPatientPage() {
                   <DiagnosisTreatmentTab />
                 </div>
               </Tabs>
-            </form>
+            </div>
           </CardContent>
           <CardFooter className="px-6 py-5 bg-gray-50 dark:bg-slate-700/30">
             <div className="flex flex-col sm:flex-row gap-3 w-full">

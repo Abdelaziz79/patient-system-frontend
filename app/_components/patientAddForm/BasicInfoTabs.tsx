@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TabsContent } from "@/components/ui/tabs";
 import { PhoneIcon, UserIcon, UserPlusIcon } from "lucide-react";
+import DatePicker from "../DatePicker";
 
 function BasicInfoTab() {
   const { personalInfo, updatePersonalInfo } = usePersonalInfo();
@@ -145,20 +146,16 @@ function BasicInfoTab() {
               />
             </div>
 
-            <div className="space-y-2 bg-gray-50 dark:bg-slate-700 p-3 rounded-md border border-gray-100 dark:border-slate-600/80">
+            <div className="flex gap-2 items-center space-y-2  bg-gray-50 dark:bg-slate-700 p-3 rounded-md border border-gray-100 dark:border-slate-600/80">
               <Label
                 htmlFor="date"
                 className="font-medium text-sm dark:text-gray-300"
               >
                 Visit Date
               </Label>
-              <Input
-                value={personalInfo.date}
-                onChange={(e) => updatePersonalInfo("date", e.target.value)}
-                id="date"
-                type="date"
-                className="focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm"
-                required
+              <DatePicker
+                date={personalInfo.date}
+                setDate={(date) => updatePersonalInfo("date", date)}
               />
             </div>
 

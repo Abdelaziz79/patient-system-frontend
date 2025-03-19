@@ -8,6 +8,7 @@ import {
   MedicalNotes,
   Patient,
   PersonalInfo,
+  TreatmentPlan,
   VitalSigns,
 } from "@/app/_types/Patient";
 import React, { createContext, useContext, useReducer } from "react";
@@ -21,7 +22,7 @@ const initialState: Patient = {
     gender: "",
     address: "",
     phone: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date(),
     companion: "",
     companionPhone: "",
     isSmoker: false,
@@ -140,7 +141,7 @@ const initialState: Patient = {
     ivFluids: "",
     antibiotics: "",
     oxygenTherapy: "",
-    treatmentPlan: "",
+    treatmentPlans: [],
     notes: "",
     problemList: "",
     solutionList: "",
@@ -164,7 +165,7 @@ type PatientAction =
   | {
       type: typeof UPDATE_PERSONAL_INFO;
       field: keyof PersonalInfo;
-      value: string | boolean;
+      value: string | boolean | Date | undefined;
     }
   | {
       type: typeof UPDATE_MEDICAL_CONDITION;
@@ -186,7 +187,7 @@ type PatientAction =
   | {
       type: typeof UPDATE_DIAGNOSIS_TREATMENT;
       field: keyof DiagnosisAndTreatment;
-      value: string;
+      value: string | TreatmentPlan[];
     }
   | { type: typeof INITIALIZE_PATIENT_DATA; patientData: Patient };
 
@@ -297,7 +298,7 @@ export const usePersonalInfo = () => {
 
   const updatePersonalInfo = (
     field: keyof PersonalInfo,
-    value: string | boolean
+    value: string | boolean | Date | undefined
   ) => {
     dispatch({
       type: UPDATE_PERSONAL_INFO,
@@ -405,7 +406,7 @@ export const useDiagnosisTreatment = () => {
 
   const updateDiagnosisTreatment = (
     field: keyof DiagnosisAndTreatment,
-    value: string
+    value: string | TreatmentPlan[]
   ) => {
     dispatch({
       type: UPDATE_DIAGNOSIS_TREATMENT,

@@ -47,89 +47,6 @@ export default function AddEventPage() {
     router.back();
   };
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsSubmitting(true);
-
-  //   try {
-  //     // Build event data based on active tab
-  //     const eventData = {
-  //       patientId: id,
-  //       eventType,
-  //       title: eventTitle,
-  //       description: eventDescription,
-  //       date: eventDate,
-  //       time: eventTime,
-  //       notes: eventNotes,
-  //       priority: eventPriority,
-  //       notifyTeam,
-  //       // Add tab-specific data
-  //       details: {},
-  //     };
-
-  //     // switch (activeTab) {
-  //     //   case "vitals":
-  //     //     eventData.details = {
-  //     //       hr,
-  //     //       bp,
-  //     //       temp,
-  //     //       rr,
-  //     //       o2Sat,
-  //     //       gcs,
-  //     //       rbs,
-  //     //       uop,
-  //     //       pain,
-  //     //     };
-  //     //     break;
-  //     //   case "labs":
-  //     //     eventData.details = {
-  //     //       labTitle,
-  //     //       labResults,
-  //     //       labNotes,
-  //     //       isAbnormal,
-  //     //       criticalValue,
-  //     //       labDate,
-  //     //     };
-  //     //     break;
-  //     //   case "imaging":
-  //     //     eventData.details = {
-  //     //       imagingType,
-  //     //       imagingFindings,
-  //     //       imagingRecommendations,
-  //     //       imagingNotes,
-  //     //       imagingDate,
-  //     //     };
-  //     //     break;
-  //     //   case "treatment":
-  //     //     eventData.details = {
-  //     //       treatmentAction,
-  //     //       medicationName,
-  //     //       medicationDosage,
-  //     //       medicationRoute,
-  //     //       medicationFrequency,
-  //     //       medicationStartDate,
-  //     //       medicationEndDate,
-  //     //       medicationReason,
-  //     //       medicationNotes,
-  //     //     };
-  //     //     break;
-  //     // }
-
-  //     // This would be your actual API call
-  //     console.log("Submitting event:", eventData);
-
-  //     // Simulate API success
-  //     setTimeout(() => {
-  //       setIsSubmitting(false);
-  //       // Navigate back to patient details page
-  //       router.push(`/patients/${id}`);
-  //     }, 1000);
-  //   } catch (error) {
-  //     console.error("Error submitting event:", error);
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
   if (isLoading) {
     return <Loading />;
   }
@@ -141,80 +58,78 @@ export default function AddEventPage() {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-6 max-w-6xl"
     >
-      <form>
-        <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
-          <CardHeader>
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
-                  Add New Event
-                </CardTitle>
-                <CardDescription className="text-blue-600 dark:text-blue-400">
-                  Patient: {patientName} | ID: {id}
-                </CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                className="flex items-center"
-                type="button"
-              >
-                <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                <span>Go Back</span>
-              </Button>
+      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
+        <CardHeader>
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+                Add New Event
+              </CardTitle>
+              <CardDescription className="text-blue-600 dark:text-blue-400">
+                Patient: {patientName} | ID: {id}
+              </CardDescription>
             </div>
-
-            {/* Basic Event Information */}
-            <BasicEventInfo />
-
-            {/* Tabs for different event types */}
-            <Tabs
-              defaultValue="vitals"
-              className="w-full"
-              value={activeTab}
-              onValueChange={setActiveTab}
-            >
-              <PatientNewEventTabs />
-
-              {/* Vitals Tab */}
-              <VitalsTab />
-              {/* Labs Tab */}
-              <LabsTap />
-
-              {/* Imaging Tab */}
-              <ImagingTab />
-
-              {/* Treatment Tab */}
-              <TreatMentTab />
-            </Tabs>
-          </CardHeader>
-
-          <CardFooter className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-4">
             <Button
               variant="outline"
               onClick={handleBack}
-              // disabled={isSubmitting}
+              className="flex items-center"
               type="button"
             >
-              Cancel
+              <ArrowLeftIcon className="mr-2 h-4 w-4" />
+              <span>Go Back</span>
             </Button>
-            <Button
-              type="submit"
-              // disabled={isSubmitting}
-              className="flex items-center"
-            >
-              {isLoading ? (
-                <>Saving...</>
-              ) : (
-                <>
-                  <CheckCircleIcon className="mr-2 h-4 w-4" />
-                  Save Event
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
+          </div>
+
+          {/* Basic Event Information */}
+          <BasicEventInfo />
+
+          {/* Tabs for different event types */}
+          <Tabs
+            defaultValue="vitals"
+            className="w-full"
+            value={activeTab}
+            onValueChange={setActiveTab}
+          >
+            <PatientNewEventTabs />
+
+            {/* Vitals Tab */}
+            <VitalsTab />
+            {/* Labs Tab */}
+            <LabsTap />
+
+            {/* Imaging Tab */}
+            <ImagingTab />
+
+            {/* Treatment Tab */}
+            <TreatMentTab />
+          </Tabs>
+        </CardHeader>
+
+        <CardFooter className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-4">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            // disabled={isSubmitting}
+            type="button"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            // disabled={isSubmitting}
+            className="flex items-center"
+          >
+            {isLoading ? (
+              <>Saving...</>
+            ) : (
+              <>
+                <CheckCircleIcon className="mr-2 h-4 w-4" />
+                Save Event
+              </>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     </motion.div>
   );
 }

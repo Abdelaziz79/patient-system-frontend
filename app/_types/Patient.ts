@@ -4,7 +4,7 @@ export type PersonalInfo = {
   gender: string;
   address: string;
   phone: string;
-  date: string;
+  date: Date | undefined;
   companion: string;
   companionPhone: string;
   isSmoker: boolean;
@@ -109,6 +109,12 @@ export type ImagingResults = {
   others: string;
 };
 
+export type TreatmentPlan = {
+  planNumber: number;
+  plan: string;
+  reminder: Date | undefined;
+};
+
 export type DiagnosisAndTreatment = {
   diagnosis: string;
   differentialDiagnosis: string;
@@ -117,7 +123,7 @@ export type DiagnosisAndTreatment = {
   ivFluids: string;
   antibiotics: string;
   oxygenTherapy: string;
-  treatmentPlan: string;
+  treatmentPlans: TreatmentPlan[];
   notes: string;
   problemList: string;
   solutionList: string;

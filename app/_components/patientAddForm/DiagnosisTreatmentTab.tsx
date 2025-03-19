@@ -2,14 +2,14 @@
 
 import DatePicker from "@/app/_components/DatePicker";
 import { useDiagnosisTreatment } from "@/app/_contexts/PatientContext";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { Plus } from "lucide-react";
 
 function DiagnosisTreatmentTab() {
-  const [reminderDate, setReminderDate] = useState<Date>();
   const {
     diagnosisAndTreatment: {
       diagnosis,
@@ -23,10 +23,36 @@ function DiagnosisTreatmentTab() {
       infusions,
       sedations,
       notes,
-      treatmentPlan,
+      treatmentPlans,
     },
     updateDiagnosisTreatment,
   } = useDiagnosisTreatment();
+
+  // Function to add a new treatment plan
+  const addTreatmentPlan = () => {
+    const newPlanNumber =
+      treatmentPlans.length > 0
+        ? Math.max(...treatmentPlans.map((plan) => plan.planNumber)) + 1
+        : 1;
+
+    const newTreatmentPlans = [
+      ...treatmentPlans,
+      { planNumber: newPlanNumber, plan: "", reminder: undefined },
+    ];
+
+    updateDiagnosisTreatment("treatmentPlans", newTreatmentPlans);
+  };
+
+  // Function to update a specific treatment plan
+  const updateTreatmentPlan = (
+    index: number,
+    field: string,
+    value: string | Date | undefined
+  ) => {
+    const updatedPlans = [...treatmentPlans];
+    updatedPlans[index] = { ...updatedPlans[index], [field]: value };
+    updateDiagnosisTreatment("treatmentPlans", updatedPlans);
+  };
 
   return (
     <TabsContent value="diagnosistreatment" className="space-y-6 mt-4">
@@ -243,39 +269,56 @@ function DiagnosisTreatmentTab() {
       </Card>
 
       {/* Treatment Plan Section */}
-      <Card className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-            <h3 className="font-semibold text-lg text-primary dark:text-blue-300 mb-2 sm:mb-0">
-              Treatment Plan
-            </h3>
-            <div className="flex items-center">
-              <Label
-                htmlFor="reminderDate"
-                className="font-medium text-sm mr-2 dark:text-gray-300"
-              >
-                Reminder:
-              </Label>
-              <DatePicker date={reminderDate} setDate={setReminderDate} />
+      {treatmentPlans.map((plan, index) => (
+        <Card
+          key={index}
+          className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800"
+        >
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+              <h3 className="font-semibold text-lg text-primary dark:text-blue-300 mb-2 sm:mb-0">
+                Treatment Plan {plan.planNumber}
+              </h3>
+              <div className="flex items-center">
+                <Label
+                  htmlFor={`reminderDate-${index}`}
+                  className="font-medium text-sm mr-2 dark:text-gray-300"
+                >
+                  Reminder:
+                </Label>
+                <DatePicker
+                  date={plan.reminder ? new Date(plan.reminder) : undefined}
+                  setDate={(date) =>
+                    updateTreatmentPlan(index, "reminder", date)
+                  }
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Textarea
-                id="treatmentPlan"
-                value={treatmentPlan}
-                onChange={(e) =>
-                  updateDiagnosisTreatment("treatmentPlan", e.target.value)
-                }
-                placeholder="• Treatment point 1&#10;• Treatment point 2&#10;• Treatment point 3&#10;• etc."
-                className="h-48 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Textarea
+                  id={`treatmentPlan-${index}`}
+                  value={plan.plan}
+                  onChange={(e) =>
+                    updateTreatmentPlan(index, "plan", e.target.value)
+                  }
+                  placeholder="• Treatment point "
+                  className="h-24 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm resize-none"
+                />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
+          </CardContent>
+        </Card>
+      ))}
+      <div className="w-full flex items-center justify-center">
+        <Button
+          onClick={addTreatmentPlan}
+          className=" bg-primary hover:bg-primary/90 text-white dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white font-medium text-sm px-4 py-2 rounded-md flex items-center"
+        >
+          Add new Treatment plan <Plus className="ml-1 h-4 w-4" />
+        </Button>
+      </div>
       {/* Notes Section */}
       <Card className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800">
         <CardContent className="p-6">

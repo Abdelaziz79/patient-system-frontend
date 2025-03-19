@@ -1,40 +1,49 @@
 "use client";
 
+import * as React from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
-import { CustomCalendar, MONTHS } from "./CustomCalendar";
-type Props = {
+import { CustomCalendar } from "./CustomCalendar";
+
+interface DatePickerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
-};
+}
 
-function DatePicker({ date, setDate }: Props) {
-  const formatDisplayDate = (date: Date) => {
-    const day = date.getDate();
-    const month = MONTHS[date.getMonth()];
-    const year = date.getFullYear();
-    return `${month} ${day}, ${year}`;
-  };
+export default function DatePicker({
+  date,
+  setDate,
+  className,
+  ...props
+}: DatePickerProps) {
+  // Use memoized date to prevent unnecessary re-renders
+  const formattedDate = React.useMemo(() => {
+    return date ? format(date, "PPP") : "Pick a date";
+  }, [date]);
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          id="reminderDate"
           variant="outline"
           className={cn(
-            "w-44 justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            "w-full justify-start text-left font-normal",
+            !date && "text-muted-foreground",
+            className
           )}
+          {...props}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? formatDisplayDate(date) : <span>Pick a date</span>}
+          {formattedDate}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -43,5 +52,3 @@ function DatePicker({ date, setDate }: Props) {
     </Popover>
   );
 }
-
-export default DatePicker;
