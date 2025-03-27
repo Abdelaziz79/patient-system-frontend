@@ -28,7 +28,7 @@ export default function AddEventPage() {
   const id = params.id as string;
   const [isLoading, setIsLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
-  const [activeTab, setActiveTab] = useState("vitals");
+  const [activeTab, setActiveTab] = useState("events");
   // const [isSubmitting, setIsSubmitting] = useState(false);
 
   // General event fields
@@ -81,7 +81,6 @@ export default function AddEventPage() {
           </div>
 
           {/* Basic Event Information */}
-          <BasicEventInfo />
 
           {/* Tabs for different event types */}
           <Tabs
@@ -91,6 +90,8 @@ export default function AddEventPage() {
             onValueChange={setActiveTab}
           >
             <PatientNewEventTabs />
+
+            <BasicEventInfo />
 
             {/* Vitals Tab */}
             <VitalsTab />

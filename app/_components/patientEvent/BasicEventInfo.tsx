@@ -5,176 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useCallback, useState } from "react";
-import DatePicker from "../DatePicker";
-import TimePicker from "../TimePicker";
-
-type Events =
-  | "status_update"
-  | "medication_change"
-  | "lab_result"
-  | "vital_signs"
-  | "imaging_result"
-  | "consultation"
-  | "procedure"
-  | "other";
-
-type Actions =
-  | "no_action"
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+import { useEffect, useState } from "react";
 
 type Priorities = "low" | "medium" | "high";
 
 type EventField = {
+  id: string;
   title: string;
   description: string;
-  action: Actions;
-  date: Date | undefined;
-  time: Date | undefined;
+  action: string;
+  reminderDate: string;
+  reminderTime: string;
   priority: Priorities;
-};
-
-// Event type definitions
-const EVENT_TYPES = {
-  status_update: {
-    id: "status_update",
-    label: "Status Update",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-    icon: "📝",
-    titlePlaceholder: "Enter status update title",
-    descriptionPlaceholder: "Detail the current status and any changes",
-    actionPlaceholder: "Select action for status update",
-  },
-  medication_change: {
-    id: "medication_change",
-    label: "Medication Change",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
-    icon: "💊",
-    titlePlaceholder: "Enter medication name and change",
-    descriptionPlaceholder: "Detail dosage, frequency, reason for change, etc.",
-    actionPlaceholder: "Select action for medication change",
-  },
-  lab_result: {
-    id: "lab_result",
-    label: "Lab Result",
-    color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-    icon: "🧪",
-    titlePlaceholder: "Enter lab test name",
-    descriptionPlaceholder:
-      "Detail the results, normal ranges, and any follow-up needed",
-    actionPlaceholder: "Select action for lab result",
-  },
-  vital_signs: {
-    id: "vital_signs",
-    label: "Vital Signs",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-    icon: "📊",
-    titlePlaceholder: "Enter vital signs summary",
-    descriptionPlaceholder: "Detail BP, HR, RR, temperature, O2 sat, etc.",
-    actionPlaceholder: "Select action for vital signs",
-  },
-  imaging_result: {
-    id: "imaging_result",
-    label: "Imaging Result",
-    color:
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300",
-    icon: "🔍",
-    titlePlaceholder: "Enter imaging study name",
-    descriptionPlaceholder:
-      "Detail the findings, impression, and recommended follow-up",
-    actionPlaceholder: "Select action for imaging result",
-  },
-  consultation: {
-    id: "consultation",
-    label: "Consultation",
-    color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300",
-    icon: "👨‍⚕️",
-    titlePlaceholder: "Enter consultant name and specialty",
-    descriptionPlaceholder:
-      "Detail the consultation reason, findings, and recommendations",
-    actionPlaceholder: "Select action for consultation",
-  },
-  procedure: {
-    id: "procedure",
-    label: "Procedure",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300",
-    icon: "🔧",
-    titlePlaceholder: "Enter procedure name",
-    descriptionPlaceholder:
-      "Detail the procedure, findings, and post-procedure instructions",
-    actionPlaceholder: "Select action for procedure",
-  },
-  other: {
-    id: "other",
-    label: "Other",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
-    icon: "📋",
-    titlePlaceholder: "Enter event title",
-    descriptionPlaceholder: "Describe the event details",
-    actionPlaceholder: "Select action for this event",
-  },
-};
-
-// Action states for events
-
-const ACTION_STATES = {
-  pending: {
-    id: "pending",
-    label: "Pending",
-    color: {
-      bg: "bg-blue-100 dark:bg-blue-900/30",
-      text: "text-blue-700 dark:text-blue-300",
-      border: "border-blue-200 dark:border-blue-800",
-    },
-    icon: "⏳",
-  },
-  in_progress: {
-    id: "in_progress",
-    label: "In Progress",
-    color: {
-      bg: "bg-purple-100 dark:bg-purple-900/30",
-      text: "text-purple-700 dark:text-purple-300",
-      border: "border-purple-200 dark:border-purple-800",
-    },
-    icon: "🔄",
-  },
-  completed: {
-    id: "completed",
-    label: "Completed",
-    color: {
-      bg: "bg-green-100 dark:bg-green-900/30",
-      text: "text-green-700 dark:text-green-300",
-      border: "border-green-200 dark:border-green-800",
-    },
-    icon: "✅",
-  },
-  cancelled: {
-    id: "cancelled",
-    label: "Cancelled",
-    color: {
-      bg: "bg-red-100 dark:bg-red-900/30",
-      text: "text-red-700 dark:text-red-300",
-      border: "border-red-200 dark:border-red-800",
-    },
-    icon: "❌",
-  },
-  no_action: {
-    id: "no_action",
-    label: "No Action Required",
-    color: {
-      bg: "bg-gray-100 dark:bg-gray-900/30",
-      text: "text-gray-700 dark:text-gray-300",
-      border: "border-gray-200 dark:border-gray-800",
-    },
-    icon: "⚪",
-  },
 };
 
 // Priority definitions
@@ -211,297 +63,348 @@ const PRIORITIES = {
   },
 };
 
-// Get a default date for initialization
-const defaultDate = new Date();
+// Generate a unique ID
+const generateId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+// Get current date and time in input format
+const getCurrentDate = () => {
+  const now = new Date();
+  return now.toISOString().split("T")[0];
+};
+
+const getCurrentTime = () => {
+  const now = new Date();
+  return now.toTimeString().split(" ")[0].substring(0, 5);
+};
+
+// Format date for display
+const formatDate = (dateStr: string, timeStr: string) => {
+  if (!dateStr) return "";
+  const date = new Date(`${dateStr}T${timeStr || "00:00"}`);
+  return date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// Create default event
+const createDefaultEvent = (): EventField => ({
+  id: generateId(),
+  title: "",
+  description: "",
+  action: "",
+  reminderDate: getCurrentDate(),
+  reminderTime: getCurrentTime(),
+  priority: "medium",
+});
 
 function EventForm() {
-  // State for selected event type
-  const [selectedEventType, setSelectedEventType] =
-    useState<Events>("status_update");
+  // State for list of events
+  const [events, setEvents] = useState<EventField[]>([createDefaultEvent()]);
 
-  // Initialize event fields with default values
-  const [eventFields, setEventFields] = useState<Record<Events, EventField>>({
-    status_update: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
+  // Separate collection for completed/saved events
+  const [eventHistory, setEventHistory] = useState<EventField[]>([
+    {
+      id: generateId(),
+      title: "bbd",
+      description: "xsa",
+      action: "gwd",
+      reminderDate: getCurrentDate(),
+      reminderTime: getCurrentTime(),
       priority: "medium",
     },
-    medication_change: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
+    {
+      id: generateId(),
+      title: "dsadca",
+      description:
+        "sadasdsasad da sjd saknj dnj najd naojdn kaldnmo andia hjndos akjmdkl anldkj anlkdj nalkdj na",
+      action: "dsada ",
+      reminderDate: getCurrentDate(),
+      reminderTime: getCurrentTime(),
       priority: "medium",
     },
-    lab_result: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-    vital_signs: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-    imaging_result: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-    consultation: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-    procedure: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-    other: {
-      title: "",
-      description: "",
-      action: "no_action",
-      date: defaultDate,
-      time: defaultDate,
-      priority: "medium",
-    },
-  });
+  ]);
 
-  // Handler for changing event fields
-  // Optimized handlers with useCallback
-  const handleEventFieldChange = useCallback(
-    (
-      type: Events,
-      field: keyof EventField,
-      value: string | Date | undefined
-    ) => {
-      setEventFields((prev) => ({
-        ...prev,
-        [type]: {
-          ...prev[type],
-          [field]: value,
-        },
-      }));
-    },
-    []
-  );
+  // State for currently editing event
+  const [currentEventId, setCurrentEventId] = useState<string | null>(null);
 
-  // Handler for changing event type
-  const handleEventTypeChange = useCallback((type: string) => {
-    setSelectedEventType(type as Events);
+  // Initialize with default event
+  useEffect(() => {
+    // Set the first event as current when component mounts
+    if (events.length > 0 && !currentEventId) {
+      setCurrentEventId(events[0].id);
+    }
   }, []);
 
-  // Handler for date change
-  const handleDateChange = useCallback(
-    (date: Date | undefined) => {
-      if (date) {
-        handleEventFieldChange(selectedEventType, "date", date);
-      }
-    },
-    [selectedEventType, handleEventFieldChange]
-  );
+  // Get current event being edited
+  const currentEvent =
+    events.find((event) => event.id === currentEventId) || events[0];
 
-  // Handler for time change
-  const handleTimeChange = useCallback(
-    (time: Date | undefined) => {
-      if (time) {
-        handleEventFieldChange(selectedEventType, "time", time);
-      }
-    },
-    [selectedEventType, handleEventFieldChange]
-  );
+  // Handler for changing event fields
+  const handleEventFieldChange = (
+    field: keyof EventField,
+    value: string | Priorities
+  ) => {
+    setEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event.id === currentEventId ? { ...event, [field]: value } : event
+      )
+    );
+  };
 
-  // Get current field values for the selected event type
-  const currentFields = eventFields[selectedEventType];
+  // Add a new event
+  const addNewEvent = () => {
+    const newEvent = createDefaultEvent();
+    setEvents((prev) => [...prev, newEvent]);
+    setCurrentEventId(newEvent.id);
+  };
+
+  // Save current event
+  const saveEvent = () => {
+    // Validate that the event has at least a title
+    if (!currentEvent.title.trim()) {
+      // Could show an error message here
+      return;
+    }
+
+    // Add current event to history
+    setEventHistory((prev) => [...prev, { ...currentEvent }]);
+
+    // If we're editing a non-existing event, add it
+    if (!events.some((e) => e.id === currentEventId)) {
+      const newEvent = {
+        ...currentEvent,
+        id: currentEventId || generateId(),
+      };
+      setEvents((prev) => [...prev, newEvent]);
+    }
+
+    // Reset to create a new event
+    const newEvent = createDefaultEvent();
+    setEvents((prev) => [...prev, newEvent]);
+    setCurrentEventId(newEvent.id);
+  };
+
+  // Delete an event
+  const deleteEvent = (id: string) => {
+    setEvents((prev) => prev.filter((event) => event.id !== id));
+
+    // If we're deleting the current event, select another one
+    if (currentEventId === id) {
+      if (events.length > 1) {
+        const remainingEvents = events.filter((event) => event.id !== id);
+        setCurrentEventId(remainingEvents[0].id);
+      } else {
+        // If no events left, create a new default one
+        const newEvent = createDefaultEvent();
+        setEvents([newEvent]);
+        setCurrentEventId(newEvent.id);
+      }
+    }
+  };
+
+  // Delete from history
+  const deleteFromHistory = (id: string) => {
+    setEventHistory((prev) => prev.filter((event) => event.id !== id));
+  };
+
+  // Select an event to edit
+  const selectEvent = (id: string) => {
+    setCurrentEventId(id);
+  };
+
+  // Edit event from history
+  const editFromHistory = (event: EventField) => {
+    // Remove from history
+    setEventHistory((prev) => prev.filter((e) => e.id !== event.id));
+
+    // Add to current events and set as current
+    setEvents((prev) => [...prev, event]);
+    setCurrentEventId(event.id);
+  };
+
+  // Truncate text for table display
+  const truncateText = (text: string, maxLength: number = 40) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
 
   return (
-    <Card className="border border-gray-200 rounded-xl dark:border-slate-600 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
-      <CardHeader className="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-600 px-6 py-4">
-        <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-          Create New Event
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="p-6">
-        {/* Event Type Selection */}
-        <div className="mb-6">
-          <Label className="font-medium text-gray-900 dark:text-gray-100 block mb-3">
-            Event Type
-          </Label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {Object.values(EVENT_TYPES).map((type) => (
-              <Button
-                key={type.id}
-                type="button"
-                onClick={() => handleEventTypeChange(type.id)}
-                className={`h-auto py-2 px-3 justify-start overflow-hidden ${
-                  selectedEventType === type.id
-                    ? "ring-2 ring-blue-500 dark:ring-blue-400"
-                    : "bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300"
-                }`}
-                variant={selectedEventType === type.id ? "default" : "outline"}
-              >
-                <span className="mr-2">{type.icon}</span>
-                <span className="text-sm font-medium">{type.label}</span>
-              </Button>
-            ))}
+    <TabsContent value="events" className="space-y-6 mt-4">
+      <Card className="border border-gray-200 rounded-xl dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md overflow-hidden transition-colors duration-200">
+        <CardHeader className="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-600 px-6 py-4">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+              Events
+            </CardTitle>
+            <Button
+              onClick={addNewEvent}
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white shadow-sm transition-all duration-200"
+            >
+              Add New Event
+            </Button>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-5">
-            {/* Title field - specific to the event type */}
-            <div>
-              <Label
-                htmlFor={`${selectedEventType}Title`}
-                className="font-medium text-gray-900 dark:text-gray-100 block mb-1.5"
-              >
-                {EVENT_TYPES[selectedEventType].label} Title
+        <CardContent className="p-6">
+          {events.length > 0 && (
+            <div className="mb-6">
+              <Label className="font-medium text-gray-900 dark:text-gray-50 block mb-2">
+                Event List
               </Label>
-              <Input
-                id={`${selectedEventType}Title`}
-                value={currentFields.title}
-                onChange={(e) =>
-                  handleEventFieldChange(
-                    selectedEventType,
-                    "title",
-                    e.target.value
-                  )
-                }
-                placeholder={EVENT_TYPES[selectedEventType].titlePlaceholder}
-                className="border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                required
-              />
+              <div className="flex flex-wrap gap-2 mb-4">
+                {events.map((event) => (
+                  <Badge
+                    key={event.id}
+                    className={`cursor-pointer px-3 py-1.5 rounded-full transition-colors duration-200 ${
+                      event.id === currentEventId
+                        ? "bg-blue-500 text-white dark:bg-blue-600 shadow-sm"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    }`}
+                    onClick={() => selectEvent(event.id)}
+                  >
+                    {event.title || "Untitled Event"}
+                    {event.id !== currentEventId && (
+                      <button
+                        className="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 opacity-70 hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteEvent(event.id);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </Badge>
+                ))}
+              </div>
             </div>
+          )}
 
-            {/* Description field - specific to the event type */}
-            <div>
-              <Label
-                htmlFor={`${selectedEventType}Description`}
-                className="font-medium text-gray-900 dark:text-gray-100 block mb-1.5"
-              >
-                {EVENT_TYPES[selectedEventType].label} Description
-              </Label>
-              <Textarea
-                id={`${selectedEventType}Description`}
-                value={currentFields.description}
-                onChange={(e) =>
-                  handleEventFieldChange(
-                    selectedEventType,
-                    "description",
-                    e.target.value
-                  )
-                }
-                placeholder={
-                  EVENT_TYPES[selectedEventType].descriptionPlaceholder
-                }
-                className="min-h-[120px] border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-700 resize-vertical"
-                required
-              />
-            </div>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-5">
+              {/* Title field */}
+              <div>
+                <Label
+                  htmlFor="eventTitle"
+                  className="font-medium text-gray-900 dark:text-gray-50 block mb-1.5"
+                >
+                  Title
+                </Label>
+                <Input
+                  id="eventTitle"
+                  value={currentEvent?.title || ""}
+                  onChange={(e) =>
+                    handleEventFieldChange("title", e.target.value)
+                  }
+                  placeholder="Enter event title"
+                  className="border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-colors duration-200"
+                  required
+                />
+              </div>
 
-          <div className="space-y-5">
-            {/* Date & Time - specific to the event type */}
-            <div>
-              <Label
-                htmlFor={`${selectedEventType}Date`}
-                className="font-medium text-gray-900 dark:text-gray-100 block mb-1.5"
-              >
-                {EVENT_TYPES[selectedEventType].label} Date & Time
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                <div className="flex-grow">
-                  <DatePicker
-                    date={currentFields.date}
-                    setDate={handleDateChange}
-                  />
-                </div>
-                <div className="flex-grow">
-                  <TimePicker
-                    time={currentFields.time}
-                    setTime={handleTimeChange}
-                  />
-                </div>
+              {/* Description field */}
+              <div>
+                <Label
+                  htmlFor="eventDescription"
+                  className="font-medium text-gray-900 dark:text-gray-50 block mb-1.5"
+                >
+                  Description
+                </Label>
+                <Textarea
+                  id="eventDescription"
+                  value={currentEvent?.description || ""}
+                  onChange={(e) =>
+                    handleEventFieldChange("description", e.target.value)
+                  }
+                  placeholder="Describe the event details"
+                  className="min-h-[120px] border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 resize-vertical transition-colors duration-200"
+                  required
+                />
               </div>
             </div>
 
-            {/* Action Status - specific to the event type */}
-            <div>
-              <Label
-                htmlFor={`${selectedEventType}Action`}
-                className="font-medium text-gray-900 dark:text-gray-100 block mb-1.5"
-              >
-                {EVENT_TYPES[selectedEventType].label} Action Status
-              </Label>
-              <select
-                id={`${selectedEventType}Action`}
-                value={currentFields.action}
-                onChange={(e) =>
-                  handleEventFieldChange(
-                    selectedEventType,
-                    "action",
-                    e.target.value as Actions
-                  )
-                }
-                className="w-full py-2 rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 shadow-sm"
-              >
-                {Object.values(ACTION_STATES).map((state) => (
-                  <option key={state.id} value={state.id}>
-                    {state.icon} {state.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Priority Selection - specific to the event type */}
-            <div>
+            <div className="space-y-5">
+              {/* Reminder Date and Time */}
               <div>
                 <Label
-                  htmlFor={`${selectedEventType}Priority`}
-                  className="font-medium text-gray-900 dark:text-gray-100 block mb-1.5"
+                  htmlFor="eventReminder"
+                  className="font-medium text-gray-900 dark:text-gray-50 block mb-1.5"
                 >
-                  {EVENT_TYPES[selectedEventType].label} Priority
+                  Reminder
                 </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    id="eventReminderDate"
+                    type="date"
+                    value={currentEvent?.reminderDate || ""}
+                    onChange={(e) =>
+                      handleEventFieldChange("reminderDate", e.target.value)
+                    }
+                    className="border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-colors duration-200"
+                  />
+                  <Input
+                    id="eventReminderTime"
+                    type="time"
+                    value={currentEvent?.reminderTime || ""}
+                    onChange={(e) =>
+                      handleEventFieldChange("reminderTime", e.target.value)
+                    }
+                    className="border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-colors duration-200"
+                  />
+                </div>
+              </div>
 
-                {/* Replace the RadioGroup with standard buttons */}
-                <div className="flex flex-wrap gap-2">
+              {/* Action Taken */}
+              <div>
+                <Label
+                  htmlFor="eventAction"
+                  className="font-medium text-gray-900 dark:text-gray-50 block mb-1.5"
+                >
+                  Action Taken
+                </Label>
+                <Input
+                  id="eventAction"
+                  value={currentEvent?.action || ""}
+                  onChange={(e) =>
+                    handleEventFieldChange("action", e.target.value)
+                  }
+                  placeholder="Enter action taken"
+                  className="border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-colors duration-200"
+                />
+              </div>
+
+              {/* Priority Selection */}
+              <div>
+                <Label
+                  htmlFor="eventPriority"
+                  className="font-medium text-gray-900 dark:text-gray-50 block mb-1.5"
+                >
+                  Priority
+                </Label>
+                <div className="flex flex-wrap gap-3">
                   {Object.values(PRIORITIES).map((priority) => (
                     <button
                       key={priority.id}
                       type="button"
                       onClick={() =>
                         handleEventFieldChange(
-                          selectedEventType,
                           "priority",
                           priority.id as Priorities
                         )
                       }
-                      className={`p-2 rounded-md border flex items-center space-x-2 ${
+                      className={`p-2 rounded-md border flex items-center space-x-2 transition-all duration-200 hover:shadow-sm ${
                         priority.color.bg
                       } ${priority.color.border} ${priority.color.text} ${
-                        currentFields.priority === priority.id
-                          ? "ring-2 ring-blue-500 dark:ring-blue-400"
+                        currentEvent?.priority === priority.id
+                          ? "ring-2 ring-blue-500 dark:ring-blue-400 shadow-sm"
                           : ""
                       }`}
                     >
@@ -513,62 +416,172 @@ function EventForm() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Event Summary Card */}
-        <div className="mt-8 border-t pt-6 border-gray-200 dark:border-gray-700">
-          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-              <Badge className={EVENT_TYPES[selectedEventType].color + " mr-2"}>
-                {EVENT_TYPES[selectedEventType].icon}{" "}
-                {EVENT_TYPES[selectedEventType].label}
-              </Badge>
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                {currentFields.title}
-              </span>
-            </h3>
+          {/* Event Summary Card */}
+          {currentEvent && currentEvent.title && (
+            <div className="mt-8 border-t pt-6 border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600 shadow-sm transition-colors duration-200">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-50 mb-3">
+                  {currentEvent.title}
+                </h3>
 
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge
-                className={`${PRIORITIES[currentFields.priority].color.bg} ${
-                  PRIORITIES[currentFields.priority].color.text
-                }`}
-              >
-                {PRIORITIES[currentFields.priority].icon}{" "}
-                {PRIORITIES[currentFields.priority].label} Priority
-              </Badge>
-              <Badge
-                className={`${ACTION_STATES[currentFields.action].color.bg} ${
-                  ACTION_STATES[currentFields.action].color.text
-                }`}
-              >
-                {ACTION_STATES[currentFields.action].icon}{" "}
-                {ACTION_STATES[currentFields.action].label}
-              </Badge>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Badge
+                    className={`${PRIORITIES[currentEvent.priority].color.bg} ${
+                      PRIORITIES[currentEvent.priority].color.text
+                    } px-3 py-1.5 rounded-full`}
+                  >
+                    {PRIORITIES[currentEvent.priority].icon}{" "}
+                    {PRIORITIES[currentEvent.priority].label} Priority
+                  </Badge>
+                  {currentEvent.action && (
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 px-3 py-1.5 rounded-full">
+                      Action: {currentEvent.action}
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                  {currentEvent.reminderDate && currentEvent.reminderTime && (
+                    <p>
+                      Reminder: {currentEvent.reminderDate} at{" "}
+                      {currentEvent.reminderTime}
+                    </p>
+                  )}
+                  <p className="mt-2">{currentEvent.description}</p>
+                </div>
+
+                <div className="mt-4 flex justify-end gap-3">
+                  <Button
+                    onClick={() => deleteEvent(currentEvent.id)}
+                    className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white shadow-sm transition-all duration-200"
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    onClick={saveEvent}
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white shadow-sm transition-all duration-200"
+                  >
+                    Save Event
+                  </Button>
+                </div>
+              </div>
             </div>
+          )}
 
-            <div className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-              {currentFields.date && currentFields.time && (
-                <p>
-                  Date & Time: {currentFields.date.toLocaleDateString()} at{" "}
-                  {currentFields.time.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              )}
-              <p className="mt-2">{currentFields.description}</p>
+          {/* Event History Table */}
+          {eventHistory.length > 0 && (
+            <div className="mt-10 border-t pt-6 border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-4 flex items-center">
+                <span className="mr-2">📋</span> Event History
+              </h3>
+
+              <div className="border dark:border-gray-700 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-slate-800 transition-colors duration-200">
+                <Table>
+                  <TableHeader className="bg-gray-50 dark:bg-slate-700/50">
+                    <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                      <TableHead className="w-1/6 py-3 font-semibold text-gray-900 dark:text-gray-50">
+                        Priority
+                      </TableHead>
+                      <TableHead className="w-1/4 py-3 font-semibold text-gray-900 dark:text-gray-50">
+                        Title
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell py-3 font-semibold text-gray-900 dark:text-gray-50">
+                        Description
+                      </TableHead>
+                      <TableHead className="w-1/6 py-3 font-semibold text-gray-900 dark:text-gray-50">
+                        Reminder
+                      </TableHead>
+                      <TableHead className="w-1/6 py-3 text-right font-semibold text-gray-900 dark:text-gray-50">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {eventHistory.map((event, index) => (
+                      <TableRow
+                        key={event.id}
+                        className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors duration-150 ${
+                          index % 2 === 0
+                            ? "bg-gray-50/50 dark:bg-slate-800/50"
+                            : ""
+                        }`}
+                      >
+                        <TableCell className="py-3">
+                          <Badge
+                            className={`${
+                              PRIORITIES[event.priority].color.bg
+                            } ${
+                              PRIORITIES[event.priority].color.text
+                            } px-2.5 py-1 rounded-full`}
+                          >
+                            {PRIORITIES[event.priority].icon}{" "}
+                            {PRIORITIES[event.priority].label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900 dark:text-gray-100 py-3">
+                          {event.title}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-gray-600 dark:text-gray-300 py-3">
+                          {truncateText(event.description)}
+                        </TableCell>
+                        <TableCell className="text-gray-600 dark:text-gray-300 py-3">
+                          {formatDate(event.reminderDate, event.reminderTime)}
+                        </TableCell>
+                        <TableCell className="text-right py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              onClick={() => editFromHistory(event)}
+                              className="h-8 w-16 px-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-xs rounded-full shadow-sm transition-all duration-200"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              onClick={() => deleteFromHistory(event.id)}
+                              className="h-8 w-16 px-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white text-xs rounded-full shadow-sm transition-all duration-200"
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Summary stat row */}
+              <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                  <span>
+                    Low Priority:{" "}
+                    {eventHistory.filter((e) => e.priority === "low").length}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                  <span>
+                    Medium Priority:{" "}
+                    {eventHistory.filter((e) => e.priority === "medium").length}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                  <span>
+                    High Priority:{" "}
+                    {eventHistory.filter((e) => e.priority === "high").length}
+                  </span>
+                </div>
+                <div className="flex-1 text-right">
+                  <span>Total Events: {eventHistory.length}</span>
+                </div>
+              </div>
             </div>
-            {/* 
-            <div className="mt-4 flex justify-end">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                Save Event
-              </Button>
-            </div> */}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </TabsContent>
   );
 }
 

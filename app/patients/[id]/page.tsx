@@ -22,7 +22,12 @@ import {
 } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { ArrowLeftIcon, CalendarIcon, ClipboardEditIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CalendarIcon,
+  ClipboardEditIcon,
+  DoorOpen,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -178,6 +183,9 @@ export default function PatientDetailsPage() {
   const handleAddEvent = () => {
     router.push(`/patients/add-event/${id}`);
   };
+  const handleExistPatient = () => {
+    router.push(`/patients/exist-patient/${id}`);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -279,17 +287,26 @@ export default function PatientDetailsPage() {
         <CardFooter className="flex justify-between gap-4 pt-6 flex-wrap">
           <Button
             onClick={handleEdit}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white shadow-lg transition-transform transform hover:scale-105"
           >
-            <ClipboardEditIcon className="mr-2 h-4 w-4" />
-            Edit Patient Information
+            <ClipboardEditIcon className="mr-2 h-5 w-5" />
+            Edit Patient Info
           </Button>
+
           <Button
             onClick={handleAddEvent}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            className="flex-1 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white shadow-lg transition-transform transform hover:scale-105"
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            Add New Event
+            <CalendarIcon className="mr-2 h-5 w-5" />
+            Add Event
+          </Button>
+
+          <Button
+            onClick={handleExistPatient}
+            className="flex-1 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white shadow-lg transition-transform transform hover:scale-105"
+          >
+            <DoorOpen className="mr-2 h-5 w-5" />
+            Exit Patient
           </Button>
         </CardFooter>
       </Card>

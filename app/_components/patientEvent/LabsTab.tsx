@@ -13,7 +13,6 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { useState } from "react";
-import LabHistoryTable from "./LabHistoryTable";
 import RenderInputFields from "./RenderInputFields";
 
 type LabIds =
@@ -75,6 +74,71 @@ export interface LabTest {
   id: LabIds;
   label: string;
   unit: string;
+  category?: string;
+}
+
+// Unified Table Component for displaying all lab test history
+function UnifiedLabHistoryTable({
+  tests,
+  history,
+}: {
+  tests: LabTest[];
+  history: LabTestRecord[];
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-gray-50 dark:bg-slate-700">
+            <th className="border px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">
+              Date
+            </th>
+            {tests.map((test) => (
+              <th
+                key={test.id}
+                className="border px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300"
+                title={`${test.label} (${test.category})`}
+              >
+                {test.id.toUpperCase()} {test.unit ? `(${test.unit})` : ""}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {history.length > 0 ? (
+            history.map((record, index) => (
+              <tr
+                key={index}
+                className={
+                  index % 2 === 0
+                    ? "bg-white dark:bg-slate-800"
+                    : "bg-gray-50 dark:bg-slate-700/50"
+                }
+              >
+                <td className="border px-4 py-2 font-medium">
+                  {format(new Date(record.date), "MMM dd, yyyy")}
+                </td>
+                {tests.map((test) => (
+                  <td key={test.id} className="border px-4 py-2">
+                    {record[test.id as keyof LabTestRecord] || "-"}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan={tests.length + 1}
+                className="border px-4 py-2 text-center text-gray-500 dark:text-gray-400"
+              >
+                No lab records found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function LabsTab() {
@@ -113,9 +177,6 @@ function LabsTab() {
 
   // Additional notes
   const [labNotes, setLabNotes] = useState("");
-
-  // Default active sections
-  // const [activeSection, setActiveSection] = useState("item-1");
 
   // Lab test history
   const [labTestHistory, setLabTestHistory] = useState<LabTestRecord[]>([
@@ -241,6 +302,7 @@ function LabsTab() {
       value: tlc,
       onChange: (value: string) => setTlc(value),
       unit: "×10³/μL",
+      category: "CBC and Inflammatory Markers",
     },
     {
       id: "hb",
@@ -248,6 +310,7 @@ function LabsTab() {
       value: hb,
       onChange: (value: string) => setHb(value),
       unit: "g/dL",
+      category: "CBC and Inflammatory Markers",
     },
     {
       id: "plt",
@@ -255,6 +318,7 @@ function LabsTab() {
       value: plt,
       onChange: (value: string) => setPlt(value),
       unit: "×10³/μL",
+      category: "CBC and Inflammatory Markers",
     },
     {
       id: "crp",
@@ -262,6 +326,7 @@ function LabsTab() {
       value: crp,
       onChange: (value: string) => setCrp(value),
       unit: "mg/L",
+      category: "CBC and Inflammatory Markers",
     },
   ];
 
@@ -272,6 +337,7 @@ function LabsTab() {
       value: urea,
       onChange: (value: string) => setUrea(value),
       unit: "mg/dL",
+      category: "Chemistry Panel",
     },
     {
       id: "creat",
@@ -279,6 +345,7 @@ function LabsTab() {
       value: creat,
       onChange: (value: string) => setCreat(value),
       unit: "mg/dL",
+      category: "Chemistry Panel",
     },
     {
       id: "na",
@@ -286,6 +353,7 @@ function LabsTab() {
       value: na,
       onChange: (value: string) => setNa(value),
       unit: "mEq/L",
+      category: "Chemistry Panel",
     },
     {
       id: "k",
@@ -293,6 +361,7 @@ function LabsTab() {
       value: k,
       onChange: (value: string) => setK(value),
       unit: "mEq/L",
+      category: "Chemistry Panel",
     },
     {
       id: "ca",
@@ -300,6 +369,7 @@ function LabsTab() {
       value: ca,
       onChange: (value: string) => setCa(value),
       unit: "mg/dL",
+      category: "Chemistry Panel",
     },
     {
       id: "alt",
@@ -307,6 +377,7 @@ function LabsTab() {
       value: alt,
       onChange: (value: string) => setAlt(value),
       unit: "U/L",
+      category: "Chemistry Panel",
     },
     {
       id: "ast",
@@ -314,6 +385,7 @@ function LabsTab() {
       value: ast,
       onChange: (value: string) => setAst(value),
       unit: "U/L",
+      category: "Chemistry Panel",
     },
     {
       id: "alb",
@@ -321,6 +393,7 @@ function LabsTab() {
       value: alb,
       onChange: (value: string) => setAlb(value),
       unit: "g/dL",
+      category: "Chemistry Panel",
     },
   ];
 
@@ -331,6 +404,7 @@ function LabsTab() {
       value: ck,
       onChange: (value: string) => setCk(value),
       unit: "U/L",
+      category: "Cardiac Enzymes",
     },
     {
       id: "ckmb",
@@ -338,6 +412,7 @@ function LabsTab() {
       value: ckmb,
       onChange: (value: string) => setCkmb(value),
       unit: "ng/mL",
+      category: "Cardiac Enzymes",
     },
     {
       id: "trop",
@@ -345,6 +420,7 @@ function LabsTab() {
       value: trop,
       onChange: (value: string) => setTrop(value),
       unit: "ng/mL",
+      category: "Cardiac Enzymes",
     },
   ];
 
@@ -355,6 +431,7 @@ function LabsTab() {
       value: ph,
       onChange: (value: string) => setPh(value),
       unit: "",
+      category: "Arterial Blood Gas",
     },
     {
       id: "co2",
@@ -362,6 +439,7 @@ function LabsTab() {
       value: co2,
       onChange: (value: string) => setCo2(value),
       unit: "mmHg",
+      category: "Arterial Blood Gas",
     },
     {
       id: "hco3",
@@ -369,6 +447,7 @@ function LabsTab() {
       value: hco3,
       onChange: (value: string) => setHco3(value),
       unit: "mEq/L",
+      category: "Arterial Blood Gas",
     },
     {
       id: "lactate",
@@ -376,6 +455,7 @@ function LabsTab() {
       value: lactate,
       onChange: (value: string) => setLactate(value),
       unit: "mmol/L",
+      category: "Arterial Blood Gas",
     },
     {
       id: "o2sat",
@@ -383,6 +463,7 @@ function LabsTab() {
       value: o2sat,
       onChange: (value: string) => setO2sat(value),
       unit: "%",
+      category: "Arterial Blood Gas",
     },
   ];
 
@@ -393,6 +474,7 @@ function LabsTab() {
       value: pt,
       onChange: (value: string) => setPt(value),
       unit: "sec",
+      category: "Coagulation Profile",
     },
     {
       id: "ptt",
@@ -400,6 +482,7 @@ function LabsTab() {
       value: ptt,
       onChange: (value: string) => setPtt(value),
       unit: "sec",
+      category: "Coagulation Profile",
     },
     {
       id: "inr",
@@ -407,37 +490,23 @@ function LabsTab() {
       value: inr,
       onChange: (value: string) => setInr(value),
       unit: "",
+      category: "Coagulation Profile",
     },
   ];
 
-  // Formats for history tables
-  const cbcTestsForTable = cbcTests.map(({ id, label, unit }) => ({
+  // Create a unified array of all test definitions for the table
+  const allTestsForTable = [
+    ...cbcTests,
+    ...chemistryTests,
+    ...cardiacEnzymes,
+    ...abgTests,
+    ...coagulationTests,
+  ].map(({ id, label, unit, category }) => ({
     id,
     label,
     unit,
+    category,
   }));
-
-  const chemistryTestsForTable = chemistryTests.map(({ id, label, unit }) => ({
-    id,
-    label,
-    unit,
-  }));
-
-  const cardiacEnzymesForTable = cardiacEnzymes.map(({ id, label, unit }) => ({
-    id,
-    label,
-    unit,
-  }));
-
-  const abgTestsForTable = abgTests.map(({ id, label, unit }) => ({
-    id,
-    label,
-    unit,
-  }));
-
-  const coagulationTestsForTable = coagulationTests.map(
-    ({ id, label, unit }) => ({ id, label, unit })
-  );
 
   // Define lab section components
   const labSections = [
@@ -445,31 +514,26 @@ function LabsTab() {
       id: "cbc",
       title: "CBC and Inflammatory Markers",
       tests: cbcTests,
-      tableTests: cbcTestsForTable,
     },
     {
       id: "chemistry",
       title: "Chemistry Panel",
       tests: chemistryTests,
-      tableTests: chemistryTestsForTable,
     },
     {
       id: "cardiac",
       title: "Cardiac Enzymes",
       tests: cardiacEnzymes,
-      tableTests: cardiacEnzymesForTable,
     },
     {
       id: "abg",
       title: "Arterial Blood Gas (ABG)",
       tests: abgTests,
-      tableTests: abgTestsForTable,
     },
     {
       id: "coagulation",
       title: "Coagulation Profile",
       tests: coagulationTests,
-      tableTests: coagulationTestsForTable,
     },
   ];
 
@@ -492,22 +556,24 @@ function LabsTab() {
                 <div className="border-t border-gray-100 dark:border-slate-700 pt-4">
                   <RenderInputFields tests={section.tests} />
                 </div>
-
-                {/* History Table */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    History
-                  </h4>
-                  <LabHistoryTable
-                    tests={section.tableTests as LabTest[]}
-                    history={labTestHistory}
-                  />
-                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
+
+      {/* Unified History Table */}
+      <Card className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800">
+        <CardContent className="p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            Lab History
+          </h3>
+          <UnifiedLabHistoryTable
+            tests={allTestsForTable as LabTest[]}
+            history={labTestHistory}
+          />
+        </CardContent>
+      </Card>
 
       {/* Lab Notes */}
       <Card className="shadow-sm border border-gray-200 dark:border-slate-600 dark:bg-slate-800">

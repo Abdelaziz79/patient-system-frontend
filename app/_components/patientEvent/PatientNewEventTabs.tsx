@@ -8,6 +8,7 @@ import {
 
 const PatientNewEventTabs = () => {
   const tabs = [
+    { value: "events", label: "Events" },
     { value: "vitals", label: "Vitals" },
     { value: "labs", label: "Labs" },
     { value: "imaging", label: "Imaging" },
@@ -15,6 +16,7 @@ const PatientNewEventTabs = () => {
   ];
 
   const icons = {
+    events: <HeartPulseIcon className="h-4 w-4" />,
     vitals: <HeartPulseIcon className="h-4 w-4" />,
     labs: <TestTubeIcon className="h-4 w-4" />,
     imaging: <ImageIcon className="h-4 w-4" />,
@@ -26,7 +28,7 @@ const PatientNewEventTabs = () => {
       <TabsNav
         tabs={tabs}
         icons={icons}
-        containerClassName="grid grid-cols-4 md:grid-cols-4 gap-1 p-1 bg-blue-50 dark:bg-slate-700 rounded-lg"
+        containerClassName="grid grid-cols-5 md:grid-cols-5 gap-1 p-1 bg-blue-50 dark:bg-slate-700 rounded-lg"
         triggerClassName="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-200"
         showLabels="responsive"
       />
