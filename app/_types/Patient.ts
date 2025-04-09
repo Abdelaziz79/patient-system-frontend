@@ -1,6 +1,6 @@
 export type PersonalInfo = {
+  dateOfBirth: Date | undefined;
   patientName: string;
-  age: string;
   gender: string;
   address: string;
   phone: string;

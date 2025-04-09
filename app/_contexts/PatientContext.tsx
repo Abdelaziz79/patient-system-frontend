@@ -18,7 +18,7 @@ const initialState: Patient = {
   // Personal information
   personalInfo: {
     patientName: "",
-    age: "",
+    dateOfBirth: new Date(),
     gender: "",
     address: "",
     phone: "",

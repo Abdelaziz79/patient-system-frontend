@@ -1,8 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -32,6 +37,14 @@ export function CustomCalendar({
   const [calendarDays, setCalendarDays] = useState<
     Array<{ date: Date; currentMonth: boolean }>
   >([]);
+  const [yearPickerOpen, setYearPickerOpen] = useState(false);
+
+  // Generate array of years from 1900 to current year
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - 1899 },
+    (_, i) => currentYear - i
+  );
 
   useEffect(() => {
     // If a date is selected, set the calendar to that month
@@ -104,6 +117,15 @@ export function CustomCalendar({
     );
   };
 
+  const changeYear = (year: number) => {
+    setCurrentMonth(new Date(year, currentMonth.getMonth(), 1));
+    setYearPickerOpen(false);
+  };
+
+  const changeMonth = (monthIndex: number) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), monthIndex, 1));
+  };
+
   const formatDate = (date: Date): string => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
       2,
@@ -131,9 +153,69 @@ export function CustomCalendar({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <div className="font-medium">
-          {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+
+        <div className="flex gap-2">
+          {/* Month selector */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 px-2 font-medium flex items-center gap-1"
+              >
+                {MONTHS[currentMonth.getMonth()]}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-0">
+              <div className="grid grid-cols-3 gap-1 p-2">
+                {MONTHS.map((month, index) => (
+                  <Button
+                    key={month}
+                    variant={
+                      currentMonth.getMonth() === index ? "default" : "ghost"
+                    }
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => changeMonth(index)}
+                  >
+                    {month.substring(0, 3)}
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Year selector */}
+          <Popover open={yearPickerOpen} onOpenChange={setYearPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 px-2 font-medium flex items-center gap-1"
+              >
+                {currentMonth.getFullYear()}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-0 max-h-60 overflow-auto">
+              <div className="grid grid-cols-4 gap-1 p-2">
+                {years.map((year) => (
+                  <Button
+                    key={year}
+                    variant={
+                      currentMonth.getFullYear() === year ? "default" : "ghost"
+                    }
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => changeYear(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
+
         <Button
           variant="ghost"
           size="icon"

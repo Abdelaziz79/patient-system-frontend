@@ -1,74 +1,41 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
   AlertCircle,
   Calendar,
   ChevronLeft,
   FileText,
+  HeartPulseIcon,
   Home,
   LogOut,
   Menu,
   Moon,
   Settings,
   Sun,
+  User,
   UserCircle,
   UserPlus,
   Users,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useThemeMode } from "../_hooks/useThemeMode";
-import SidebarLink from "./SidebarLink";
+import { useAuthContext } from "../_providers/AuthProvider";
 
-interface SidebarProps {
-  className?: string;
-}
-
-const Sidebar = ({ className = "" }: SidebarProps) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
   const { theme, toggleTheme, mounted } = useThemeMode();
-
-  // Check if mobile on mount and when window resizes
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
-      } else {
-        setIsSidebarOpen(true);
-      }
-    };
-
-    // Initial check
-    checkMobile();
-
-    // Listen for resize events
-    window.addEventListener("resize", checkMobile);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-  if (!mounted) return null;
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebarOnMobile = () => {
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
-  };
+  const { logout, isLoading, isAuthenticated } = useAuthContext();
 
   // Navigation links
   const links = [
     { href: "/", icon: <Home size={20} />, title: "Home" },
+    { href: "/profile", icon: <User size={20} />, title: "Profile" },
     { href: "/patients", icon: <Users size={20} />, title: "Patients" },
     {
       href: "/appointments",
@@ -87,93 +54,100 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
     { href: "/settings", icon: <Settings size={20} />, title: "Settings" },
   ];
 
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  if (!isAuthenticated || !mounted) return null;
+
   return (
     <>
-      {/* Mobile overlay */}
-      {isMobile && isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-          onClick={closeSidebarOnMobile}
-        ></div>
-      )}
+      {/* Mobile overlay & toggle button */}
+      <div className="lg:hidden">
+        <button
+          className="fixed top-4 left-4 z-50 bg-white dark:bg-slate-800 p-2 rounded-lg shadow-md"
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          {isOpen ? (
+            <X className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          ) : (
+            <Menu className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          )}
+        </button>
 
-      {/* Sidebar toggle button - visible on mobile only */}
-      <button
-        className="fixed top-4 left-4 z-50 lg:hidden bg-white dark:bg-slate-800 p-2 rounded-lg shadow-md"
-        onClick={toggleSidebar}
-        aria-label="Toggle sidebar"
-      >
-        {isSidebarOpen ? (
-          <X className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-        ) : (
-          <Menu className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setIsOpen(false)}
+          />
         )}
-      </button>
+      </div>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: isMobile ? "-100%" : 0 }}
-        animate={{
-          x: isSidebarOpen ? 0 : isMobile ? "-100%" : "calc(-100% + 70px)",
-          width: isSidebarOpen ? 240 : 70,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 30,
-          // Make sure all properties animate together
-          width: { type: "spring", stiffness: 300, damping: 30 },
-        }}
-        className={`fixed top-0 left-0 h-full z-50 py-4 px-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md shadow-xl border-r border-blue-100 dark:border-blue-900 ${className}`}
+      <aside
+        className={`fixed top-0 left-0 h-full z-40 py-4 px-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md shadow-xl border-r border-blue-100 dark:border-blue-900 transition-all duration-300 ${
+          isOpen ? "w-60" : "w-[70px]"
+        } ${isOpen ? "translate-x-0" : "lg:translate-x-0 -translate-x-full"}`}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between mb-6 px-2">
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.div
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="flex items-center overflow-hidden"
-                >
-                  <span className="text-xl font-bold text-blue-700 dark:text-blue-400">
-                    Patient
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            {!isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 p-0 ml-auto text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                onClick={toggleSidebar}
-              >
-                <ChevronLeft
-                  className={`h-5 w-5 transition-transform duration-200 ${
-                    isSidebarOpen ? "" : "rotate-180"
-                  }`}
-                />
-              </Button>
+            {isOpen && (
+              <div className="flex items-center gap-2">
+                <HeartPulseIcon className="h-6 w-6 text-blue-700 dark:text-blue-400" />
+                <span className="text-xl font-bold text-blue-700 dark:text-blue-400">
+                  Patient
+                </span>
+              </div>
             )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 p-0 ml-auto text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 hidden lg:flex"
+              onClick={toggleSidebar}
+            >
+              <ChevronLeft
+                className={`h-5 w-5 transition-transform duration-200 ${
+                  isOpen ? "" : "rotate-180"
+                }`}
+              />
+            </Button>
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden">
+          <nav className="flex-1 overflow-y-auto">
             <ul className="space-y-1">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <SidebarLink
-                    href={link.href}
-                    icon={link.icon}
-                    title={link.title}
-                    isActive={pathname === link.href}
-                    isSidebarOpen={isSidebarOpen}
-                    onClick={closeSidebarOnMobile}
-                  />
-                </li>
-              ))}
+              {links.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                        isActive
+                          ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                      }`}
+                      onClick={() => {
+                        if (window.innerWidth < 1024) setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex-shrink-0">{link.icon}</span>
+                      {isOpen && (
+                        <span className="whitespace-nowrap">{link.title}</span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 
@@ -182,7 +156,7 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
             <Button
               variant="ghost"
               className={`w-full flex items-center ${
-                isSidebarOpen ? "justify-start" : "justify-center"
+                isOpen ? "justify-start" : "justify-center"
               } mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200`}
               onClick={toggleTheme}
             >
@@ -191,42 +165,26 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
               ) : (
                 <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               )}
-              <AnimatePresence initial={false}>
-                {isSidebarOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    className="ml-2 overflow-hidden whitespace-nowrap"
-                  >
-                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {isOpen && (
+                <span className="ml-2 whitespace-nowrap">
+                  {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"
               className={`w-full flex items-center ${
-                isSidebarOpen ? "justify-start" : "justify-center"
+                isOpen ? "justify-start" : "justify-center"
               } hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400`}
+              onClick={handleLogout}
+              disabled={isLoading}
             >
               <LogOut className="h-5 w-5 flex-shrink-0" />
-              <AnimatePresence initial={false}>
-                {isSidebarOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    className="ml-2 overflow-hidden whitespace-nowrap"
-                  >
-                    Logout
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {isOpen && <span className="ml-2 whitespace-nowrap">Logout</span>}
             </Button>
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 };

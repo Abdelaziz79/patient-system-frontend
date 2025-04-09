@@ -68,18 +68,11 @@ function BasicInfoTab() {
                 htmlFor="age"
                 className="font-medium text-sm dark:text-gray-300"
               >
-                Age
+                Date of Birth
               </Label>
-              <Input
-                id="age"
-                type="number"
-                value={personalInfo.age}
-                onChange={(e) => updatePersonalInfo("age", e.target.value)}
-                min={0}
-                max={150}
-                placeholder="Enter patient's age"
-                className="focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-600/70 dark:border-slate-500 dark:text-white dark:placeholder-gray-400 text-sm"
-                required
+              <DatePicker
+                date={personalInfo.dateOfBirth}
+                setDate={(date) => updatePersonalInfo("dateOfBirth", date)}
               />
             </div>
 
