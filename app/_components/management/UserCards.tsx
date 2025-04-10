@@ -1,7 +1,7 @@
 import { UserUtils } from "@/app/_components/management/UserUtils";
 import { User } from "@/app/_hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   EditIcon,
@@ -9,7 +9,12 @@ import {
   MailIcon,
   PhoneIcon,
   TrashIcon,
+  ArrowRightIcon,
+  UserIcon,
+  SearchIcon,
+  BadgeIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 interface UserCardsProps {
   users: User[];
@@ -17,7 +22,7 @@ interface UserCardsProps {
   itemsPerPage: number;
   onResetPassword: (userId: string) => void;
   onDeleteUser: (userId: string) => void;
-  onEditUser: (user: User) => void; // New prop for edit action
+  onEditUser: (user: User) => void;
 }
 
 export function UserCards({
@@ -35,117 +40,130 @@ export function UserCards({
   const endIndex = Math.min(startIndex + itemsPerPage, users.length);
   const displayedUsers = users.slice(startIndex, endIndex);
 
+  if (displayedUsers.length === 0) {
+    return (
+      <Card className="text-center p-10 border-none shadow-md dark:bg-slate-900 dark:shadow-slate-900/30">
+        <div className="flex flex-col items-center">
+          <div className="rounded-full bg-slate-800 p-4 mb-6">
+            <SearchIcon className="h-10 w-10 text-slate-400" />
+          </div>
+          <h3 className="text-xl font-medium text-gray-700 dark:text-slate-100 mb-2">
+            No users found
+          </h3>
+          <p className="text-sm max-w-sm text-gray-500 dark:text-slate-400">
+            Try changing your search criteria or add new users
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-4">
-      {displayedUsers.length > 0 ? (
-        displayedUsers.map((user) => (
-          <Card
-            key={user.id}
-            className="overflow-hidden border-green-100 dark:border-green-900"
-          >
-            <CardContent className="p-0">
-              <div className="bg-green-50 dark:bg-green-900/30 p-3 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <h3 className="font-bold text-green-800 dark:text-green-300">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {displayedUsers.map((user) => (
+        <Card
+          key={user.id}
+          className="overflow-hidden transition-all duration-200 hover:shadow-lg border-none shadow-md dark:bg-slate-900 dark:shadow-slate-900/30"
+        >
+          <CardHeader className="p-5 flex flex-row items-center justify-between space-y-0 border-b border-gray-100 dark:border-slate-800">
+            <div className="flex items-start gap-3">
+              <div className="bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-600 dark:to-slate-800 w-10 h-10 rounded-full flex items-center justify-center text-white font-medium">
+                {user.name.charAt(0)}
+              </div>
+              <div>
+                <Link href={`/users/${user.id}`} className="group">
+                  <h3 className="font-medium text-base text-gray-800 dark:text-slate-100 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
                     {user.name}
                   </h3>
-                  <div className="flex items-center text-sm text-green-600 dark:text-green-400">
-                    <MailIcon className="h-3 w-3 mr-1" />
-                    {user.email}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1">
-                  {getStatusBadge(user.isActive !== false)}
-                  {getRoleBadge(user.role)}
+                </Link>
+                <div className="flex items-center text-sm text-gray-500 dark:text-slate-400 mt-1">
+                  <MailIcon className="h-3 w-3 mr-1.5 flex-shrink-0" />
+                  <span className="truncate">{user.email}</span>
                 </div>
               </div>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              {getStatusBadge(user.isActive !== false)}
+              {getRoleBadge(user.role)}
+            </div>
+          </CardHeader>
 
-              <div className="p-3 space-y-2">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Specialization:
-                    </span>
-                    <p className="font-medium text-gray-800 dark:text-gray-200">
-                      {user.specialization || "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Contact:
-                    </span>
-                    <p className="font-medium text-gray-800 dark:text-gray-200 flex items-center">
-                      {user.contactNumber ? (
-                        <>
-                          <PhoneIcon className="h-3 w-3 mr-1" />
-                          {user.contactNumber}
-                        </>
-                      ) : (
-                        "—"
-                      )}
-                    </p>
-                  </div>
+          <CardContent className="p-5">
+            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+              <div>
+                <div className="flex items-center gap-1.5 text-gray-500 dark:text-slate-400 text-xs font-medium mb-1">
+                  <BadgeIcon className="h-3 w-3" />
+                  <span>Specialization</span>
                 </div>
+                <p className="font-medium text-gray-800 dark:text-slate-200 truncate">
+                  {user.specialization || "—"}
+                </p>
               </div>
+              <div>
+                <div className="flex items-center gap-1.5 text-gray-500 dark:text-slate-400 text-xs font-medium mb-1">
+                  <PhoneIcon className="h-3 w-3" />
+                  <span>Contact</span>
+                </div>
+                <p className="font-medium text-gray-800 dark:text-slate-200 truncate">
+                  {user.contactNumber || "—"}
+                </p>
+              </div>
+            </div>
 
-              <Separator className="dark:bg-gray-700" />
+            <Separator className="my-4 bg-gray-100 dark:bg-slate-800" />
 
-              <div className="p-3 flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onResetPassword(user.id)}
-                  className="text-blue-600 border-blue-300 dark:text-blue-400 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                >
-                  <KeyIcon className="h-4 w-4 mr-1" />
-                  Reset
-                </Button>
+            <div className="flex items-center justify-between pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onResetPassword(user.id)}
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-blue-600"
+              >
+                <KeyIcon className="h-4 w-4 mr-1.5" />
+                Reset
+              </Button>
+
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onEditUser(user)}
-                  className="text-green-600 border-green-300 dark:text-green-400 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/20"
+                  className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
-                  <EditIcon className="h-4 w-4 mr-1" />
-                  Edit
+                  <EditIcon className="h-4 w-4" />
                 </Button>
+
+                <Link href={`/users/${user.id}`} passHref>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                  >
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </Button>
+                </Link>
+
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onDeleteUser(user.id)}
-                  className="text-red-600 border-red-300 dark:text-red-400 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  className={`border-gray-200 dark:border-slate-700 ${
+                    user.isActive !== false
+                      ? "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-slate-800 dark:hover:border-red-600"
+                      : "text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-slate-800 dark:hover:border-green-600"
+                  }`}
                 >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  Deactivate
+                  {user.isActive !== false ? (
+                    <TrashIcon className="h-4 w-4" />
+                  ) : (
+                    <UserIcon className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        ))
-      ) : (
-        <Card className="p-8 text-center text-gray-500 dark:text-gray-400 border-green-100 dark:border-green-900">
-          <div className="flex flex-col items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mb-4 opacity-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <p className="text-lg font-medium">No users found</p>
-            <p className="text-sm mt-1">
-              Try changing your search criteria or add new users
-            </p>
-          </div>
+            </div>
+          </CardContent>
         </Card>
-      )}
+      ))}
     </div>
   );
 }

@@ -44,6 +44,7 @@ export const useUserAdmin = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+  const [isUndeleting, setIsUndeleting] = useState(false);
   const [pages, setPages] = useState(0);
   const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
@@ -111,15 +112,14 @@ export const useUserAdmin = () => {
   const fetchUserById = async (userId: string) => {
     setIsLoading(true);
     try {
-      const response = await axios.get<{ user: User; success: boolean }>(
+      const response = await axios.get<{ data: User; success: boolean }>(
         `${usersUrl}/${userId}`,
         {
           withCredentials: true,
         }
       );
-
-      setSelectedUser(response.data.user);
-      return response.data.user;
+      setSelectedUser(response.data.data);
+      return response.data.data;
     } catch (error) {
       const errorMsg =
         axios.isAxiosError(error) && error.response?.data?.message
@@ -306,6 +306,51 @@ export const useUserAdmin = () => {
     }
   };
 
+  // Undelete (reactivate) user
+  const undeleteUser = async (
+    userId: string
+  ): Promise<{ success: boolean; message: string }> => {
+    setIsUndeleting(true);
+    try {
+      const response = await axios.post(
+        `${usersUrl}/${userId}/undelete`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      // If successful, update the users list
+      if (response.data.success && response.data.data) {
+        // Update the user's active status
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId ? { ...user, isActive: true } : user
+          )
+        );
+
+        // If this is the currently selected user, update it
+        if (selectedUser?.id === userId) {
+          setSelectedUser({ ...selectedUser, isActive: true });
+        }
+      }
+
+      return {
+        success: response.data.success,
+        message: response.data.message || "User reactivated successfully",
+      };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to reactivate user";
+
+      return { success: false, message: errorMsg };
+    } finally {
+      setIsUndeleting(false);
+    }
+  };
+
   return {
     users,
     totalUsers,
@@ -317,6 +362,7 @@ export const useUserAdmin = () => {
     isUpdating,
     isResettingPassword,
     isUpdatingSubscription,
+    isUndeleting,
     fetchUsers,
     fetchUsersByAdmin,
     fetchUserById,
@@ -325,6 +371,7 @@ export const useUserAdmin = () => {
     resetUserPassword,
     updateUserSubscription,
     deleteUser,
+    undeleteUser,
     setSelectedUser,
   };
 };

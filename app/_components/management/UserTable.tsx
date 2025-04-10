@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/table";
 import {
   ArrowUpDown,
-  CalendarIcon,
   EditIcon,
   KeyIcon,
   MoreHorizontalIcon,
   SearchIcon,
   TrashIcon,
+  UserIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 interface UserTableProps {
   users: User[];
@@ -34,7 +35,7 @@ interface UserTableProps {
   onSort: (field: keyof User) => void;
   onResetPassword: (userId: string) => void;
   onDeleteUser: (userId: string) => void;
-  onEditUser: (user: User) => void; // New prop for edit action
+  onEditUser: (user: User) => void;
 }
 
 export function UserTable({
@@ -125,7 +126,14 @@ export function UserTable({
                   <TableCell className="font-medium">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </TableCell>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/users/${user.id}`}
+                      className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 hover:underline"
+                    >
+                      {user.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{getRoleBadge(user.role)}</TableCell>
                   <TableCell>
@@ -147,6 +155,12 @@ export function UserTable({
                         align="end"
                         className="border-green-100 dark:border-green-900 bg-white dark:bg-slate-800"
                       >
+                        <Link href={`/users/${user.id}`} passHref>
+                          <DropdownMenuItem className="text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 cursor-pointer">
+                            <SearchIcon className="mr-2 h-4 w-4" />
+                            <span>View Details</span>
+                          </DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem
                           onClick={() => onResetPassword(user.id)}
                           className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer"
@@ -156,21 +170,30 @@ export function UserTable({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onEditUser(user)}
-                          className="text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 cursor-pointer"
+                          className="text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 cursor-pointer"
                         >
                           <EditIcon className="mr-2 h-4 w-4" />
                           <span>Edit User</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onDeleteUser(user.id)}
-                          className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 cursor-pointer"
+                          className={`${
+                            user.isActive !== false
+                              ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                              : "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30"
+                          } cursor-pointer`}
                         >
-                          <TrashIcon className="mr-2 h-4 w-4" />
-                          <span>Deactivate User</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 cursor-pointer">
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          <span>Manage Subscription</span>
+                          {user.isActive !== false ? (
+                            <>
+                              <TrashIcon className="mr-2 h-4 w-4" />
+                              <span>Deactivate</span>
+                            </>
+                          ) : (
+                            <>
+                              <UserIcon className="mr-2 h-4 w-4" />
+                              <span>Reactivate</span>
+                            </>
+                          )}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -179,14 +202,11 @@ export function UserTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center">
-                  <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                    <SearchIcon className="h-12 w-12 mb-2 opacity-20" />
-                    <p className="text-lg font-medium">No users found</p>
-                    <p className="text-sm">
-                      Try changing your search criteria or add new users
-                    </p>
-                  </div>
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-8 text-gray-500 dark:text-gray-400"
+                >
+                  No users found. Try adjusting your filters.
                 </TableCell>
               </TableRow>
             )}

@@ -13,6 +13,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Loader2, UserPlusIcon } from "lucide-react";
@@ -35,6 +36,7 @@ export default function UsersManagement() {
     resetUserPassword,
     isResettingPassword,
     deleteUser,
+    undeleteUser, // Added hook function for reactivating users
     pages,
     isUpdating,
     updateUser,
@@ -55,6 +57,7 @@ export default function UsersManagement() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false); // New state for confirmation modal
 
   // Check for mobile view
   useEffect(() => {
@@ -128,7 +131,7 @@ export default function UsersManagement() {
       // Cleanup function to ensure any stuck focus/event handlers are reset
       document.body.style.pointerEvents = "";
     };
-  }, [isUserModalOpen, isPasswordChangeModalOpen]);
+  }, [isUserModalOpen, isPasswordChangeModalOpen, isStatusConfirmOpen]);
 
   // Handler for page changes
   const handlePageChange = (page: number) => {
@@ -170,7 +173,6 @@ export default function UsersManagement() {
           toast.error("Missing user ID for update");
           return;
         }
-
         result = await updateUser(selectedUser.id, userData);
       }
 
@@ -203,22 +205,49 @@ export default function UsersManagement() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    // Confirm before deleting
-    if (window.confirm("Are you sure you want to deactivate this user?")) {
-      try {
-        const result = await deleteUser(userId);
-        if (result.success) {
-          toast.success(result.message);
-          // Refresh the current page
-          fetchUsers(localCurrentPage);
-        } else {
-          toast.error(result.message);
-        }
-      } catch (error) {
-        toast.error("Failed to delete user");
-        console.error("Error deleting user:", error);
+  // Updated to handle both deactivate and reactivate user
+  const handleUserStatusAction = (userId: string) => {
+    // Get the user details first
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setIsStatusConfirmOpen(true);
+    }
+  };
+
+  // Handle confirmation to toggle user status
+  const handleConfirmStatusChange = async () => {
+    if (!selectedUser) return;
+
+    try {
+      // Check if user is active to determine action
+      const isActive = selectedUser.isActive !== false;
+      let result;
+
+      if (isActive) {
+        // Deactivate user
+        result = await deleteUser(selectedUser.id);
+      } else {
+        // Reactivate user
+        result = await undeleteUser(selectedUser.id);
       }
+
+      if (result.success) {
+        toast.success(result.message);
+        // Refresh the current page
+        fetchUsers(localCurrentPage);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(
+        `Failed to ${
+          selectedUser.isActive !== false ? "deactivate" : "reactivate"
+        } user`
+      );
+      console.error("Error toggling user status:", error);
+    } finally {
+      setIsStatusConfirmOpen(false);
     }
   };
 
@@ -293,7 +322,7 @@ export default function UsersManagement() {
                       currentPage={localCurrentPage}
                       itemsPerPage={ITEMS_PER_PAGE}
                       onResetPassword={handleResetPassword}
-                      onDeleteUser={handleDeleteUser}
+                      onDeleteUser={handleUserStatusAction}
                       onEditUser={handleEditUserClick}
                     />
                   ) : (
@@ -306,7 +335,7 @@ export default function UsersManagement() {
                       sortDirection={sortDirection}
                       onSort={handleSort}
                       onResetPassword={handleResetPassword}
-                      onDeleteUser={handleDeleteUser}
+                      onDeleteUser={handleUserStatusAction}
                       onEditUser={handleEditUserClick}
                     />
                   )}
@@ -332,6 +361,57 @@ export default function UsersManagement() {
                 </>
               )}
             </CardContent>
+
+            {/* Status Confirmation Modal */}
+            {isStatusConfirmOpen && selectedUser && (
+              <CardFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div
+                  className={`w-full ${
+                    selectedUser.isActive !== false
+                      ? "bg-red-50 dark:bg-red-900/10"
+                      : "bg-green-50 dark:bg-green-900/10"
+                  } p-4 rounded-md`}
+                >
+                  <p
+                    className={`${
+                      selectedUser.isActive !== false
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-green-600 dark:text-green-400"
+                    } font-medium mb-4`}
+                  >
+                    {selectedUser.isActive !== false
+                      ? "Are you sure you want to deactivate this user? This action can be reversed later."
+                      : "Are you sure you want to reactivate this user?"}
+                  </p>
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={() => setIsStatusConfirmOpen(false)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleConfirmStatusChange}
+                      variant={
+                        selectedUser.isActive !== false
+                          ? "destructive"
+                          : "default"
+                      }
+                      className={`flex-1 ${
+                        selectedUser.isActive === false
+                          ? "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
+                          : ""
+                      }`}
+                    >
+                      {selectedUser.isActive !== false
+                        ? "Confirm Deactivation"
+                        : "Confirm Reactivation"}
+                    </Button>
+                  </div>
+                </div>
+              </CardFooter>
+            )}
           </Card>
         </motion.div>
       </div>
