@@ -1,4 +1,4 @@
-import { UserCreateData } from "@/app/_hooks/useUserAdmin";
+import { User } from "@/app/_hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,35 +17,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-interface CreateUserModalProps {
+interface UpdateUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (userData: UserCreateData) => Promise<void>;
+  onSubmit: (userId: string, userData: UpdateUserData) => Promise<void>;
   isSubmitting: boolean;
+  user: User | null;
+  currentUserRole: string;
 }
 
-export function CreateUserModal({
+export interface UpdateUserData {
+  name: string;
+  email: string;
+  role: string;
+  contactNumber: string;
+  specialization: string;
+  isActive?: boolean;
+}
+
+export function UpdateUserModal({
   isOpen,
   onClose,
   onSubmit,
   isSubmitting,
-}: CreateUserModalProps) {
-  const [userData, setUserData] = useState<UserCreateData>({
+  user,
+  currentUserRole,
+}: UpdateUserModalProps) {
+  const [userData, setUserData] = useState<UpdateUserData>({
     name: "",
     email: "",
-    password: "",
-    role: "staff",
+    role: "",
     contactNumber: "",
     specialization: "",
+    isActive: true,
   });
 
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
-    password?: string;
   }>({});
+
+  // Update form when user changes
+  useEffect(() => {
+    if (user) {
+      setUserData({
+        name: user.name || "",
+        email: user.email || "",
+        role: user.role || "staff",
+        contactNumber: user.contactNumber || "",
+        specialization: user.specialization || "",
+        isActive: user.isActive !== false, // Default to true if undefined
+      });
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,11 +96,17 @@ export function CreateUserModal({
     }));
   };
 
+  const handleActiveChange = (value: string) => {
+    setUserData((prev) => ({
+      ...prev,
+      isActive: value === "active",
+    }));
+  };
+
   const validateForm = () => {
     const newErrors: {
       name?: string;
       email?: string;
-      password?: string;
     } = {};
 
     if (!userData.name.trim()) {
@@ -87,12 +119,6 @@ export function CreateUserModal({
       newErrors.email = "Email is invalid";
     }
 
-    if (!userData.password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (userData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -100,32 +126,24 @@ export function CreateUserModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateForm() || !user) {
       return;
     }
 
-    await onSubmit(userData);
-
-    // Reset form after submission
-    setUserData({
-      name: "",
-      email: "",
-      password: "",
-      role: "staff",
-      contactNumber: "",
-      specialization: "",
-    });
+    await onSubmit(user.id, userData);
   };
+
+  if (!user) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg">
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            Create New User
+            Update User
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Add a new user to the healthcare system
+            Edit user information and settings
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-2">
@@ -187,34 +205,6 @@ export function CreateUserModal({
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label
-                htmlFor="password"
-                className="text-right font-medium text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={userData.password}
-                  onChange={handleChange}
-                  className={`focus:ring-2 focus:ring-emerald-500 dark:bg-gray-800 dark:text-white dark:border-gray-700 ${
-                    errors.password
-                      ? "border-red-500 dark:border-red-500"
-                      : "border-gray-300 dark:border-gray-600"
-                  }`}
-                  placeholder="••••••"
-                />
-                {errors.password && (
-                  <p className="text-red-500 dark:text-red-400 text-xs mt-1">
-                    {errors.password}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label
                 htmlFor="role"
                 className="text-right font-medium text-gray-700 dark:text-gray-300"
               >
@@ -226,12 +216,14 @@ export function CreateUserModal({
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                    <SelectItem
-                      value="admin"
-                      className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                    >
-                      Admin
-                    </SelectItem>
+                    {currentUserRole === "super_admin" && (
+                      <SelectItem
+                        value="admin"
+                        className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                      >
+                        Admin
+                      </SelectItem>
+                    )}
                     <SelectItem
                       value="doctor"
                       className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
@@ -286,6 +278,38 @@ export function CreateUserModal({
                 placeholder="e.g. Cardiology, Pediatrics"
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="status"
+                className="text-right font-medium text-gray-700 dark:text-gray-300"
+              >
+                Status
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  value={userData.isActive ? "active" : "inactive"}
+                  onValueChange={handleActiveChange}
+                >
+                  <SelectTrigger className="dark:bg-gray-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-emerald-500">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                    <SelectItem
+                      value="active"
+                      className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                    >
+                      Active
+                    </SelectItem>
+                    <SelectItem
+                      value="inactive"
+                      className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                    >
+                      Inactive
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           <DialogFooter className="gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
             <Button
@@ -323,10 +347,10 @@ export function CreateUserModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Creating...
+                  Updating...
                 </span>
               ) : (
-                "Create User"
+                "Update User"
               )}
             </Button>
           </DialogFooter>

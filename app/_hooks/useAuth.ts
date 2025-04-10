@@ -27,6 +27,7 @@ export interface User {
   subscription: ISubscription;
   createdAt?: string;
   updatedAt?: string;
+  password?: string; // Optional, only if you need it for some reason
 
   // Methods for the model, not used in frontend
   matchPassword?: (enteredPassword: string) => Promise<boolean>;

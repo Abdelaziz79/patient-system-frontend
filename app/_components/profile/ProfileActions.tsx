@@ -1,4 +1,4 @@
-import { CreateUserModal } from "@/app/_components/profile/CreateUserModal";
+import { UserFormModal } from "@/app/_components/profile/UserFormModal";
 import { PasswordChangeModal } from "@/app/_components/profile/PasswordChangeModal";
 import { User } from "@/app/_hooks/useAuth";
 import { UserCreateData, useUserAdmin } from "@/app/_hooks/useUserAdmin";
@@ -133,7 +133,8 @@ export function ProfileActions({
 
       {/* Create User Modal - Only for admin users */}
       {isAdminUser && (
-        <CreateUserModal
+        <UserFormModal
+          mode="create"
           isOpen={isCreateUserModalOpen}
           onClose={handleCloseCreateUserModal}
           onSubmit={handleSubmitCreateUser}

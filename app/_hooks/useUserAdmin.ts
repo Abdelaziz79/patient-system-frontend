@@ -5,7 +5,7 @@ import { useState } from "react";
 export interface UserCreateData {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: string;
   contactNumber?: string;
   specialization?: string;
@@ -13,7 +13,7 @@ export interface UserCreateData {
 
 export interface UserUpdateData {
   name?: string;
-  email?: string;
+  // email?: string;
   role?: string;
   contactNumber?: string;
   specialization?: string;
@@ -29,9 +29,9 @@ export interface SubscriptionUpdateData {
 
 export interface UsersResponse {
   data: User[];
-  totalCount: number;
-  page: number;
-  limit: number;
+  total: number;
+  pages: number;
+  currentPage: number;
 }
 
 export const useUserAdmin = () => {
@@ -39,13 +39,12 @@ export const useUserAdmin = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
-
+  const [pages, setPages] = useState(0);
   const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
   // Fetch all users (paginated)
@@ -58,9 +57,9 @@ export const useUserAdmin = () => {
       });
 
       setUsers(response.data.data);
-      setTotalUsers(response.data.totalCount);
-      setCurrentPage(response.data.page);
-      setLimit(response.data.limit);
+      setTotalUsers(response.data.total);
+      setCurrentPage(response.data.currentPage);
+      setPages(response.data.pages);
       return response.data;
     } catch (error) {
       const errorMsg =
@@ -91,9 +90,10 @@ export const useUserAdmin = () => {
       );
 
       setUsers(response.data.data);
-      setTotalUsers(response.data.totalCount);
-      setCurrentPage(response.data.page);
-      setLimit(response.data.limit);
+      setTotalUsers(response.data.total);
+      setCurrentPage(response.data.currentPage);
+      setPages(response.data.pages);
+
       return response.data;
     } catch (error) {
       const errorMsg =
@@ -202,13 +202,14 @@ export const useUserAdmin = () => {
 
   // Reset user password
   const resetUserPassword = async (
-    userId: string
+    userId: string,
+    newPassword: string
   ): Promise<{ success: boolean; message: string }> => {
     setIsResettingPassword(true);
     try {
       const response = await axios.put(
         `${usersUrl}/${userId}/reset-password`,
-        {},
+        { newPassword },
         {
           withCredentials: true,
         }
@@ -309,7 +310,7 @@ export const useUserAdmin = () => {
     users,
     totalUsers,
     currentPage,
-    limit,
+    pages,
     isLoading,
     selectedUser,
     isCreating,

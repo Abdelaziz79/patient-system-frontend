@@ -136,7 +136,6 @@ export const useUserProfile = () => {
       const response = await axios.put(`${usersUrl}/password`, passwordData, {
         withCredentials: true,
       });
-
       setIsSubmittingPassword(false);
       setIsChangingPassword(false);
 
@@ -153,7 +152,7 @@ export const useUserProfile = () => {
       }
     } catch (error) {
       setIsSubmittingPassword(false);
-
+      console.error("Error changing password:", error);
       const errorMsg =
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message

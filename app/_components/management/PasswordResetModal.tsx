@@ -1,4 +1,3 @@
-import { useUserProfile } from "@/app/_hooks/useUserProfile";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,50 +13,51 @@ import { KeyIcon } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-interface PasswordChangeModalProps {
+interface PasswordResetModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userId: string;
+  userName: string;
+  onReset: (
+    userId: string,
+    newPassword: string
+  ) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
+  isResetting: boolean;
 }
 
-export function PasswordChangeModal({
+export function PasswordResetModal({
   isOpen,
   onClose,
-}: PasswordChangeModalProps) {
-  const {
-    isSubmittingPassword: isSubmitting,
-    changePassword,
-    passwordData,
-    handlePasswordChange,
-  } = useUserProfile();
-
+  userId,
+  userName,
+  onReset,
+  isResetting,
+}: PasswordResetModalProps) {
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{
-    currentPassword?: string;
     newPassword?: string;
     confirmPassword?: string;
   }>({});
 
   const validateForm = () => {
     const newErrors: {
-      currentPassword?: string;
       newPassword?: string;
       confirmPassword?: string;
     } = {};
 
-    if (!passwordData.currentPassword.trim()) {
-      newErrors.currentPassword = "Current password is required";
-      toast.error("Current password is required");
-    }
-
-    if (!passwordData.newPassword.trim()) {
+    if (!newPassword.trim()) {
       newErrors.newPassword = "New password is required";
       toast.error("New password is required");
-    } else if (passwordData.newPassword.length < 6) {
+    } else if (newPassword.length < 6) {
       newErrors.newPassword = "Password must be at least 6 characters";
       toast.error("Password must be at least 6 characters");
     }
 
-    if (passwordData.newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
       toast.error("Passwords do not match");
     }
@@ -72,67 +72,60 @@ export function PasswordChangeModal({
     if (!validateForm()) {
       return;
     }
+
     try {
-      const res = await changePassword();
-      toast(res.message);
-      if (res.success) {
+      const result = await onReset(userId, newPassword);
+      if (result.success) {
+        toast.success(result.message || "Password reset successfully");
         handleClose();
+      } else {
+        toast.error(result.message || "Failed to reset password");
       }
     } catch (error) {
-      toast.error("Failed to change password");
-      console.error("Error changing password:", error);
+      toast.error("Failed to reset user password");
+      console.error("Error resetting password:", error);
     }
   };
 
   const handleClose = () => {
     // Reset form state when closing
+    setNewPassword("");
     setConfirmPassword("");
     setErrors({});
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          // Clear any focus traps
+          document.body.style.pointerEvents = "";
+          // Small delay to ensure DOM updates before releasing focus
+          setTimeout(() => {
+            handleClose();
+            // Force focus back to the body
+            if (document.body) {
+              document.body.focus();
+            }
+          }, 10);
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg">
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center">
             <KeyIcon className="mr-2 h-5 w-5" />
-            Change Password
+            Reset User Password
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Update your account password
+            Reset password for user:{" "}
+            <span className="font-medium">{userName}</span>
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-2">
           <div className="grid gap-5 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label
-                htmlFor="currentPassword"
-                className="text-right font-medium text-gray-700 dark:text-gray-300"
-              >
-                Current Password
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordChange}
-                  className={`focus:ring-2 focus:ring-emerald-500 dark:bg-gray-800 dark:text-white dark:border-gray-700 ${
-                    errors.currentPassword
-                      ? "border-red-500 dark:border-red-500"
-                      : "border-gray-300 dark:border-gray-600"
-                  }`}
-                  placeholder="••••••"
-                />
-                {errors.currentPassword && (
-                  <p className="text-red-500 dark:text-red-400 text-xs mt-1">
-                    {errors.currentPassword}
-                  </p>
-                )}
-              </div>
-            </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label
                 htmlFor="newPassword"
@@ -143,10 +136,17 @@ export function PasswordChangeModal({
               <div className="col-span-3">
                 <Input
                   id="newPassword"
-                  name="newPassword"
                   type="password"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    if (errors.newPassword) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        newPassword: undefined,
+                      }));
+                    }
+                  }}
                   className={`focus:ring-2 focus:ring-emerald-500 dark:bg-gray-800 dark:text-white dark:border-gray-700 ${
                     errors.newPassword
                       ? "border-red-500 dark:border-red-500"
@@ -171,7 +171,6 @@ export function PasswordChangeModal({
               <div className="col-span-3">
                 <Input
                   id="confirmPassword"
-                  name="confirmPassword"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => {
@@ -209,10 +208,10 @@ export function PasswordChangeModal({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isResetting}
               className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors duration-200"
             >
-              {isSubmitting ? (
+              {isResetting ? (
                 <span className="flex items-center">
                   <svg
                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -234,10 +233,10 @@ export function PasswordChangeModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Changing...
+                  Resetting...
                 </span>
               ) : (
-                "Change Password"
+                "Reset Password"
               )}
             </Button>
           </DialogFooter>
