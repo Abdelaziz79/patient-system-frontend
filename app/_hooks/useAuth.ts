@@ -24,7 +24,7 @@ export interface User {
   contactNumber?: string;
   createdBy?: string;
   adminId?: string;
-  subscription: ISubscription;
+  subscription?: ISubscription;
   createdAt?: string;
   updatedAt?: string;
   password?: string; // Optional, only if you need it for some reason
@@ -80,6 +80,16 @@ export const useAuth = () => {
 
     checkAuthStatus();
   }, []);
+
+  // Set user function
+  const setUser = (user: User | null) => {
+    setAuthState((prev) => ({
+      ...prev,
+      user,
+      isAuthenticated: user !== null,
+      error: null,
+    }));
+  };
 
   // Login function
   const login = async (
@@ -185,5 +195,6 @@ export const useAuth = () => {
     ...authState,
     login,
     logout,
+    setUser,
   };
 };

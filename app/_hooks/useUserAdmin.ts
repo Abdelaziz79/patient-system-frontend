@@ -13,7 +13,7 @@ export interface UserCreateData {
 
 export interface UserUpdateData {
   name?: string;
-  // email?: string;
+  // email?: string;  // Email updates not supported as per backend
   role?: string;
   contactNumber?: string;
   specialization?: string;
@@ -24,7 +24,8 @@ export interface SubscriptionUpdateData {
   type: string;
   startDate: Date | string;
   endDate: Date | string;
-  status: string;
+  isActive?: boolean;
+  features?: string[];
 }
 
 export interface UsersResponse {
@@ -32,6 +33,45 @@ export interface UsersResponse {
   total: number;
   pages: number;
   currentPage: number;
+}
+
+// Updated UserStats interface to match the enhanced getUserStats controller
+export interface UserStats {
+  totalUsers: number;
+  totalAdmins?: number;
+  activeAdmins?: number;
+  totalDoctors: number;
+  totalNurses: number;
+  totalStaff: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  subscription?: {
+    type: string;
+    isActive: boolean;
+    endDate: string;
+    daysRemaining: number;
+    features: string[];
+  };
+  subscriptionStats?: {
+    freeTrials: number;
+    basic: number;
+    premium: number;
+    enterprise: number;
+    expired: number;
+  };
+  recentUsers: {
+    name: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+    createdAt: string;
+  }[];
+  recentLogins: {
+    name: string;
+    email: string;
+    role: string;
+    lastLogin: string;
+  }[];
 }
 
 export const useUserAdmin = () => {
@@ -45,6 +85,8 @@ export const useUserAdmin = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const [isUndeleting, setIsUndeleting] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [pages, setPages] = useState(0);
   const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
@@ -132,6 +174,35 @@ export const useUserAdmin = () => {
     }
   };
 
+  // Fetch user statistics
+  const fetchUserStats = async (): Promise<UserStats> => {
+    setIsLoadingStats(true);
+    try {
+      const response = await axios.get<{ success: boolean; data: UserStats }>(
+        `${usersUrl}/stats`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        setUserStats(response.data.data);
+        return response.data.data;
+      } else {
+        throw new Error("Failed to fetch user statistics");
+      }
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to fetch user statistics";
+
+      throw new Error(errorMsg);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
   // Create a new user
   const createUser = async (
     userData: UserCreateData
@@ -143,15 +214,15 @@ export const useUserAdmin = () => {
       });
 
       // If successful, update the users list
-      if (response.data.success && response.data.user) {
-        setUsers((prev) => [response.data.user, ...prev]);
+      if (response.data.success && response.data.data) {
+        setUsers((prev) => [response.data.data, ...prev]);
         setTotalUsers((prev) => prev + 1);
       }
 
       return {
         success: response.data.success,
         message: response.data.message || "User created successfully",
-        user: response.data.user,
+        user: response.data.data,
       };
     } catch (error) {
       const errorMsg =
@@ -169,7 +240,7 @@ export const useUserAdmin = () => {
   const updateUser = async (
     userId: string,
     userData: UserUpdateData
-  ): Promise<{ success: boolean; message: string }> => {
+  ): Promise<{ success: boolean; message: string; user?: User }> => {
     setIsUpdating(true);
     try {
       const response = await axios.put(`${usersUrl}/${userId}`, userData, {
@@ -177,16 +248,17 @@ export const useUserAdmin = () => {
       });
 
       // If successful, update the selected user and users list
-      if (response.data.success && response.data.user) {
-        setSelectedUser(response.data.user);
+      if (response.data.success && response.data.data) {
+        setSelectedUser(response.data.data);
         setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? response.data.user : user))
+          prev.map((user) => (user.id === userId ? response.data.data : user))
         );
       }
 
       return {
         success: response.data.success,
         message: response.data.message || "User updated successfully",
+        user: response.data.data,
       };
     } catch (error) {
       const errorMsg =
@@ -210,9 +282,7 @@ export const useUserAdmin = () => {
       const response = await axios.put(
         `${usersUrl}/${userId}/reset-password`,
         { newPassword },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       return {
@@ -235,28 +305,27 @@ export const useUserAdmin = () => {
   const updateUserSubscription = async (
     userId: string,
     subscriptionData: SubscriptionUpdateData
-  ): Promise<{ success: boolean; message: string }> => {
+  ): Promise<{ success: boolean; message: string; user?: User }> => {
     setIsUpdatingSubscription(true);
     try {
       const response = await axios.put(
         `${usersUrl}/${userId}/subscription`,
         subscriptionData,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       // If successful, update the selected user and users list
-      if (response.data.success && response.data.user) {
-        setSelectedUser(response.data.user);
+      if (response.data.success && response.data.data) {
+        setSelectedUser(response.data.data);
         setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? response.data.user : user))
+          prev.map((user) => (user.id === userId ? response.data.data : user))
         );
       }
 
       return {
         success: response.data.success,
         message: response.data.message || "Subscription updated successfully",
+        user: response.data.data,
       };
     } catch (error) {
       const errorMsg =
@@ -288,6 +357,11 @@ export const useUserAdmin = () => {
             user.id === userId ? { ...user, isActive: false } : user
           )
         );
+
+        // If this is the currently selected user, update it
+        if (selectedUser?.id === userId) {
+          setSelectedUser({ ...selectedUser, isActive: false });
+        }
       }
 
       return {
@@ -309,15 +383,13 @@ export const useUserAdmin = () => {
   // Undelete (reactivate) user
   const undeleteUser = async (
     userId: string
-  ): Promise<{ success: boolean; message: string }> => {
+  ): Promise<{ success: boolean; message: string; user?: User }> => {
     setIsUndeleting(true);
     try {
       const response = await axios.post(
         `${usersUrl}/${userId}/undelete`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       // If successful, update the users list
@@ -338,6 +410,7 @@ export const useUserAdmin = () => {
       return {
         success: response.data.success,
         message: response.data.message || "User reactivated successfully",
+        user: response.data.data,
       };
     } catch (error) {
       const errorMsg =
@@ -349,6 +422,139 @@ export const useUserAdmin = () => {
     } finally {
       setIsUndeleting(false);
     }
+  };
+
+  // Change current user's password
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> => {
+    setIsUpdating(true);
+    try {
+      const response = await axios.put(
+        `${usersUrl}/password`,
+        { currentPassword, newPassword },
+        { withCredentials: true }
+      );
+
+      return {
+        success: response.data.success,
+        message: response.data.message || "Password changed successfully",
+      };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to change password";
+
+      return { success: false, message: errorMsg };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Update current user's profile
+  const updateProfile = async (profileData: {
+    name?: string;
+    contactNumber?: string;
+    specialization?: string;
+    profileImage?: string;
+  }): Promise<{ success: boolean; message: string; user?: User }> => {
+    setIsUpdating(true);
+    try {
+      const response = await axios.put(`${usersUrl}/profile`, profileData, {
+        withCredentials: true,
+      });
+
+      if (response.data.success && response.data.data) {
+        // If the updated user is the currently selected user, update selectedUser
+        if (selectedUser && selectedUser.id === response.data.data.id) {
+          setSelectedUser(response.data.data);
+        }
+      }
+
+      return {
+        success: response.data.success,
+        message: response.data.message || "Profile updated successfully",
+        user: response.data.data,
+      };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to update profile";
+
+      return { success: false, message: errorMsg };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Get current user details
+  const getCurrentUser = async (): Promise<User | null> => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get<{ success: boolean; data: User }>(
+        `${usersUrl}/me`,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        return response.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to get current user", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Parse user stats data for different views
+  const getRoleDistribution = () => {
+    if (!userStats) return null;
+
+    return {
+      doctor: userStats.totalDoctors,
+      nurse: userStats.totalNurses,
+      staff: userStats.totalStaff,
+      admin: userStats.totalAdmins || 0,
+    };
+  };
+
+  // Get subscription information for admin
+  const getSubscriptionInfo = () => {
+    if (!userStats || !userStats.subscription) return null;
+
+    return {
+      type: userStats.subscription.type,
+      isActive: userStats.subscription.isActive,
+      endDate: userStats.subscription.endDate,
+      daysRemaining: userStats.subscription.daysRemaining,
+      features: userStats.subscription.features,
+    };
+  };
+
+  // Get subscription statistics (super_admin only)
+  const getSubscriptionStats = () => {
+    if (!userStats || !userStats.subscriptionStats) return null;
+
+    return userStats.subscriptionStats;
+  };
+
+  // Get recent users
+  const getRecentUsers = () => {
+    if (!userStats || !userStats.recentUsers) return [];
+
+    return userStats.recentUsers;
+  };
+
+  // Get recent logins
+  const getRecentLogins = () => {
+    if (!userStats || !userStats.recentLogins) return [];
+
+    return userStats.recentLogins;
   };
 
   return {
@@ -363,15 +569,27 @@ export const useUserAdmin = () => {
     isResettingPassword,
     isUpdatingSubscription,
     isUndeleting,
+    isLoadingStats,
+    userStats,
     fetchUsers,
     fetchUsersByAdmin,
     fetchUserById,
+    fetchUserStats,
     createUser,
     updateUser,
     resetUserPassword,
     updateUserSubscription,
     deleteUser,
     undeleteUser,
+    changePassword,
+    updateProfile,
+    getCurrentUser,
     setSelectedUser,
+    // Utility functions for statistics and data analysis
+    getRoleDistribution,
+    getSubscriptionInfo,
+    getSubscriptionStats,
+    getRecentUsers,
+    getRecentLogins,
   };
 };

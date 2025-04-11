@@ -395,77 +395,81 @@ export default function UserProfilePage() {
             </Card>
 
             {/* Subscription Card */}
-            <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-green-100 dark:border-green-900 shadow-md mt-6">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-bold text-green-800 dark:text-green-300">
-                    Subscription
-                  </CardTitle>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${subscriptionBadge}`}
-                  >
-                    {user.subscription.type.replace("_", " ").toUpperCase()}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Status:
-                    </span>
+            {user.subscription && (
+              <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-green-100 dark:border-green-900 shadow-md mt-6">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg font-bold text-green-800 dark:text-green-300">
+                      Subscription
+                    </CardTitle>
                     <span
-                      className={`font-medium ${
-                        user.subscription.isActive
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${subscriptionBadge}`}
                     >
-                      {user.subscription.isActive ? "ACTIVE" : "INACTIVE"}
+                      {user.subscription.type.replace("_", " ").toUpperCase()}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">
-                      End Date:
-                    </span>
-                    <span className="font-medium">
-                      {formatDate(user.subscription.endDate)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Days Remaining:
-                    </span>
-                    <span
-                      className={`font-medium ${
-                        daysRemaining > 0
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {daysRemaining > 0 ? `${daysRemaining} days` : "Expired"}
-                    </span>
-                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Status:
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          user.subscription.isActive
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {user.subscription.isActive ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        End Date:
+                      </span>
+                      <span className="font-medium">
+                        {formatDate(user.subscription.endDate)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Days Remaining:
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          daysRemaining > 0
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {daysRemaining > 0
+                          ? `${daysRemaining} days`
+                          : "Expired"}
+                      </span>
+                    </div>
 
-                  <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                      <strong>Features:</strong>
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {user.subscription.features.map((feature, index) => (
-                        <span
-                          key={index}
-                          className="inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 
+                    <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        <strong>Features:</strong>
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {user.subscription.features.map((feature, index) => (
+                          <span
+                            key={index}
+                            className="inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 
                           text-green-700 dark:text-green-300 rounded text-xs"
-                        >
-                          {feature}
-                        </span>
-                      ))}
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Main Content - Columns 2-4 */}

@@ -43,7 +43,9 @@ export default function ProfilePage() {
 
   // Calculate derived data after ensuring user exists
   const daysRemaining = calculateDaysRemaining(user);
-  const subscriptionBadge = getSubscriptionBadge(user.subscription.type);
+  const subscriptionBadge = getSubscriptionBadge(
+    user?.subscription?.type ?? ""
+  );
   const roleBadge = getRoleBadge(user.role);
 
   // Handle save button click
@@ -86,12 +88,14 @@ export default function ProfilePage() {
               setIsEditing={setIsEditing}
               roleBadge={roleBadge}
             />
-            <SubscriptionStatusCard
-              user={user}
-              subscriptionBadge={subscriptionBadge}
-              daysRemaining={daysRemaining}
-              formatDate={formatDate}
-            />
+            {user.subscription && (
+              <SubscriptionStatusCard
+                user={user}
+                subscriptionBadge={subscriptionBadge}
+                daysRemaining={daysRemaining}
+                formatDate={formatDate}
+              />
+            )}
             <AccountActivityCard
               user={user}
               formatDate={formatDate}

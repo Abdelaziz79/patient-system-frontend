@@ -50,12 +50,14 @@ export default function Header() {
     <header className="sticky top-0 w-full p-3 md:p-4 backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 border-b border-blue-100 dark:border-blue-900 z-20 transition-all">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo - visible on all screens */}
-        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-          <HeartPulseIcon className="h-5 w-5 md:h-6 md:w-6" />
-          <span className={`font-bold ${isMobile ? "text-lg" : "text-xl"}`}>
-            {isMobile ? "PMS" : "Patient System"}
-          </span>
-        </div>
+        <Link href="/">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <HeartPulseIcon className="h-5 w-5 md:h-6 md:w-6" />
+            <span className={`font-bold ${isMobile ? "text-lg" : "text-xl"}`}>
+              {isMobile ? "PMS" : "Patient System"}
+            </span>
+          </div>
+        </Link>
 
         {/* Search bar - only on larger screens */}
         <div className="hidden md:flex flex-1 max-w-md px-4">

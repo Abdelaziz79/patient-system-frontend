@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "@/app/_hooks/useAuth";
 import { useAuthContext } from "@/app/_providers/AuthProvider";
@@ -16,31 +16,34 @@ export interface PasswordChangeData {
 }
 
 export const useUserProfile = () => {
-  const { user } = useAuthContext();
+  const { user, setUser } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [passwordData, setPasswordData] = useState<PasswordChangeData>({
     currentPassword: "",
     newPassword: "",
   });
   const [formData, setFormData] = useState<ProfileFormData>({
-    name: user?.name || "",
-    email: user?.email || "",
-    contactNumber: user?.contactNumber || "",
-    specialization: user?.specialization || "",
+    name: "",
+    email: "",
+    contactNumber: "",
+    specialization: "",
   });
 
-  // Update form data when user data changes (e.g., after initial load)
-  if (user && formData.name === "" && formData.email === "") {
-    setFormData({
-      name: user.name,
-      email: user.email,
-      contactNumber: user.contactNumber || "",
-      specialization: user.specialization || "",
-    });
-  }
+  // Initialize form data when user data becomes available
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        contactNumber: user.contactNumber || "",
+        specialization: user.specialization || "",
+      });
+    }
+  }, [user]);
 
   // Handle form changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +100,7 @@ export const useUserProfile = () => {
     message: string;
   }> => {
     setIsSaving(true);
+    setError(null);
 
     try {
       const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
@@ -108,9 +112,15 @@ export const useUserProfile = () => {
       setIsEditing(false);
 
       if (response.data.success) {
+        // Update the user context with new data
+        if (setUser && response.data.data) {
+          setUser(response.data.data);
+        }
         return { success: true, message: "Profile updated successfully" };
       } else {
-        return { success: false, message: "Failed to update profile" };
+        const errorMsg = response.data.message || "Failed to update profile";
+        setError(errorMsg);
+        return { success: false, message: errorMsg };
       }
     } catch (error) {
       setIsSaving(false);
@@ -120,6 +130,7 @@ export const useUserProfile = () => {
           ? error.response.data.message
           : "An error occurred while updating your profile";
 
+      setError(errorMsg);
       return { success: false, message: errorMsg };
     }
   };
@@ -130,36 +141,52 @@ export const useUserProfile = () => {
     message: string;
   }> => {
     setIsSubmittingPassword(true);
+    setError(null);
 
     try {
       const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
       const response = await axios.put(`${usersUrl}/password`, passwordData, {
         withCredentials: true,
       });
-      setIsSubmittingPassword(false);
-      setIsChangingPassword(false);
 
-      // Reset password form
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-      });
+      setIsSubmittingPassword(false);
 
       if (response.data.success) {
+        setIsChangingPassword(false);
+
+        // Reset password form
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+        });
+
         return { success: true, message: "Password changed successfully" };
       } else {
-        return { success: false, message: "Failed to change password" };
+        const errorMsg = response.data.message || "Failed to change password";
+        setError(errorMsg);
+        return { success: false, message: errorMsg };
       }
     } catch (error) {
       setIsSubmittingPassword(false);
-      console.error("Error changing password:", error);
+
       const errorMsg =
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
           : "An error occurred while changing your password";
 
+      setError(errorMsg);
       return { success: false, message: errorMsg };
     }
+  };
+
+  // Check if subscription is active and valid
+  const isSubscriptionActive = (user: User) => {
+    if (!user?.subscription) return false;
+
+    return (
+      user.subscription.isActive &&
+      new Date(user.subscription.endDate) > new Date()
+    );
   };
 
   // Get subscription badge style based on type
@@ -186,6 +213,15 @@ export const useUserProfile = () => {
         text: "text-red-600 dark:text-red-400",
       },
     };
+
+    // If subscription is inactive or expired, return expired style
+    if (
+      user?.subscription &&
+      (!user.subscription.isActive ||
+        new Date(user.subscription.endDate) <= new Date())
+    ) {
+      return badges.expired;
+    }
 
     const defaultBadge = badges.free_trial;
     return type && type in badges
@@ -224,14 +260,31 @@ export const useUserProfile = () => {
       : defaultBadge;
   };
 
+  // Reset form data to current user values
+  const resetForm = () => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        contactNumber: user.contactNumber || "",
+        specialization: user.specialization || "",
+      });
+    }
+    setIsEditing(false);
+    setError(null);
+  };
+
   return {
     formData,
     isEditing,
     isSaving,
+    error,
     setIsEditing,
     handleChange,
     saveProfile,
+    resetForm,
     calculateDaysRemaining,
+    isSubscriptionActive,
     formatDate,
     formatTime,
     getSubscriptionBadge,

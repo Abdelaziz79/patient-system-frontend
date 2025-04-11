@@ -9,6 +9,7 @@ interface AuthContextType extends AuthState {
     password: string
   ) => Promise<{ success: boolean; data?: User; error?: string }>;
   logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
