@@ -91,11 +91,17 @@ export const useUserAdmin = () => {
   const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
   // Fetch all users (paginated)
-  const fetchUsers = async (page = 1, pageLimit = 10) => {
+  // Update the fetchUsers function to accept sorting parameters
+  const fetchUsers = async (
+    page = 1,
+    pageLimit = 10,
+    field = "name",
+    direction = "asc"
+  ) => {
     setIsLoading(true);
     try {
       const response = await axios.get<UsersResponse>(usersUrl, {
-        params: { page, limit: pageLimit },
+        params: { page, limit: pageLimit, sort: field, direction },
         withCredentials: true,
       });
 
@@ -115,7 +121,6 @@ export const useUserAdmin = () => {
       setIsLoading(false);
     }
   };
-
   // Fetch users by admin ID
   const fetchUsersByAdmin = async (
     adminId: string,

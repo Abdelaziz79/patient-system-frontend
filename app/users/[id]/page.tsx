@@ -3,8 +3,9 @@
 import ErrorComp from "@/app/_components/ErrorComp";
 import Loading from "@/app/_components/Loading";
 import { PasswordResetModal } from "@/app/_components/management/PasswordResetModal";
+import { SubscriptionUpdateModal } from "@/app/_components/management/SubscriptionUpdateModal"; // Import the modal
 import { UserFormModal } from "@/app/_components/profile/UserFormModal";
-import { User } from "@/app/_hooks/useAuth";
+import { User, useAuth } from "@/app/_hooks/useAuth"; // Import useAuth
 import { UserCreateData, useUserAdmin } from "@/app/_hooks/useUserAdmin";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
+  CreditCard,
   Edit3,
   Shield,
   Star,
@@ -36,6 +38,10 @@ export default function UserProfilePage() {
   const router = useRouter();
   const userId = params.id as string;
 
+  // Get current user info to check if super_admin
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === "super_admin";
+
   // States
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +49,7 @@ export default function UserProfilePage() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isPasswordChangeModalOpen, setIsPasswordChangeModalOpen] =
     useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false); // Add subscription modal state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // User admin hook for operations
@@ -50,11 +57,14 @@ export default function UserProfilePage() {
     fetchUserById,
     updateUser,
     deleteUser,
-    undeleteUser, // Add this
+    undeleteUser,
     resetUserPassword,
+    updateUserSubscription, // Add this function
     isUpdating,
     isResettingPassword,
+    isUpdatingSubscription, // Add this state
   } = useUserAdmin();
+
   // Fetch user data only once on component mount
   useEffect(() => {
     const fetchUserData = async () => {
@@ -202,6 +212,41 @@ export default function UserProfilePage() {
     }
   };
 
+  // Handle subscription update
+  const handleSubscriptionUpdate = async (
+    userId: string,
+    subscriptionData: any
+  ) => {
+    try {
+      const result = await updateUserSubscription(userId, subscriptionData);
+
+      if (result.success) {
+        // toast.success(result.message);
+        setIsSubscriptionModalOpen(false);
+
+        // Update local user state to reflect new subscription
+        setUser((prevUser) => {
+          if (!prevUser) return null;
+          return {
+            ...prevUser,
+            subscription: {
+              ...prevUser.subscription,
+              ...subscriptionData,
+            },
+          };
+        });
+      } else {
+        toast.error(result.message);
+      }
+
+      return result;
+    } catch (error) {
+      toast.error("Failed to update subscription");
+      console.error("Error updating subscription:", error);
+      return { success: false, message: "An error occurred" };
+    }
+  };
+
   // Handle user deletion
   const handleDeleteUser = async () => {
     if (!user) return;
@@ -216,9 +261,6 @@ export default function UserProfilePage() {
         setUser((prevUser) =>
           prevUser ? { ...prevUser, isActive: false } : null
         );
-
-        // Navigate back to users management after short delay
-        setTimeout(() => router.push("/users"), 1500);
       } else {
         toast.error(result.message);
       }
@@ -265,9 +307,17 @@ export default function UserProfilePage() {
     () => setIsPasswordChangeModalOpen(false),
     []
   );
+  const closeSubscriptionModal = useCallback(
+    () => setIsSubscriptionModalOpen(false),
+    []
+  );
   const openUserModal = useCallback(() => setIsUserModalOpen(true), []);
   const openPasswordModal = useCallback(
     () => setIsPasswordChangeModalOpen(true),
+    []
+  );
+  const openSubscriptionModal = useCallback(
+    () => setIsSubscriptionModalOpen(true),
     []
   );
   const openDeleteConfirm = useCallback(() => setDeleteConfirmOpen(true), []);
@@ -630,6 +680,16 @@ export default function UserProfilePage() {
                     <UserCog className="mr-2 h-4 w-4" />
                     Reset Password
                   </Button>
+                  {/* New subscription button - only visible for super_admin */}
+                  {isSuperAdmin && user.subscription && (
+                    <Button
+                      onClick={openSubscriptionModal}
+                      className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 text-white transition-colors"
+                    >
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Update Subscription
+                    </Button>
+                  )}
                   {user?.isActive ? (
                     <Button
                       onClick={openDeleteConfirm}
@@ -720,6 +780,17 @@ export default function UserProfilePage() {
         userName={user.name}
         onReset={handlePasswordReset}
         isResetting={isResettingPassword}
+      />
+
+      {/* Subscription Modal */}
+      <SubscriptionUpdateModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={closeSubscriptionModal}
+        isUpdating={isUpdatingSubscription}
+        onUpdate={handleSubscriptionUpdate}
+        userId={user.id}
+        userName={user.name}
+        currentSubscription={user.subscription}
       />
     </div>
   );

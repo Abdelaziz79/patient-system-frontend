@@ -2,45 +2,48 @@ import { UserUtils } from "@/app/_components/management/UserUtils";
 import { User } from "@/app/_hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import {
+  ArrowRightIcon,
+  BadgeIcon,
+  CreditCardIcon,
   EditIcon,
   KeyIcon,
   MailIcon,
   PhoneIcon,
-  TrashIcon,
-  ArrowRightIcon,
-  UserIcon,
   SearchIcon,
-  BadgeIcon,
+  TrashIcon,
+  UserIcon,
 } from "lucide-react";
 import Link from "next/link";
 
 interface UserCardsProps {
   users: User[];
-  currentPage: number;
-  itemsPerPage: number;
   onResetPassword: (userId: string) => void;
   onDeleteUser: (userId: string) => void;
   onEditUser: (user: User) => void;
+  onUpdateSubscription?: (user: User) => void;
+  // Add bulk selection props
+  bulkSelectMode?: boolean;
+  selectedUserIds?: Set<string>;
+  onToggleUserSelection?: (userId: string) => void;
 }
 
 export function UserCards({
   users,
-  currentPage,
-  itemsPerPage,
   onResetPassword,
   onDeleteUser,
   onEditUser,
+  onUpdateSubscription,
+  // Bulk selection props with defaults
+  bulkSelectMode = false,
+  selectedUserIds = new Set(),
+  onToggleUserSelection = () => {},
 }: UserCardsProps) {
   const { getRoleBadge, getStatusBadge } = UserUtils();
 
-  // Get users for the current page
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, users.length);
-  const displayedUsers = users.slice(startIndex, endIndex);
-
-  if (displayedUsers.length === 0) {
+  if (users.length === 0) {
     return (
       <Card className="text-center p-10 border-none shadow-md dark:bg-slate-900 dark:shadow-slate-900/30">
         <div className="flex flex-col items-center">
@@ -60,13 +63,26 @@ export function UserCards({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {displayedUsers.map((user) => (
+      {users.map((user) => (
         <Card
           key={user.id}
-          className="overflow-hidden transition-all duration-200 hover:shadow-lg border-none shadow-md dark:bg-slate-900 dark:shadow-slate-900/30"
+          className={`overflow-hidden transition-all duration-200 hover:shadow-lg border-none shadow-md dark:bg-slate-900 dark:shadow-slate-900/30 ${
+            bulkSelectMode && selectedUserIds.has(user.id)
+              ? "ring-2 ring-green-500 dark:ring-green-600"
+              : ""
+          }`}
         >
           <CardHeader className="p-5 flex flex-row items-center justify-between space-y-0 border-b border-gray-100 dark:border-slate-800">
             <div className="flex items-start gap-3">
+              {bulkSelectMode && (
+                <div className="flex items-center h-10 mr-1">
+                  <Checkbox
+                    checked={selectedUserIds.has(user.id)}
+                    onCheckedChange={() => onToggleUserSelection(user.id)}
+                    className="border-green-500 data-[state=checked]:bg-green-500 data-[state=checked]:text-white"
+                  />
+                </div>
+              )}
               <div className="bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-600 dark:to-slate-800 w-10 h-10 rounded-full flex items-center justify-center text-white font-medium">
                 {user.name.charAt(0)}
               </div>
@@ -110,18 +126,50 @@ export function UserCards({
               </div>
             </div>
 
+            {/* Subscription info (if available) */}
+            {user.subscription && (
+              <div className="mt-2 mb-4">
+                <div className="flex items-center gap-1.5 text-gray-500 dark:text-slate-400 text-xs font-medium mb-1">
+                  <CreditCardIcon className="h-3 w-3" />
+                  <span>Subscription</span>
+                </div>
+                <p className="font-medium text-gray-800 dark:text-slate-200">
+                  {user.subscription.type || "Free"}
+                  {user.subscription.isActive &&
+                    ` • ${user.subscription.isActive ? "Active" : "Inactive"}`}
+                </p>
+              </div>
+            )}
+
             <Separator className="my-4 bg-gray-100 dark:bg-slate-800" />
 
             <div className="flex items-center justify-between pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onResetPassword(user.id)}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-blue-600"
-              >
-                <KeyIcon className="h-4 w-4 mr-1.5" />
-                Reset
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onResetPassword(user.id)}
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-blue-600"
+                  disabled={bulkSelectMode}
+                >
+                  <KeyIcon className="h-4 w-4 mr-1.5" />
+                  Reset
+                </Button>
+
+                {/* Subscription button (only shown if handler provided) */}
+                {onUpdateSubscription && user.role === "admin" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onUpdateSubscription(user)}
+                    className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-purple-600"
+                    disabled={bulkSelectMode}
+                  >
+                    <CreditCardIcon className="h-4 w-4 mr-1.5" />
+                    Plan
+                  </Button>
+                )}
+              </div>
 
               <div className="flex gap-2">
                 <Button
@@ -129,15 +177,21 @@ export function UserCards({
                   size="sm"
                   onClick={() => onEditUser(user)}
                   className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                  disabled={bulkSelectMode}
                 >
                   <EditIcon className="h-4 w-4" />
                 </Button>
 
-                <Link href={`/users/${user.id}`} passHref>
+                <Link
+                  href={`/users/${user.id}`}
+                  passHref
+                  className={bulkSelectMode ? "pointer-events-none" : ""}
+                >
                   <Button
                     variant="outline"
                     size="sm"
                     className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                    disabled={bulkSelectMode}
                   >
                     <ArrowRightIcon className="h-4 w-4" />
                   </Button>
@@ -152,6 +206,7 @@ export function UserCards({
                       ? "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-slate-800 dark:hover:border-red-600"
                       : "text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-slate-800 dark:hover:border-green-600"
                   }`}
+                  disabled={bulkSelectMode}
                 >
                   {user.isActive !== false ? (
                     <TrashIcon className="h-4 w-4" />

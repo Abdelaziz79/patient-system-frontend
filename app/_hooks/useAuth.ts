@@ -3,7 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface ISubscription {
+export interface ISubscription {
   type: "free_trial" | "basic" | "premium" | "enterprise";
   startDate: string;
   endDate: string;
