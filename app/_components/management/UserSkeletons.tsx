@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Loading skeletons for better UX
 const UserSkeletons = () => (
   <div className="space-y-4">
-    {Array(10)
+    {Array(6)
       .fill(0)
       .map((_, i) => (
         <div

@@ -161,7 +161,7 @@ export function UserTable({
                 <TableRow
                   key={user.id}
                   className={`
-                    hover:bg-green-50 dark:hover:bg-slate-700 transition-colors
+                    hover:bg-green-50 dark:hover:bg-slate-700 transition-colors  dark:border-b-gray-700
                     ${
                       selectedUserIds.has(user.id)
                         ? "bg-green-50 dark:bg-slate-800"
