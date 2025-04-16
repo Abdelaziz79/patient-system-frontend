@@ -6,18 +6,10 @@ import { UserFilters } from "@/app/_components/management/UserFilters";
 import { UserPagination } from "@/app/_components/management/UserPagination";
 import { UserTable } from "@/app/_components/management/UserTable";
 import { UserFormModal } from "@/app/_components/profile/UserFormModal";
-import { useAuth, User } from "@/app/_hooks/useAuth";
-import { UserCreateData, useUserAdmin } from "@/app/_hooks/useUserAdmin";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/app/_hooks/useAuth";
+import useMobileView from "@/app/_hooks/useMobileView";
+import { useUserAdmin } from "@/app/_hooks/useUserAdmin";
+import { User, UserCreateData } from "@/app/_types/User";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,13 +18,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatePresence, motion } from "framer-motion";
 import { FilterIcon, RefreshCw, UserPlusIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import AlertDialogComp from "./AlertDialogComp";
 import { PasswordResetModal } from "./PasswordResetModal";
 import { SubscriptionUpdateModal } from "./SubscriptionUpdateModal";
+import UserSkeletons from "./UserSkeletons";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -74,7 +67,6 @@ export default function UsersManagement() {
   const [roleFilter, setRoleFilter] = useState("");
   const [sortField, setSortField] = useState<keyof User>("name");
   const [sortDirection, setSortDirection] = useState("asc");
-  const [isMobileView, setIsMobileView] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [localCurrentPage, setLocalCurrentPage] = useState(1);
   const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false);
@@ -89,19 +81,10 @@ export default function UsersManagement() {
     useState(false);
   const [isBulkResettingPassword, setIsBulkResettingPassword] = useState(false);
 
-  const isFiltering = Boolean(searchQuery || roleFilter);
+  // new hooks
+  const { isMobileView } = useMobileView();
 
-  // Check for mobile view
-  useEffect(() => {
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth < 768);
-    };
-    checkMobileView();
-    window.addEventListener("resize", checkMobileView);
-    return () => {
-      window.removeEventListener("resize", checkMobileView);
-    };
-  }, []);
+  const isFiltering = Boolean(searchQuery || roleFilter);
 
   // Load users when component mounts
   useEffect(() => {
@@ -559,28 +542,6 @@ export default function UsersManagement() {
     ? filteredTotalPages
     : pages || Math.ceil(totalUsers / ITEMS_PER_PAGE);
 
-  // Loading skeletons for better UX
-  const UserSkeletons = () => (
-    <div className="space-y-4">
-      {Array(5)
-        .fill(0)
-        .map((_, i) => (
-          <div
-            key={i}
-            className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow"
-          >
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-48" />
-              </div>
-            </div>
-          </div>
-        ))}
-    </div>
-  );
-
   return (
     <div className="min-h-screen dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
@@ -755,40 +716,12 @@ export default function UsersManagement() {
             </CardContent>
 
             {/* Status Confirmation Modal - Enhanced with AlertDialog */}
-            <AlertDialog
-              open={isStatusConfirmOpen}
-              onOpenChange={setIsStatusConfirmOpen}
-            >
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {selectedUser?.isActive !== false
-                      ? "Deactivate User"
-                      : "Reactivate User"}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {selectedUser?.isActive !== false
-                      ? `Are you sure you want to deactivate ${selectedUser?.name}? They will no longer be able to access the system. This action can be reversed.`
-                      : `Are you sure you want to reactivate ${selectedUser?.name}? They will regain access to the system.`}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleConfirmStatusChange}
-                    className={
-                      selectedUser?.isActive !== false
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-green-600 hover:bg-green-700 text-white"
-                    }
-                  >
-                    {selectedUser?.isActive !== false
-                      ? "Yes, Deactivate User"
-                      : "Yes, Reactivate User"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <AlertDialogComp
+              isStatusConfirmOpen={isStatusConfirmOpen}
+              setIsStatusConfirmOpen={setIsStatusConfirmOpen}
+              selectedUser={selectedUser}
+              handleConfirmStatusChange={handleConfirmStatusChange}
+            />
           </Card>
         </motion.div>
       </div>

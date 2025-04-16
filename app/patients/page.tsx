@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import useMobileView from "../_hooks/useMobileView";
 import { mockPatients } from "./mock-data";
 
 // Define patient interface for list view
@@ -48,24 +49,8 @@ export default function PatientsPage() {
   const [insuranceFilter, setInsuranceFilter] = useState("");
   const [sortField, setSortField] = useState<keyof PatientListItem>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [isMobileView, setIsMobileView] = useState(false);
 
-  useEffect(() => {
-    // Check for mobile view
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth < 768);
-    };
-
-    // Initial check
-    checkMobileView();
-
-    // Add resize listener
-    window.addEventListener("resize", checkMobileView);
-
-    return () => {
-      window.removeEventListener("resize", checkMobileView);
-    };
-  }, []);
+  const { isMobileView } = useMobileView();
 
   useEffect(() => {
     // Simulate API call to fetch patients

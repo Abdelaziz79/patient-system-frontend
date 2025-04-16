@@ -9,7 +9,8 @@ import {
   SunIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useMobileView from "../_hooks/useMobileView";
 import { useThemeMode } from "../_hooks/useThemeMode";
 import { useAuthContext } from "../_providers/AuthProvider";
 
@@ -17,8 +18,7 @@ export default function Header() {
   const { mounted, theme, toggleTheme } = useThemeMode();
   const { user, isAuthenticated } = useAuthContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
+  const { isMobileView: isMobile } = useMobileView();
   const { logout } = useAuthContext();
 
   const handleLogout = async () => {
@@ -28,21 +28,6 @@ export default function Header() {
       console.error("Logout failed:", error);
     }
   };
-  // Check screen size on mount and resize
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Initial check
-    checkMobile();
-
-    // Add event listener
-    window.addEventListener("resize", checkMobile);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   if (!mounted) return null;
 

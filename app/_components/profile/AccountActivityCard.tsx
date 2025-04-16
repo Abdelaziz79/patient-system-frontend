@@ -1,4 +1,4 @@
-import { User } from "@/app/_hooks/useAuth";
+import { User } from "@/app/_types/User";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarIcon, ClockIcon, KeyIcon } from "lucide-react";
 

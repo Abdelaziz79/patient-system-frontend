@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { User } from "@/app/_hooks/useAuth";
 import { useAuthContext } from "@/app/_providers/AuthProvider";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { User } from "../_types/User";
 
 export interface ProfileFormData {
   name: string;

@@ -1,7 +1,7 @@
-import { UserFormModal } from "@/app/_components/profile/UserFormModal";
 import { PasswordChangeModal } from "@/app/_components/profile/PasswordChangeModal";
-import { User } from "@/app/_hooks/useAuth";
-import { UserCreateData, useUserAdmin } from "@/app/_hooks/useUserAdmin";
+import { UserFormModal } from "@/app/_components/profile/UserFormModal";
+import { useUserAdmin } from "@/app/_hooks/useUserAdmin";
+import { User, UserCreateData } from "@/app/_types/User";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KeyIcon, LogOutIcon, UserPlusIcon, UsersIcon } from "lucide-react";

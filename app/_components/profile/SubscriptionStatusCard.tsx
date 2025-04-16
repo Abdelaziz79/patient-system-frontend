@@ -1,4 +1,4 @@
-import { User } from "@/app/_hooks/useAuth";
+import { User } from "@/app/_types/User";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCheckIcon } from "lucide-react";
 
@@ -37,7 +37,7 @@ export function SubscriptionStatusCard({
           </div>
           <div>
             <p className="text-sm font-medium">
-              {user.subscription.type.replace("_", " ").toUpperCase()}
+              {user?.subscription?.type.replace("_", " ").toUpperCase()}
             </p>
             <p
               className={`text-xs ${
@@ -55,13 +55,13 @@ export function SubscriptionStatusCard({
           <div className="flex justify-between text-xs">
             <span className="text-gray-500 dark:text-gray-400">Start Date</span>
             <span className="text-gray-700 dark:text-gray-300">
-              {formatDate(user.subscription.startDate)}
+              {formatDate(user?.subscription?.startDate || "")}
             </span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-gray-500 dark:text-gray-400">End Date</span>
             <span className="text-gray-700 dark:text-gray-300">
-              {formatDate(user.subscription.endDate)}
+              {formatDate(user?.subscription?.endDate || "")}
             </span>
           </div>
         </div>

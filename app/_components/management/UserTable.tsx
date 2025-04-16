@@ -1,5 +1,5 @@
 import { UserUtils } from "@/app/_components/management/UserUtils";
-import { User } from "@/app/_hooks/useAuth";
+import { User } from "@/app/_types/User";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {

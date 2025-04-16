@@ -1,5 +1,4 @@
-import { ISubscription } from "@/app/_hooks/useAuth";
-import { SubscriptionUpdateData } from "@/app/_hooks/useUserAdmin";
+import { ISubscription, SubscriptionUpdateData } from "@/app/_types/User";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {

@@ -1,5 +1,5 @@
-import { User } from "@/app/_hooks/useAuth";
 import { ProfileFormData } from "@/app/_hooks/useUserProfile";
+import { User } from "@/app/_types/User";
 import { Button } from "@/components/ui/button";
 import {
   Card,

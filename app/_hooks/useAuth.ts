@@ -2,37 +2,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-export interface ISubscription {
-  type: "free_trial" | "basic" | "premium" | "enterprise";
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-  features: string[];
-}
-
-// Define the user type based on your API response
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "super_admin" | "admin" | "doctor" | "nurse" | "staff";
-  isActive?: boolean;
-  lastLogin?: string;
-  profileImage?: string;
-  specialization?: string;
-  contactNumber?: string;
-  createdBy?: string;
-  adminId?: string;
-  subscription?: ISubscription;
-  createdAt?: string;
-  updatedAt?: string;
-  password?: string; // Optional, only if you need it for some reason
-
-  // Methods for the model, not used in frontend
-  matchPassword?: (enteredPassword: string) => Promise<boolean>;
-  getSignedJwtToken?: () => string;
-}
+import { User } from "../_types/User";
 
 export interface AuthState {
   user: User | null;
