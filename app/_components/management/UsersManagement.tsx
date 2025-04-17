@@ -1,31 +1,15 @@
 "use client";
-import { BulkActionBar } from "@/app/_components/management/BulkActionBar";
-import { BulkPasswordResetModal } from "@/app/_components/management/BulkPasswordResetModal";
-import { UserCards } from "@/app/_components/management/UserCards";
-import { UserFilters } from "@/app/_components/management/UserFilters";
-import { UserPagination } from "@/app/_components/management/UserPagination";
-import { UserTable } from "@/app/_components/management/UserTable";
-import { UserFormModal } from "@/app/_components/profile/UserFormModal";
 import { useAuth } from "@/app/_hooks/useAuth";
 import useMobileView from "@/app/_hooks/useMobileView";
 import { useUserAdmin } from "@/app/_hooks/useUserAdmin";
 import { User, UserCreateData } from "@/app/_types/User";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { AnimatePresence, motion } from "framer-motion";
-import { FilterIcon, RefreshCw, UserPlusIcon } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import AlertDialogComp from "./AlertDialogComp";
-import { PasswordResetModal } from "./PasswordResetModal";
-import { SubscriptionUpdateModal } from "./SubscriptionUpdateModal";
-import UserSkeletons from "./UserSkeletons";
+import { UsersManagementContent } from "./UsersManagementContent";
+import { UsersManagementHeader } from "./UsersManagementHeader";
+import { UsersManagementModals } from "./UsersManagementModals";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -81,7 +65,7 @@ export default function UsersManagement() {
     useState(false);
   const [isBulkResettingPassword, setIsBulkResettingPassword] = useState(false);
 
-  // new hooks
+  // Mobile view hook
   const { isMobileView } = useMobileView();
 
   const isFiltering = Boolean(searchQuery || roleFilter);
@@ -219,11 +203,6 @@ export default function UsersManagement() {
   const handleUpdateSubscriptionClick = (user: User) => {
     setSelectedUser(user);
     setIsSubscriptionModalOpen(true);
-  };
-
-  // Close user modal (both create and update)
-  const handleCloseUserModal = () => {
-    setIsUserModalOpen(false);
   };
 
   // Handle form submission (works for both create and update)
@@ -382,7 +361,6 @@ export default function UsersManagement() {
     if (selectedUserIds.size === 0) return;
 
     try {
-      // Show loading state - you might want to implement this
       const results = [];
 
       // Process each selected user
@@ -425,7 +403,6 @@ export default function UsersManagement() {
     if (selectedUserIds.size === 0) return;
 
     try {
-      // Show loading state - you might want to implement this
       const results = [];
 
       // Process each selected user
@@ -552,219 +529,99 @@ export default function UsersManagement() {
           className="w-full"
         >
           <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-green-100 dark:border-green-900 shadow-xl">
-            <CardHeader className="px-4 sm:px-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <div className="flex items-center">
-                    <CardTitle className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">
-                      User Management
-                    </CardTitle>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="ml-2 p-1 h-auto"
-                      onClick={refreshData}
-                      disabled={isRefreshing || isLoading}
-                    >
-                      <RefreshCw
-                        className={`h-4 w-4 text-green-600 dark:text-green-400 ${
-                          isRefreshing ? "animate-spin" : ""
-                        }`}
-                      />
-                    </Button>
-                  </div>
-                  <CardDescription className="text-green-600 dark:text-green-400 mt-1 text-sm">
-                    {isFiltering
-                      ? `Filtered results: ${filteredUsers.length} user${
-                          filteredUsers.length !== 1 ? "s" : ""
-                        }`
-                      : `Manage system users, roles and permissions • ${totalUsers} total user${
-                          totalUsers !== 1 ? "s" : ""
-                        }`}
-                  </CardDescription>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  {isFiltering && (
-                    <Button
-                      onClick={clearFilters}
-                      variant="outline"
-                      size="sm"
-                      className="border-green-200 text-green-700 dark:border-green-800 dark:text-green-400 w-full sm:w-auto"
-                    >
-                      Clear Filters
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleCreateUserClick}
-                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
-                  >
-                    <UserPlusIcon className="mr-2 h-4 w-4" />
-                    <span>Add New User</span>
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
+            <UsersManagementHeader
+              isFiltering={isFiltering}
+              filteredUsersCount={filteredUsers.length}
+              totalUsers={totalUsers}
+              onRefresh={refreshData}
+              isRefreshing={isRefreshing}
+              onClearFilters={clearFilters}
+              onCreateUser={handleCreateUserClick}
+            />
 
-            <CardContent className="px-3 sm:px-6">
-              {/* Search and Filters Component */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Filters
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setFiltersExpanded(!filtersExpanded)}
-                    className="h-8 px-2 text-gray-500 dark:text-gray-400"
-                  >
-                    <FilterIcon className="h-4 w-4 mr-1" />
-                    {filtersExpanded ? "Hide Filters" : "Show Filters"}
-                  </Button>
-                </div>
-
-                <AnimatePresence>
-                  {(filtersExpanded || isFiltering) && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <UserFilters
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        roleFilter={roleFilter}
-                        setRoleFilter={setRoleFilter}
-                        roles={roles}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <div>
-                <BulkActionBar
-                  selectedCount={selectedUserIds.size}
-                  onClearSelection={clearSelections}
-                  onToggleBulkMode={toggleBulkSelectMode}
-                  bulkSelectMode={bulkSelectMode}
-                  onBulkDeactivate={handleBulkDeactivate}
-                  onBulkReactivate={handleBulkReactivate}
-                  onBulkResetPassword={handleBulkPasswordReset}
-                  onBulkInvite={handleBulkInvite}
-                />
-              </div>
-              {/* Loading State */}
-              {isLoading ? (
-                <UserSkeletons />
-              ) : (
-                <>
-                  {/* Mobile View - Card Layout */}
-                  {isMobileView ? (
-                    <UserCards
-                      users={paginatedUsers}
-                      onResetPassword={handleResetPassword}
-                      onDeleteUser={handleUserStatusAction}
-                      onEditUser={handleEditUserClick}
-                      onUpdateSubscription={
-                        isSuperAdmin ? handleUpdateSubscriptionClick : undefined
-                      }
-                      bulkSelectMode={bulkSelectMode}
-                      onToggleUserSelection={toggleUserSelection}
-                      selectedUserIds={selectedUserIds}
-                    />
-                  ) : (
-                    /* Desktop View - Table Layout */
-                    <UserTable
-                      users={paginatedUsers}
-                      currentPage={localCurrentPage}
-                      itemsPerPage={ITEMS_PER_PAGE}
-                      sortField={sortField}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                      onResetPassword={handleResetPassword}
-                      onDeleteUser={handleUserStatusAction}
-                      onEditUser={handleEditUserClick}
-                      onUpdateSubscription={
-                        isSuperAdmin ? handleUpdateSubscriptionClick : undefined
-                      }
-                      // New features for bulk selections
-                      bulkSelectMode={bulkSelectMode}
-                      selectedUserIds={selectedUserIds}
-                      onToggleUserSelection={toggleUserSelection}
-                      onToggleAllUsers={toggleAllUsers}
-                    />
-                  )}
-
-                  {/* Pagination and info */}
-                  <div className="mt-4  items-center text-sm text-gray-500 dark:text-gray-400">
-                    {totalPages > 1 && (
-                      <UserPagination
-                        currentPage={localCurrentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                        totalUsers={totalUsers}
-                        isFiltering={isFiltering}
-                        filteredCount={filteredUsers.length}
-                        itemsPerPage={ITEMS_PER_PAGE}
-                      />
-                    )}
-                  </div>
-                </>
-              )}
-            </CardContent>
-
-            {/* Status Confirmation Modal - Enhanced with AlertDialog */}
-            <AlertDialogComp
-              isStatusConfirmOpen={isStatusConfirmOpen}
-              setIsStatusConfirmOpen={setIsStatusConfirmOpen}
-              selectedUser={selectedUser}
-              handleConfirmStatusChange={handleConfirmStatusChange}
+            <UsersManagementContent
+              isLoading={isLoading}
+              isMobileView={isMobileView}
+              isFiltering={isFiltering}
+              filtersExpanded={filtersExpanded}
+              setFiltersExpanded={setFiltersExpanded}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              roleFilter={roleFilter}
+              setRoleFilter={setRoleFilter}
+              roles={roles}
+              paginatedUsers={paginatedUsers}
+              bulkSelectMode={bulkSelectMode}
+              selectedUserIds={selectedUserIds}
+              onToggleUserSelection={toggleUserSelection}
+              onToggleAllUsers={toggleAllUsers}
+              onResetPassword={handleResetPassword}
+              onDeleteUser={handleUserStatusAction}
+              onEditUser={handleEditUserClick}
+              onUpdateSubscription={handleUpdateSubscriptionClick}
+              isSuperAdmin={isSuperAdmin}
+              currentPage={localCurrentPage}
+              itemsPerPage={ITEMS_PER_PAGE}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              totalUsers={totalUsers}
+              filteredUsersCount={filteredUsers.length}
+              onClearSelection={clearSelections}
+              onToggleBulkMode={toggleBulkSelectMode}
+              onBulkDeactivate={handleBulkDeactivate}
+              onBulkReactivate={handleBulkReactivate}
+              onBulkResetPassword={handleBulkPasswordReset}
+              onBulkInvite={handleBulkInvite}
             />
           </Card>
         </motion.div>
       </div>
 
-      {/* User Form Modal (handles both create and update) */}
-      <UserFormModal
-        isOpen={isUserModalOpen}
-        onClose={handleCloseUserModal}
-        onSubmit={handleSubmitUserForm}
-        isSubmitting={userModalMode === "create" ? isCreating : isUpdating}
-        user={selectedUser}
-        mode={userModalMode}
+      <UsersManagementModals
+        isUserModalOpen={isUserModalOpen}
+        setIsUserModalOpen={setIsUserModalOpen}
+        userModalMode={userModalMode}
+        selectedUser={selectedUser}
+        isCreating={isCreating}
+        isUpdating={isUpdating}
+        onSubmitUserForm={handleSubmitUserForm}
+        isPasswordChangeModalOpen={isPasswordChangeModalOpen}
+        setIsPasswordChangeModalOpen={setIsPasswordChangeModalOpen}
+        isResettingPassword={isResettingPassword}
+        onResetPassword={async (userId, newPassword) => {
+          const result = await resetUserPassword(userId, newPassword);
+          if (result.success) {
+            toast.success(result.message);
+          } else {
+            toast.error(result.message);
+          }
+          return result;
+        }}
+        isBulkPasswordResetModalOpen={isBulkPasswordResetModalOpen}
+        setIsBulkPasswordResetModalOpen={setIsBulkPasswordResetModalOpen}
+        isBulkResettingPassword={isBulkResettingPassword}
+        onBulkResetPassword={executeBulkPasswordReset}
+        selectedUserIds={selectedUserIds}
+        isSubscriptionModalOpen={isSubscriptionModalOpen}
+        setIsSubscriptionModalOpen={setIsSubscriptionModalOpen}
+        isUpdatingSubscription={isUpdatingSubscription}
+        onUpdateSubscription={async (userId, subscription) => {
+          const result = await updateUserSubscription(userId, subscription);
+          if (result.success) {
+            toast.success(result.message);
+          } else {
+            toast.error(result.message);
+          }
+          return result;
+        }}
+        isStatusConfirmOpen={isStatusConfirmOpen}
+        setIsStatusConfirmOpen={setIsStatusConfirmOpen}
+        onConfirmStatusChange={handleConfirmStatusChange}
+        isSuperAdmin={isSuperAdmin}
       />
-
-      {/* Password Change Modal */}
-      <PasswordResetModal
-        isOpen={isPasswordChangeModalOpen}
-        onClose={() => setIsPasswordChangeModalOpen(false)}
-        userId={selectedUser?.id || ""}
-        userName={selectedUser?.name || ""}
-        onReset={resetUserPassword}
-        isResetting={isResettingPassword}
-      />
-      <BulkPasswordResetModal
-        isOpen={isBulkPasswordResetModalOpen}
-        onClose={() => setIsBulkPasswordResetModalOpen(false)}
-        selectedUserCount={selectedUserIds.size}
-        onReset={executeBulkPasswordReset}
-        isResetting={isBulkResettingPassword}
-      />
-
-      {/* Subscription Update Modal - Only for super_admin */}
-      {isSuperAdmin && (
-        <SubscriptionUpdateModal
-          isOpen={isSubscriptionModalOpen}
-          onClose={() => setIsSubscriptionModalOpen(false)}
-          userId={selectedUser?.id || ""}
-          userName={selectedUser?.name || ""}
-          currentSubscription={selectedUser?.subscription}
-          onUpdate={updateUserSubscription}
-          isUpdating={isUpdatingSubscription}
-        />
-      )}
     </div>
   );
 }
