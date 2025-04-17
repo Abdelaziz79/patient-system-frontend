@@ -4,6 +4,7 @@ import { AuthState, useAuth } from "@/app/_hooks/useAuth";
 import { createContext, ReactNode, useContext } from "react";
 import { User } from "../_types/User";
 
+// Create the Auth Context
 interface AuthContextType extends AuthState {
   login: (
     email: string,
@@ -15,9 +16,9 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Auth Provider (no QueryClientProvider needed anymore)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const auth = useAuth();
-
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 

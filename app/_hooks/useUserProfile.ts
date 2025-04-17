@@ -1,36 +1,34 @@
+// hooks/useUserProfile.ts
+import {
+  PasswordChangeData,
+  profileApi,
+  ProfileFormData,
+} from "@/app/_api/profileApi";
 import { useAuthContext } from "@/app/_providers/AuthProvider";
-import axios from "axios";
+import { User } from "@/app/_types/User";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { User } from "../_types/User";
-
-export interface ProfileFormData {
-  name: string;
-  email: string;
-  contactNumber?: string;
-  specialization?: string;
-}
-
-export interface PasswordChangeData {
-  currentPassword: string;
-  newPassword: string;
-}
 
 export const useUserProfile = () => {
   const { user, setUser } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  // UI states
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [passwordData, setPasswordData] = useState<PasswordChangeData>({
-    currentPassword: "",
-    newPassword: "",
-  });
+
+  // Form states
   const [formData, setFormData] = useState<ProfileFormData>({
     name: "",
     email: "",
     contactNumber: "",
     specialization: "",
+  });
+
+  const [passwordData, setPasswordData] = useState<PasswordChangeData>({
+    currentPassword: "",
+    newPassword: "",
   });
 
   // Initialize form data when user data becomes available
@@ -44,6 +42,38 @@ export const useUserProfile = () => {
       });
     }
   }, [user]);
+
+  // Profile update mutation
+  const profileMutation = useMutation({
+    mutationFn: profileApi.updateProfile,
+    onSuccess: (updatedUser) => {
+      // Update user in both the auth context and query cache
+      setUser(updatedUser);
+      queryClient.setQueryData(["auth", "me"], updatedUser);
+      setIsEditing(false);
+      setError(null);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
+  // Password change mutation
+  const passwordMutation = useMutation({
+    mutationFn: profileApi.changePassword,
+    onSuccess: () => {
+      setIsChangingPassword(false);
+      // Reset password form
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+      });
+      setError(null);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
 
   // Handle form changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +93,59 @@ export const useUserProfile = () => {
     }));
   };
 
-  // Calculate subscription days remaining
+  // Save profile changes
+  const saveProfile = async (): Promise<{
+    success: boolean;
+    message: string;
+  }> => {
+    setError(null);
+
+    try {
+      await profileMutation.mutateAsync(formData);
+      return { success: true, message: "Profile updated successfully" };
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "An error occurred while updating your profile";
+      return { success: false, message: errorMsg };
+    }
+  };
+
+  // Change password
+  const changePassword = async (): Promise<{
+    success: boolean;
+    message: string;
+  }> => {
+    setError(null);
+
+    try {
+      await passwordMutation.mutateAsync(passwordData);
+      return { success: true, message: "Password changed successfully" };
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "An error occurred while changing your password";
+      return { success: false, message: errorMsg };
+    }
+  };
+
+  // Reset form data to current user values
+  const resetForm = () => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        contactNumber: user.contactNumber || "",
+        specialization: user.specialization || "",
+      });
+    }
+    setIsEditing(false);
+    setError(null);
+  };
+
+  // Utility functions
   const calculateDaysRemaining = (user: User) => {
     if (!user?.subscription?.endDate) return 0;
 
@@ -74,7 +156,6 @@ export const useUserProfile = () => {
     return differenceInDays > 0 ? differenceInDays : 0;
   };
 
-  // Format dates for display
   const formatDate = (dateString?: string | Date) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -94,92 +175,6 @@ export const useUserProfile = () => {
     });
   };
 
-  // Save profile changes
-  const saveProfile = async (): Promise<{
-    success: boolean;
-    message: string;
-  }> => {
-    setIsSaving(true);
-    setError(null);
-
-    try {
-      const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
-      const response = await axios.put(`${usersUrl}/profile`, formData, {
-        withCredentials: true,
-      });
-
-      setIsSaving(false);
-      setIsEditing(false);
-
-      if (response.data.success) {
-        // Update the user context with new data
-        if (setUser && response.data.data) {
-          setUser(response.data.data);
-        }
-        return { success: true, message: "Profile updated successfully" };
-      } else {
-        const errorMsg = response.data.message || "Failed to update profile";
-        setError(errorMsg);
-        return { success: false, message: errorMsg };
-      }
-    } catch (error) {
-      setIsSaving(false);
-
-      const errorMsg =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "An error occurred while updating your profile";
-
-      setError(errorMsg);
-      return { success: false, message: errorMsg };
-    }
-  };
-
-  // Change password
-  const changePassword = async (): Promise<{
-    success: boolean;
-    message: string;
-  }> => {
-    setIsSubmittingPassword(true);
-    setError(null);
-
-    try {
-      const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
-      const response = await axios.put(`${usersUrl}/password`, passwordData, {
-        withCredentials: true,
-      });
-
-      setIsSubmittingPassword(false);
-
-      if (response.data.success) {
-        setIsChangingPassword(false);
-
-        // Reset password form
-        setPasswordData({
-          currentPassword: "",
-          newPassword: "",
-        });
-
-        return { success: true, message: "Password changed successfully" };
-      } else {
-        const errorMsg = response.data.message || "Failed to change password";
-        setError(errorMsg);
-        return { success: false, message: errorMsg };
-      }
-    } catch (error) {
-      setIsSubmittingPassword(false);
-
-      const errorMsg =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "An error occurred while changing your password";
-
-      setError(errorMsg);
-      return { success: false, message: errorMsg };
-    }
-  };
-
-  // Check if subscription is active and valid
   const isSubscriptionActive = (user: User) => {
     if (!user?.subscription) return false;
 
@@ -189,7 +184,6 @@ export const useUserProfile = () => {
     );
   };
 
-  // Get subscription badge style based on type
   const getSubscriptionBadge = (type?: string) => {
     const badges = {
       free_trial: {
@@ -229,7 +223,6 @@ export const useUserProfile = () => {
       : defaultBadge;
   };
 
-  // Get role badge style
   const getRoleBadge = (role?: string) => {
     const badges = {
       super_admin: {
@@ -260,24 +253,10 @@ export const useUserProfile = () => {
       : defaultBadge;
   };
 
-  // Reset form data to current user values
-  const resetForm = () => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        contactNumber: user.contactNumber || "",
-        specialization: user.specialization || "",
-      });
-    }
-    setIsEditing(false);
-    setError(null);
-  };
-
   return {
     formData,
     isEditing,
-    isSaving,
+    isSaving: profileMutation.isPending,
     error,
     setIsEditing,
     handleChange,
@@ -293,7 +272,7 @@ export const useUserProfile = () => {
     passwordData,
     isChangingPassword,
     setIsChangingPassword,
-    isSubmittingPassword,
+    isSubmittingPassword: passwordMutation.isPending,
     handlePasswordChange,
     changePassword,
   };

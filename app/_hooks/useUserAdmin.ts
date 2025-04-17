@@ -1,107 +1,64 @@
-import axios from "axios";
-import { useState } from "react";
+// hooks/useUserAdmin.ts
 import {
   SubscriptionUpdateData,
   User,
   UserCreateData,
-  UserStats,
   UserUpdateData,
-  UsersResponse,
-} from "../_types/User";
+} from "@/app/_types/User";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import axios from "axios";
+import { useState } from "react";
+import { userAdminApi } from "../_api/userAdminApi";
 
 export const useUserAdmin = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
-  const [isUndeleting, setIsUndeleting] = useState(false);
-  const [isLoadingStats, setIsLoadingStats] = useState(false);
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [pages, setPages] = useState(0);
-  const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [sortField, setSortField] = useState("name");
+  const [sortDirection, setSortDirection] = useState("asc");
 
-  // Fetch all users (paginated)
-  // Update the fetchUsers function to accept sorting parameters
-  const fetchUsers = async (
-    page = 1,
-    pageLimit = 10,
-    field = "name",
-    direction = "asc"
-  ) => {
-    setIsLoading(true);
+  // Queries
+  const {
+    data: usersData,
+    isPending: isLoading,
+    error: usersError,
+  } = useQuery({
+    queryKey: ["users", currentPage, pageLimit, sortField, sortDirection],
+    queryFn: () =>
+      userAdminApi.getUsers({
+        page: currentPage,
+        limit: pageLimit,
+        sort: sortField,
+        direction: sortDirection,
+      }),
+    placeholderData: keepPreviousData,
+  });
+
+  const {
+    data: userStats,
+    isPending: isLoadingStats,
+    error: statsError,
+  } = useQuery({
+    queryKey: ["userStats"],
+    queryFn: userAdminApi.getUserStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // User by ID query function
+  const getUserById = async (userId: string) => {
     try {
-      const response = await axios.get<UsersResponse>(usersUrl, {
-        params: { page, limit: pageLimit, sort: field, direction },
-        withCredentials: true,
+      const user = await queryClient.fetchQuery({
+        queryKey: ["user", userId],
+        queryFn: () => userAdminApi.getUserById(userId),
       });
-
-      setUsers(response.data.data);
-      setTotalUsers(response.data.total);
-      setCurrentPage(response.data.currentPage);
-      setPages(response.data.pages);
-      return response.data;
-    } catch (error) {
-      const errorMsg =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Failed to fetch users";
-
-      throw new Error(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // Fetch users by admin ID
-  const fetchUsersByAdmin = async (
-    adminId: string,
-    page = 1,
-    pageLimit = 10
-  ) => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get<UsersResponse>(
-        `${usersUrl}/by-admin/${adminId}`,
-        {
-          params: { page, limit: pageLimit },
-          withCredentials: true,
-        }
-      );
-
-      setUsers(response.data.data);
-      setTotalUsers(response.data.total);
-      setCurrentPage(response.data.currentPage);
-      setPages(response.data.pages);
-
-      return response.data;
-    } catch (error) {
-      const errorMsg =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Failed to fetch users";
-
-      throw new Error(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch user by ID
-  const fetchUserById = async (userId: string) => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get<{ data: User; success: boolean }>(
-        `${usersUrl}/${userId}`,
-        {
-          withCredentials: true,
-        }
-      );
-      setSelectedUser(response.data.data);
-      return response.data.data;
+      setSelectedUser(user);
+      return user;
     } catch (error) {
       const errorMsg =
         axios.isAxiosError(error) && error.response?.data?.message
@@ -109,60 +66,134 @@ export const useUserAdmin = () => {
           : "Failed to fetch user";
 
       throw new Error(errorMsg);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Fetch user statistics
-  const fetchUserStats = async (): Promise<UserStats> => {
-    setIsLoadingStats(true);
-    try {
-      const response = await axios.get<{ success: boolean; data: UserStats }>(
-        `${usersUrl}/stats`,
-        {
-          withCredentials: true,
-        }
-      );
+  // Mutations
+  const createUserMutation = useMutation({
+    mutationFn: userAdminApi.createUser,
+    onSuccess: (newUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
+    },
+  });
 
-      if (response.data.success) {
-        setUserStats(response.data.data);
-        return response.data.data;
-      } else {
-        throw new Error("Failed to fetch user statistics");
+  const updateUserMutation = useMutation({
+    mutationFn: userAdminApi.updateUser,
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", updatedUser.id] });
+      if (selectedUser?.id === updatedUser.id) {
+        setSelectedUser(updatedUser);
       }
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: userAdminApi.resetUserPassword,
+  });
+
+  const updateSubscriptionMutation = useMutation({
+    mutationFn: userAdminApi.updateUserSubscription,
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", updatedUser.id] });
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
+      if (selectedUser?.id === updatedUser.id) {
+        setSelectedUser(updatedUser);
+      }
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: userAdminApi.deleteUser,
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
+
+      // Update the selected user if it's the deleted one
+      if (selectedUser?.id === userId) {
+        setSelectedUser((prev) => (prev ? { ...prev, isActive: false } : null));
+      }
+    },
+  });
+
+  const undeleteUserMutation = useMutation({
+    mutationFn: userAdminApi.undeleteUser,
+    onSuccess: (reactivatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", reactivatedUser.id] });
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
+
+      // Update the selected user if it's the undeleted one
+      if (selectedUser?.id === reactivatedUser.id) {
+        setSelectedUser(reactivatedUser);
+      }
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: userAdminApi.changePassword,
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: userAdminApi.updateProfile,
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", updatedUser.id] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+
+  const getCurrentUserMutation = useMutation({
+    mutationFn: userAdminApi.getCurrentUser,
+  });
+
+  // Action functions with error handling
+  const fetchUsers = async (
+    page = currentPage,
+    limit = pageLimit,
+    field = sortField,
+    direction = sortDirection
+  ) => {
+    setCurrentPage(page);
+    setPageLimit(limit);
+    setSortField(field);
+    setSortDirection(direction);
+    return queryClient.invalidateQueries({
+      queryKey: ["users", page, limit, field, direction],
+    });
+  };
+
+  const fetchUsersByAdmin = async (adminId: string, page = 1, limit = 10) => {
+    try {
+      const response = await queryClient.fetchQuery({
+        queryKey: ["users", "admin", adminId, page, limit],
+        queryFn: () => userAdminApi.getUsersByAdmin({ adminId, page, limit }),
+      });
+      return response;
     } catch (error) {
       const errorMsg =
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
-          : "Failed to fetch user statistics";
+          : "Failed to fetch users";
 
       throw new Error(errorMsg);
-    } finally {
-      setIsLoadingStats(false);
     }
   };
 
-  // Create a new user
-  const createUser = async (
-    userData: UserCreateData
-  ): Promise<{ success: boolean; message: string; user?: User }> => {
-    setIsCreating(true);
+  const fetchUserStats = async () => {
+    return queryClient.invalidateQueries({ queryKey: ["userStats"] });
+  };
+
+  const createUser = async (userData: UserCreateData) => {
     try {
-      const response = await axios.post(`${usersUrl}/create`, userData, {
-        withCredentials: true,
-      });
-
-      // If successful, update the users list
-      if (response.data.success && response.data.data) {
-        setUsers((prev) => [response.data.data, ...prev]);
-        setTotalUsers((prev) => prev + 1);
-      }
-
+      const user = await createUserMutation.mutateAsync(userData);
       return {
-        success: response.data.success,
-        message: response.data.message || "User created successfully",
-        user: response.data.data,
+        success: true,
+        message: "User created successfully",
+        user,
       };
     } catch (error) {
       const errorMsg =
@@ -171,34 +202,19 @@ export const useUserAdmin = () => {
           : "Failed to create user";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsCreating(false);
     }
   };
 
-  // Update user
-  const updateUser = async (
-    userId: string,
-    userData: UserUpdateData
-  ): Promise<{ success: boolean; message: string; user?: User }> => {
-    setIsUpdating(true);
+  const updateUser = async (userId: string, userData: UserUpdateData) => {
     try {
-      const response = await axios.put(`${usersUrl}/${userId}`, userData, {
-        withCredentials: true,
+      const user = await updateUserMutation.mutateAsync({
+        userId,
+        userData,
       });
-
-      // If successful, update the selected user and users list
-      if (response.data.success && response.data.data) {
-        setSelectedUser(response.data.data);
-        setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? response.data.data : user))
-        );
-      }
-
       return {
-        success: response.data.success,
-        message: response.data.message || "User updated successfully",
-        user: response.data.data,
+        success: true,
+        message: "User updated successfully",
+        user,
       };
     } catch (error) {
       const errorMsg =
@@ -207,27 +223,15 @@ export const useUserAdmin = () => {
           : "Failed to update user";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
-  // Reset user password
-  const resetUserPassword = async (
-    userId: string,
-    newPassword: string
-  ): Promise<{ success: boolean; message: string }> => {
-    setIsResettingPassword(true);
+  const resetUserPassword = async (userId: string, newPassword: string) => {
     try {
-      const response = await axios.put(
-        `${usersUrl}/${userId}/reset-password`,
-        { newPassword },
-        { withCredentials: true }
-      );
-
+      await resetPasswordMutation.mutateAsync({ userId, newPassword });
       return {
-        success: response.data.success,
-        message: response.data.message || "Password reset successfully",
+        success: true,
+        message: "Password reset successfully",
       };
     } catch (error) {
       const errorMsg =
@@ -236,36 +240,22 @@ export const useUserAdmin = () => {
           : "Failed to reset password";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsResettingPassword(false);
     }
   };
 
-  // Update user subscription
   const updateUserSubscription = async (
     userId: string,
     subscriptionData: SubscriptionUpdateData
-  ): Promise<{ success: boolean; message: string; user?: User }> => {
-    setIsUpdatingSubscription(true);
+  ) => {
     try {
-      const response = await axios.put(
-        `${usersUrl}/${userId}/subscription`,
+      const user = await updateSubscriptionMutation.mutateAsync({
+        userId,
         subscriptionData,
-        { withCredentials: true }
-      );
-
-      // If successful, update the selected user and users list
-      if (response.data.success && response.data.data) {
-        setSelectedUser(response.data.data);
-        setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? response.data.data : user))
-        );
-      }
-
+      });
       return {
-        success: response.data.success,
-        message: response.data.message || "Subscription updated successfully",
-        user: response.data.data,
+        success: true,
+        message: "Subscription updated successfully",
+        user,
       };
     } catch (error) {
       const errorMsg =
@@ -274,39 +264,15 @@ export const useUserAdmin = () => {
           : "Failed to update subscription";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUpdatingSubscription(false);
     }
   };
 
-  // Delete (soft delete) user
-  const deleteUser = async (
-    userId: string
-  ): Promise<{ success: boolean; message: string }> => {
-    setIsUpdating(true);
+  const deleteUser = async (userId: string) => {
     try {
-      const response = await axios.delete(`${usersUrl}/${userId}`, {
-        withCredentials: true,
-      });
-
-      // If successful, update the users list
-      if (response.data.success) {
-        // Handle as a soft delete by updating isActive status
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId ? { ...user, isActive: false } : user
-          )
-        );
-
-        // If this is the currently selected user, update it
-        if (selectedUser?.id === userId) {
-          setSelectedUser({ ...selectedUser, isActive: false });
-        }
-      }
-
+      await deleteUserMutation.mutateAsync(userId);
       return {
-        success: response.data.success,
-        message: response.data.message || "User deleted successfully",
+        success: true,
+        message: "User deleted successfully",
       };
     } catch (error) {
       const errorMsg =
@@ -315,42 +281,16 @@ export const useUserAdmin = () => {
           : "Failed to delete user";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
-  // Undelete (reactivate) user
-  const undeleteUser = async (
-    userId: string
-  ): Promise<{ success: boolean; message: string; user?: User }> => {
-    setIsUndeleting(true);
+  const undeleteUser = async (userId: string) => {
     try {
-      const response = await axios.post(
-        `${usersUrl}/${userId}/undelete`,
-        {},
-        { withCredentials: true }
-      );
-
-      // If successful, update the users list
-      if (response.data.success && response.data.data) {
-        // Update the user's active status
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId ? { ...user, isActive: true } : user
-          )
-        );
-
-        // If this is the currently selected user, update it
-        if (selectedUser?.id === userId) {
-          setSelectedUser({ ...selectedUser, isActive: true });
-        }
-      }
-
+      const user = await undeleteUserMutation.mutateAsync(userId);
       return {
-        success: response.data.success,
-        message: response.data.message || "User reactivated successfully",
-        user: response.data.data,
+        success: true,
+        message: "User reactivated successfully",
+        user,
       };
     } catch (error) {
       const errorMsg =
@@ -359,27 +299,21 @@ export const useUserAdmin = () => {
           : "Failed to reactivate user";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUndeleting(false);
     }
   };
 
-  // Change current user's password
   const changePassword = async (
     currentPassword: string,
     newPassword: string
-  ): Promise<{ success: boolean; message: string }> => {
-    setIsUpdating(true);
+  ) => {
     try {
-      const response = await axios.put(
-        `${usersUrl}/password`,
-        { currentPassword, newPassword },
-        { withCredentials: true }
-      );
-
+      await changePasswordMutation.mutateAsync({
+        currentPassword,
+        newPassword,
+      });
       return {
-        success: response.data.success,
-        message: response.data.message || "Password changed successfully",
+        success: true,
+        message: "Password changed successfully",
       };
     } catch (error) {
       const errorMsg =
@@ -388,35 +322,21 @@ export const useUserAdmin = () => {
           : "Failed to change password";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
-  // Update current user's profile
   const updateProfile = async (profileData: {
     name?: string;
     contactNumber?: string;
     specialization?: string;
     profileImage?: string;
-  }): Promise<{ success: boolean; message: string; user?: User }> => {
-    setIsUpdating(true);
+  }) => {
     try {
-      const response = await axios.put(`${usersUrl}/profile`, profileData, {
-        withCredentials: true,
-      });
-
-      if (response.data.success && response.data.data) {
-        // If the updated user is the currently selected user, update selectedUser
-        if (selectedUser && selectedUser.id === response.data.data.id) {
-          setSelectedUser(response.data.data);
-        }
-      }
-
+      const user = await updateProfileMutation.mutateAsync(profileData);
       return {
-        success: response.data.success,
-        message: response.data.message || "Profile updated successfully",
-        user: response.data.data,
+        success: true,
+        message: "Profile updated successfully",
+        user,
       };
     } catch (error) {
       const errorMsg =
@@ -425,33 +345,19 @@ export const useUserAdmin = () => {
           : "Failed to update profile";
 
       return { success: false, message: errorMsg };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
-  // Get current user details
-  const getCurrentUser = async (): Promise<User | null> => {
-    setIsLoading(true);
+  const getCurrentUser = async () => {
     try {
-      const response = await axios.get<{ success: boolean; data: User }>(
-        `${usersUrl}/me`,
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        return response.data.data;
-      }
-      return null;
+      return await getCurrentUserMutation.mutateAsync();
     } catch (error) {
       console.error("Failed to get current user", error);
       return null;
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Parse user stats data for different views
+  // Utility functions for statistics and data analysis
   const getRoleDistribution = () => {
     if (!userStats) return null;
 
@@ -463,7 +369,6 @@ export const useUserAdmin = () => {
     };
   };
 
-  // Get subscription information for admin
   const getSubscriptionInfo = () => {
     if (!userStats || !userStats.subscription) return null;
 
@@ -476,21 +381,18 @@ export const useUserAdmin = () => {
     };
   };
 
-  // Get subscription statistics (super_admin only)
   const getSubscriptionStats = () => {
     if (!userStats || !userStats.subscriptionStats) return null;
 
     return userStats.subscriptionStats;
   };
 
-  // Get recent users
   const getRecentUsers = () => {
     if (!userStats || !userStats.recentUsers) return [];
 
     return userStats.recentUsers;
   };
 
-  // Get recent logins
   const getRecentLogins = () => {
     if (!userStats || !userStats.recentLogins) return [];
 
@@ -498,22 +400,33 @@ export const useUserAdmin = () => {
   };
 
   return {
-    users,
-    totalUsers,
-    currentPage,
-    pages,
+    // Query data
+    users: usersData?.data || [],
+    totalUsers: usersData?.total || 0,
+    currentPage: usersData?.currentPage || currentPage,
+    pages: usersData?.pages || 0,
+
+    // Loading states
     isLoading,
-    selectedUser,
-    isCreating,
-    isUpdating,
-    isResettingPassword,
-    isUpdatingSubscription,
-    isUndeleting,
+    isCreating: createUserMutation.isPending,
+    isUpdating: updateUserMutation.isPending,
+    isResettingPassword: resetPasswordMutation.isPending,
+    isUpdatingSubscription: updateSubscriptionMutation.isPending,
+    isUndeleting: undeleteUserMutation.isPending,
     isLoadingStats,
+
+    // Error states
+    usersError,
+    statsError,
+
+    // Current state
+    selectedUser,
     userStats,
+
+    // Functions
     fetchUsers,
     fetchUsersByAdmin,
-    fetchUserById,
+    fetchUserById: getUserById,
     fetchUserStats,
     createUser,
     updateUser,
@@ -525,11 +438,18 @@ export const useUserAdmin = () => {
     updateProfile,
     getCurrentUser,
     setSelectedUser,
-    // Utility functions for statistics and data analysis
+
+    // Utility functions
     getRoleDistribution,
     getSubscriptionInfo,
     getSubscriptionStats,
     getRecentUsers,
     getRecentLogins,
+
+    // Sorting and pagination controls
+    setSortField,
+    setSortDirection,
+    setCurrentPage,
+    setPageLimit,
   };
 };
