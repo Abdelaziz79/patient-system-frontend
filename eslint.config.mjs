@@ -14,7 +14,7 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // Disable the rule completely
-      // Alternatively, set to "warn" instead of "off" if you want warnings but not errors
+      "@typescript-eslint/no-unused-vars": "warn", // Set to warn instead of error
     },
   },
 ];

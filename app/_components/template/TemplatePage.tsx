@@ -181,11 +181,8 @@ export default function TemplatesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {templates.map((template) => (
-                      <TableRow
-                        key={template.id}
-                        className="dark:border-b-gray-700"
-                      >
+                    {templates.map((template, index) => (
+                      <TableRow key={index} className="dark:border-b-gray-700">
                         <TableCell className="font-medium">
                           <div className="flex items-center">
                             <span>{template.name}</span>

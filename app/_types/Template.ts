@@ -1,6 +1,6 @@
 // Define template interface based on your model
 export interface PatientStatusOption {
-  id: string;
+  _id?: string;
   name: string;
   label: string;
   color: string;
@@ -9,7 +9,7 @@ export interface PatientStatusOption {
 }
 
 export interface Field {
-  id: string;
+  _id?: string;
   name: string;
   label: string;
   type: string;
@@ -21,7 +21,7 @@ export interface Field {
 }
 
 export interface Section {
-  id: string;
+  _id?: string;
   name: string;
   label: string;
   description?: string;
