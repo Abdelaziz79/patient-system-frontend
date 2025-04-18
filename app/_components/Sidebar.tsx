@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   Moon,
+  NotebookText,
   Settings,
   Sun,
   User,
@@ -63,6 +64,11 @@ const Sidebar = () => {
       href: "/admin/",
       icon: <BarChart3 size={20} />,
       title: "User Stats",
+    },
+    {
+      href: "/templates",
+      icon: <NotebookText size={20} />,
+      title: "Templates",
     },
   ];
 
