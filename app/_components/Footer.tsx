@@ -1,91 +1,183 @@
 "use client";
-import { HeartPulseIcon } from "lucide-react";
+import {
+  HeartPulseIcon,
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Twitter,
+  Facebook,
+} from "lucide-react";
+import Link from "next/link";
 
 function Footer() {
   return (
-    <footer className="w-full backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 border-t border-blue-100 dark:border-blue-900 z-10">
-      <div className="container mx-auto p-4 md:p-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          {/* Logo and description - stacked on mobile, left-aligned on desktop */}
-          <div className="w-full md:w-auto text-center md:text-left order-2 md:order-1">
-            <div className="flex items-center justify-center md:justify-start gap-2 text-blue-700 dark:text-blue-300 mb-2">
-              <HeartPulseIcon className="h-5 w-5" />
-              <span className="font-bold">Patient System</span>
+    <footer className="w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-t border-blue-100 dark:border-blue-900 z-10 shadow-sm">
+      <div className="container mx-auto px-4 py-6 md:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Logo and description */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              <HeartPulseIcon className="h-6 w-6" />
+              <span className="font-bold text-xl">Patient System</span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xs">
               Integrated platform for patient and medical appointment management
+              designed to streamline healthcare workflows.
             </p>
+            <div className="flex space-x-4 pt-2">
+              <a
+                href="#"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              >
+                <Github size={20} />
+              </a>
+              <a
+                href="#"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              >
+                <Twitter size={20} />
+              </a>
+              <a
+                href="#"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              >
+                <Facebook size={20} />
+              </a>
+            </div>
           </div>
-          {/* Links section - grid on mobile, flex on desktop */}
-          <div className="w-full md:w-auto grid grid-cols-2 gap-6 md:flex md:gap-8 order-1 md:order-2">
-            <div className="text-left">
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
-                Help
-              </h3>
-              <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    Technical Support
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
-                Quick Links
-              </h3>
-              <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    Our Services
-                  </a>
-                </li>
-              </ul>
-            </div>
+
+          {/* Help section */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-blue-700 dark:text-blue-400 text-lg">
+              Help
+            </h3>
+            <ul className="space-y-2 text-gray-600 dark:text-gray-400">
+              <li>
+                <Link
+                  href="#"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Technical Support
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Documentation
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-blue-700 dark:text-blue-400 text-lg">
+              Quick Links
+            </h3>
+            <ul className="space-y-2 text-gray-600 dark:text-gray-400">
+              <li>
+                <Link
+                  href="/"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/patients"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Patients
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/appointments"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Appointments
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/doctors"
+                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
+                >
+                  Doctors
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-blue-700 dark:text-blue-400 text-lg">
+              Contact Us
+            </h3>
+            <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <li className="flex items-start gap-3">
+                <MapPin
+                  size={18}
+                  className="flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400"
+                />
+                <span>123 Medical Center Blvd, Healthcare City, HC 12345</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone
+                  size={18}
+                  className="flex-shrink-0 text-blue-600 dark:text-blue-400"
+                />
+                <span>+1 (555) 123-4567</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail
+                  size={18}
+                  className="flex-shrink-0 text-blue-600 dark:text-blue-400"
+                />
+                <span>support@patientsystem.com</span>
+              </li>
+            </ul>
           </div>
         </div>
-        <div className="mt-6 md:mt-8 pt-4 border-t border-blue-100 dark:border-blue-900 text-center text-xs text-gray-500 dark:text-gray-400">
+
+        <div className="mt-8 pt-6 border-t border-blue-100 dark:border-blue-900 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
           <p>
             © {new Date().getFullYear()} Patient System - All Rights Reserved
           </p>
+          <div className="mt-4 md:mt-0 flex gap-6">
+            <Link
+              href="#"
+              className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="#"
+              className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

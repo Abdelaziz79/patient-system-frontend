@@ -1,143 +1,76 @@
-export type PersonalInfo = {
-  dateOfBirth: Date | undefined;
-  patientName: string;
-  gender: string;
-  address: string;
-  phone: string;
-  date: Date | undefined;
-  companion: string;
-  companionPhone: string;
-  isSmoker: boolean;
-  smokingDetails: string;
-  bloodType: string;
-};
+export interface IStatusHistory {
+  name: string;
+  label: string;
+  date: Date;
+  notes?: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export type MedicalConditions = {
-  htn: boolean;
-  dm: boolean;
-  ihd: boolean;
-  hf: boolean;
-  arrhythmia: boolean;
-  liver: boolean;
-  kidney: boolean;
-  chest: boolean;
-  thyroid: boolean;
-  cns: boolean;
-  cancer: boolean;
-  surgery: boolean;
-};
+export interface IStatus {
+  name: string;
+  label: string;
+  date: Date;
+  notes?: string;
+  color?: string;
+}
 
-export type MedicalNotes = {
-  htnNotes: string;
-  dmNotes: string;
-  ihdNotes: string;
-  hfNotes: string;
-  arrhythmiaNotes: string;
-  liverNotes: string;
-  kidneyNotes: string;
-  chestNotes: string;
-  thyroidNotes: string;
-  cnsNotes: string;
-  cancerNotes: string;
-  surgeryNotes: string;
-  others: string;
-  complaints: string;
-};
+export interface IVisit {
+  _id: string;
+  date: Date;
+  title?: string;
+  notes?: string;
+  sectionData: Map<string, any>;
+  createdBy: string;
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export type VitalSigns = {
-  rbs: string;
-  o2Sat: string;
-  hr: string;
-  bp: string;
-  temp: string;
-  gcs: string;
-  rr: string;
-  uop: string;
-  intake: string;
-  balance: string;
-  cvp: string;
-  ivc: string;
-  diuretic: string;
-  examination: string;
-};
+// Type for adding a new visit
+export interface IVisitInput {
+  date?: Date;
+  title?: string;
+  notes?: string;
+  sectionData?: Record<string, any> | Map<string, any>;
+  createdBy: string;
+}
 
-export type labResults = {
-  // CBC
-  tlc: string;
-  hb: string;
-  plt: string;
-  crp: string;
+// Type for updating status
+export interface IStatusUpdate {
+  name: string;
+  label: string;
+  date?: Date;
+  notes?: string;
+  color?: string;
+}
 
-  // Chemistry
-  urea: string;
-  creat: string;
-  na: string;
-  k: string;
-  ca: string;
-  alt: string;
-  ast: string;
-  alb: string;
+// Define Patient interface with instance methods
+export interface IPatient {
+  templateId: string;
+  sectionData: Map<string, any>;
+  status: IStatus;
+  statusHistory: IStatusHistory[];
+  isActive: boolean;
+  visits: IVisit[];
+  createdBy: string;
+  lastUpdatedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  tags: string[];
 
-  // Cardiac enzymes
-  ck: string;
-  ckmb: string;
-  trop: string;
-
-  // ABG
-  ph: string;
-  co2: string;
-  hco3: string;
-  lactate: string;
-  o2sat: string;
-
-  // Coagulation
-  pt: string;
-  ptt: string;
-  inr: string;
-};
-
-export type ImagingResults = {
-  ctBrain: string;
-  ctChest: string;
-  cxr: string;
-  us: string;
-  dupplex: string;
-  ecg: string;
-  echo: string;
-  mpi: string;
-  ctAngio: string;
-  others: string;
-};
-
-export type TreatmentPlan = {
-  planNumber: number;
-  plan: string;
-  reminder: Date | undefined;
-};
-
-export type DiagnosisAndTreatment = {
-  diagnosis: string;
-  differentialDiagnosis: string;
-  treatmentApproach: string;
-  currentMedications: string;
-  ivFluids: string;
-  antibiotics: string;
-  oxygenTherapy: string;
-  treatmentPlans: TreatmentPlan[];
-  notes: string;
-  problemList: string;
-  solutionList: string;
-  infusions: string;
-  sedations: string;
-};
-
-export type Patient = {
-  id?: string;
-  personalInfo: PersonalInfo;
-  medicalConditions: MedicalConditions;
-  medicalNotes: MedicalNotes;
-  vitalSigns: VitalSigns;
-  labResults: labResults;
-  imagingResults: ImagingResults;
-  diagnosisAndTreatment: DiagnosisAndTreatment;
-};
+  // Instance methods
+  addVisit(visitData: IVisitInput): Promise<IPatient>;
+  getActiveVisits(): IVisit[];
+  updatePatientStatus(
+    statusData: IStatusUpdate,
+    updatedBy: string
+  ): Promise<IPatient>;
+  getStatusHistory(): IStatusHistory[];
+  searchVisits(query: string): IVisit[];
+  softDeleteVisit(visitId: string): Promise<IPatient>;
+  restoreVisit(visitId: string): Promise<IPatient>;
+  addTag(tag: string): Promise<IPatient>;
+  removeTag(tag: string): Promise<IPatient>;
+}
