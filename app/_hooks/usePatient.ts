@@ -208,6 +208,28 @@ export const usePatient = (options: UsePatientsOptions = {}) => {
     },
   });
 
+  // Export patient to PDF mutation
+  const exportToPdfMutation = useMutation({
+    mutationFn: patientApi.exportPatientToPdf,
+  });
+
+  // Export patient to CSV mutation
+  const exportToCsvMutation = useMutation({
+    mutationFn: patientApi.exportPatientToCsv,
+  });
+
+  // Generate medical report mutation
+  const generateReportMutation = useMutation({
+    mutationFn: (params: { id: string; options?: any }) =>
+      patientApi.generateMedicalReport(params.id, params.options),
+  });
+
+  // Share patient via email mutation
+  const shareViaEmailMutation = useMutation({
+    mutationFn: (params: { id: string; emailData: any }) =>
+      patientApi.sharePatientViaEmail(params.id, params.emailData),
+  });
+
   // Search patients query
   const performSearch = async (searchParams: {
     query?: string;
@@ -464,6 +486,290 @@ export const usePatient = (options: UsePatientsOptions = {}) => {
     }
   };
 
+  // Export patient data to PDF - with blob handling
+  const exportPatientToPdf = async (id: string) => {
+    try {
+      const blobData = await exportToPdfMutation.mutateAsync(id);
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([blobData]));
+      // Create a link and trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `patient_${id}_report.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return { success: true };
+    } catch (error) {
+      console.error("Error exporting to PDF:", error);
+      return {
+        success: false,
+        error: "Failed to export patient data to PDF",
+      };
+    }
+  };
+
+  // Export patient data to CSV - with blob handling
+  const exportPatientToCsv = async (id: string) => {
+    try {
+      const blobData = await exportToCsvMutation.mutateAsync(id);
+      const url = window.URL.createObjectURL(new Blob([blobData]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `patient_${id}_data.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return { success: true };
+    } catch (error) {
+      console.error("Error exporting to CSV:", error);
+      return {
+        success: false,
+        error: "Failed to export patient data to CSV",
+      };
+    }
+  };
+
+  // Generate a medical report
+  const generateMedicalReport = async (
+    id: string,
+    options?: {
+      includeVisits?: boolean;
+      includeHistory?: boolean;
+      customTitle?: string;
+    }
+  ) => {
+    try {
+      const blobData = await generateReportMutation.mutateAsync({
+        id,
+        options,
+      });
+      const url = window.URL.createObjectURL(new Blob([blobData]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `patient_${id}_medical_report.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return { success: true };
+    } catch (error) {
+      console.error("Error generating medical report:", error);
+      return {
+        success: false,
+        error: "Failed to generate medical report",
+      };
+    }
+  };
+
+  // Share patient data via email
+  const sharePatientViaEmail = async (
+    id: string,
+    emailData: {
+      recipientEmail: string;
+      message?: string;
+      includeAttachment?: boolean;
+    }
+  ) => {
+    try {
+      await shareViaEmailMutation.mutateAsync({ id, emailData });
+      return { success: true };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to share patient data";
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Print patient details
+  const printPatientDetails = (patientData: IPatient) => {
+    try {
+      // Create a new window for printing
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        throw new Error(
+          "Unable to open print window. Please check your popup settings."
+        );
+      }
+
+      // Generate HTML content for printing
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Patient Information: ${
+            patientData.sectionData?.personalinfo?.full_name || "Unknown"
+          }</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #0f766e; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            h2 { color: #0f766e; margin-top: 20px; }
+            .section { margin-bottom: 25px; }
+            .field { margin-bottom: 10px; display: flex; }
+            .field-label { font-weight: bold; width: 200px; }
+            .status { padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+            .visit { margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+            .visit-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+            .tag { display: inline-block; background-color: #e5e7eb; padding: 3px 8px; margin-right: 5px; margin-bottom: 5px; border-radius: 4px; font-size: 0.85em; }
+            @media print {
+              body { font-size: 12px; }
+              h1 { font-size: 18px; }
+              h2 { font-size: 16px; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Patient Information: ${
+            patientData.sectionData?.personalinfo?.full_name || "Unknown"
+          }</h1>
+          
+          <div class="section">
+            <h2>Basic Information</h2>
+            <div class="field">
+              <div class="field-label">ID:</div>
+              <div>${patientData.id || "N/A"}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Status:</div>
+              <div>
+                <span class="status" style="background-color: ${
+                  patientData.status?.color || "#ccc"
+                }; color: white;">
+                  ${patientData.status?.label || "Unknown"}
+                </span>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Active:</div>
+              <div>${patientData.isActive ? "Yes" : "No"}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Template:</div>
+              <div>${patientData.templateId?.name || "N/A"}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Created By:</div>
+              <div>${patientData.createdBy?.name || "N/A"}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Created At:</div>
+              <div>${new Date(patientData.createdAt).toLocaleString()}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Updated At:</div>
+              <div>${new Date(patientData.updatedAt).toLocaleString()}</div>
+            </div>
+          </div>
+          
+          ${Object.entries(patientData.sectionData || {})
+            .map(
+              ([sectionKey, sectionData]) => `
+            <div class="section">
+              <h2>${sectionKey
+                .replace(/([A-Z])/g, " $1")
+                .replace(/_/g, " ")
+                .trim()}</h2>
+              ${Object.entries(sectionData as Record<string, any>)
+                .map(
+                  ([fieldKey, fieldValue]) => `
+                <div class="field">
+                  <div class="field-label">${fieldKey
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/_/g, " ")
+                    .trim()}:</div>
+                  <div>${
+                    typeof fieldValue === "boolean"
+                      ? fieldValue
+                        ? "Yes"
+                        : "No"
+                      : String(fieldValue || "N/A")
+                  }</div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `
+            )
+            .join("")}
+          
+          ${
+            patientData.visits && patientData.visits.length > 0
+              ? `
+            <div class="section">
+              <h2>Visits (${patientData.visits.length})</h2>
+              ${patientData.visits
+                .map(
+                  (visit) => `
+                <div class="visit">
+                  <div class="visit-header">
+                    <strong>${visit.title || "Visit"}</strong>
+                    <span>${new Date(visit.date).toLocaleString()}</span>
+                  </div>
+                  ${
+                    visit.notes
+                      ? `<div><strong>Notes:</strong> ${visit.notes}</div>`
+                      : ""
+                  }
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `
+              : ""
+          }
+          
+          ${
+            patientData.tags && patientData.tags.length > 0
+              ? `
+            <div class="section">
+              <h2>Tags</h2>
+              <div>
+                ${patientData.tags
+                  .map((tag) => `<span class="tag">${tag}</span>`)
+                  .join("")}
+              </div>
+            </div>
+          `
+              : ""
+          }
+          
+          <div style="text-align: center; margin-top: 30px; font-size: 0.8em; color: #666;">
+            Printed on ${new Date().toLocaleString()}
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Write to the window and print
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+
+      // Add event listener to close the window after printing
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
+
+      // Print the window
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error printing patient details:", error);
+      return {
+        success: false,
+        error:
+          typeof error === "object" && error !== null && "message" in error
+            ? (error as Error).message
+            : "Failed to print patient details",
+      };
+    }
+  };
+
   // Extract error message from failureReason
   const errorMessage = failureReason
     ? failureReason instanceof Error
@@ -495,6 +801,10 @@ export const usePatient = (options: UsePatientsOptions = {}) => {
     isUpdatingActivation: updateActivationMutation.isPending,
     isAddingTag: addTagMutation.isPending,
     isRemovingTag: removeTagMutation.isPending,
+    isExportingToPdf: exportToPdfMutation.isPending,
+    isExportingToCsv: exportToCsvMutation.isPending,
+    isGeneratingReport: generateReportMutation.isPending,
+    isSharingViaEmail: shareViaEmailMutation.isPending,
     error: errorMessage,
 
     // Pagination and filtering controls
@@ -537,5 +847,12 @@ export const usePatient = (options: UsePatientsOptions = {}) => {
     updateActivation,
     addTag,
     removeTag,
+
+    // New export operations
+    exportPatientToPdf,
+    exportPatientToCsv,
+    generateMedicalReport,
+    sharePatientViaEmail,
+    printPatientDetails,
   };
 };

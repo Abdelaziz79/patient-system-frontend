@@ -18,127 +18,77 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { usePatient } from "../_hooks/usePatient";
 
-// Define patient demographics interface
-interface PatientDemographics {
-  category: string;
+// Define stats interfaces
+interface AgeGroup {
+  _id: string;
   count: number;
+}
+
+interface GenderDistribution {
+  _id: string;
+  count: number;
+}
+
+interface StatusStat {
+  _id: string;
+  count: number;
+  label: string;
   color: string;
 }
 
-// Define patient conditions interface
-interface CommonCondition {
-  condition: string;
+interface TemplateStats {
+  templateId: string;
+  templateName: string;
   count: number;
-  percentage: number;
-  color: string;
 }
 
-// Define monthly mortality interface
-interface MonthlyMortality {
-  month: string;
-  deaths: number;
-  rate: number;
+interface MonthlyTrend {
+  year: number;
+  month: number;
+  date: string;
+  count: number;
+}
+
+interface Stats {
+  patientCounts: {
+    total: number;
+    active: number;
+    inactive: number;
+    recentlyAdded: number;
+  };
+  demographicStats: {
+    ageGroups: AgeGroup[];
+    genderDistribution: GenderDistribution[];
+  };
+  statusStats: StatusStat[];
+  visitsCount: number;
+  templateStats: TemplateStats[];
+  trends: {
+    monthly: MonthlyTrend[];
+  };
 }
 
 export default function PatientDashboardPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [patientDemographics, setPatientDemographics] = useState<
-    PatientDemographics[]
-  >([]);
-  const [commonConditions, setCommonConditions] = useState<CommonCondition[]>(
-    []
-  );
-  const [monthlyMortality, setMonthlyMortality] = useState<MonthlyMortality[]>(
-    []
-  );
-  const [totalPatients, setTotalPatients] = useState(0);
-  const [newPatients, setNewPatients] = useState(0);
-  const [currentMortalityRate, setCurrentMortalityRate] = useState(0);
+
+  // Initialize the patient hook and fetch stats
+  const { stats, isStatsLoading, refetchStats } = usePatient({
+    initialFetch: false,
+  });
 
   useEffect(() => {
-    // Simulate API call to fetch patient data
-    setIsLoading(true);
-    setTimeout(() => {
-      // Mock data - in a real application, you would fetch this from your API
-      const mockPatientDemographics: PatientDemographics[] = [
-        { category: "Elderly (60+)", count: 1245, color: "bg-blue-500" },
-        { category: "Adults (30-59)", count: 3782, color: "bg-green-500" },
-        {
-          category: "Young Adults (18-29)",
-          count: 1560,
-          color: "bg-purple-500",
-        },
-        { category: "Teenagers (13-17)", count: 542, color: "bg-yellow-500" },
-        { category: "Children (0-12)", count: 1874, color: "bg-pink-500" },
-      ];
+    // Fetch stats data when component mounts
+    refetchStats();
+  }, [refetchStats]);
 
-      const mockCommonConditions: CommonCondition[] = [
-        {
-          condition: "Hypertension",
-          count: 2450,
-          percentage: 27.3,
-          color: "bg-red-500",
-        },
-        {
-          condition: "Diabetes",
-          count: 1860,
-          percentage: 20.7,
-          color: "bg-blue-500",
-        },
-        {
-          condition: "Heart Disease",
-          count: 945,
-          percentage: 10.5,
-          color: "bg-purple-500",
-        },
-        {
-          condition: "Asthma",
-          count: 830,
-          percentage: 9.2,
-          color: "bg-yellow-500",
-        },
-        {
-          condition: "High Cholesterol",
-          count: 1240,
-          percentage: 13.8,
-          color: "bg-green-500",
-        },
-        {
-          condition: "Depression & Anxiety",
-          count: 765,
-          percentage: 8.5,
-          color: "bg-indigo-500",
-        },
-        {
-          condition: "Arthritis",
-          count: 890,
-          percentage: 9.9,
-          color: "bg-orange-500",
-        },
-      ];
-
-      const mockMonthlyMortality: MonthlyMortality[] = [
-        { month: "January", deaths: 12, rate: 0.13 },
-        { month: "February", deaths: 9, rate: 0.1 },
-        { month: "March", deaths: 11, rate: 0.12 },
-        { month: "April", deaths: 8, rate: 0.09 },
-        { month: "May", deaths: 10, rate: 0.11 },
-        { month: "June", deaths: 7, rate: 0.08 },
-      ];
-
-      setPatientDemographics(mockPatientDemographics);
-      setCommonConditions(mockCommonConditions);
-      setMonthlyMortality(mockMonthlyMortality);
-      setTotalPatients(
-        mockPatientDemographics.reduce((sum, item) => sum + item.count, 0)
-      );
-      setNewPatients(34);
-      setCurrentMortalityRate(0.11);
+  useEffect(() => {
+    if (stats && !isStatsLoading) {
       setIsLoading(false);
-    }, 0);
-  }, []);
+    }
+  }, [stats, isStatsLoading]);
 
   const handleAddPatient = () => {
     router.push("/patients/add-patient");
@@ -180,7 +130,9 @@ export default function PatientDashboardPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-3xl font-bold text-green-800 dark:text-green-300">
-                  {isLoading ? "-" : totalPatients.toLocaleString()}
+                  {isLoading
+                    ? "-"
+                    : stats?.patientCounts?.total?.toLocaleString() || 0}
                 </div>
                 <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
                   <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -192,13 +144,13 @@ export default function PatientDashboardPage() {
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Monthly Mortality Rate
+                Total Visits
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-3xl font-bold text-green-800 dark:text-green-300">
-                  {isLoading ? "-" : `${currentMortalityRate}%`}
+                  {isLoading ? "-" : stats?.visitsCount?.toLocaleString() || 0}
                 </div>
                 <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
                   <TrendingUpIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -210,13 +162,13 @@ export default function PatientDashboardPage() {
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                New Patients (This Month)
+                New Patients (Recent)
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-3xl font-bold text-green-800 dark:text-green-300">
-                  {isLoading ? "-" : newPatients}
+                  {isLoading ? "-" : stats?.patientCounts?.recentlyAdded || 0}
                 </div>
                 <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
                   <UserPlusIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -258,7 +210,7 @@ export default function PatientDashboardPage() {
                   onClick={handleViewAnalytics}
                 >
                   <TrendingUpIcon className="mr-2 h-5 w-5" />
-                  <span>Mortality Analysis</span>
+                  <span>View Analytics</span>
                 </Button>
                 <Button
                   className="w-full justify-start bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-all duration-200"
@@ -273,30 +225,59 @@ export default function PatientDashboardPage() {
             <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
-                  Monthly Mortality Rate
+                  Gender Distribution
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {monthlyMortality.map((item) => (
-                  <div key={item.month} className="flex items-start space-x-4">
-                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
-                      <TrendingUpIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{item.month}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Deaths: {item.deaths} | Rate: {item.rate}%
-                      </p>
-                    </div>
+                {isStatsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600"></div>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-4">
+                    {stats?.demographicStats?.genderDistribution?.map(
+                      (item: GenderDistribution) => (
+                        <div key={item._id} className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium dark:text-gray-200">
+                              {item._id}
+                            </span>
+                            <span className="text-sm font-medium dark:text-gray-300">
+                              {item.count.toLocaleString()} patients
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div
+                              className={`${
+                                item._id === "Male"
+                                  ? "bg-blue-500"
+                                  : "bg-pink-500"
+                              } h-2.5 rounded-full`}
+                              style={{
+                                width: `${
+                                  (item.count /
+                                    (stats?.patientCounts?.total || 1)) *
+                                  100
+                                }%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      )
+                    ) || (
+                      <div className="text-sm text-gray-500">
+                        No gender data available
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
                   variant="link"
                   className="w-full text-green-600 dark:text-green-400"
                 >
-                  View Complete Analysis
+                  View Full Analysis
                 </Button>
               </CardFooter>
             </Card>
@@ -306,7 +287,7 @@ export default function PatientDashboardPage() {
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
-                Patient Demographics
+                Age Groups
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -316,11 +297,11 @@ export default function PatientDashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {patientDemographics.map((item) => (
-                    <div key={item.category} className="space-y-2">
+                  {stats?.demographicStats?.ageGroups?.map((item: AgeGroup) => (
+                    <div key={item._id} className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium dark:text-gray-200">
-                          {item.category}
+                          {item._id}
                         </span>
                         <span className="text-sm font-medium dark:text-gray-300">
                           {item.count.toLocaleString()} patients
@@ -328,14 +309,22 @@ export default function PatientDashboardPage() {
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                         <div
-                          className={`${item.color} h-2.5 rounded-full`}
+                          className={getAgeGroupColor(item._id)}
                           style={{
-                            width: `${(item.count / totalPatients) * 100}%`,
+                            width: `${
+                              (item.count /
+                                (stats?.patientCounts?.total || 1)) *
+                              100
+                            }%`,
                           }}
                         ></div>
                       </div>
                     </div>
-                  ))}
+                  )) || (
+                    <div className="text-sm text-gray-500">
+                      No age data available
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -349,11 +338,11 @@ export default function PatientDashboardPage() {
             </CardFooter>
           </Card>
 
-          {/* Right Column - Common Conditions */}
+          {/* Right Column - Patient Status */}
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
-                Common Medical Conditions
+                Patient Status
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -363,26 +352,37 @@ export default function PatientDashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {commonConditions.map((item) => (
-                    <div key={item.condition} className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium dark:text-gray-200">
-                          {item.condition}
-                        </span>
-                        <span className="text-sm font-medium dark:text-gray-300">
-                          {item.percentage}%
-                        </span>
+                  {stats?.statusStats?.map((item: StatusStat) => {
+                    const percentage = Math.round(
+                      (item.count / (stats?.patientCounts?.total || 1)) * 100
+                    );
+
+                    return (
+                      <div key={item._id} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium dark:text-gray-200">
+                            {item.label}
+                          </span>
+                          <span className="text-sm font-medium dark:text-gray-300">
+                            {percentage}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                          <div
+                            className="h-2.5 rounded-full"
+                            style={{
+                              width: `${percentage}%`,
+                              backgroundColor: item.color,
+                            }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                        <div
-                          className={`${item.color} h-2.5 rounded-full`}
-                          style={{
-                            width: `${item.percentage}%`,
-                          }}
-                        ></div>
-                      </div>
+                    );
+                  }) || (
+                    <div className="text-sm text-gray-500">
+                      No status data available
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </CardContent>
@@ -391,12 +391,142 @@ export default function PatientDashboardPage() {
                 variant="link"
                 className="w-full text-green-600 dark:text-green-400"
               >
-                View All Conditions
+                View All Statuses
               </Button>
             </CardFooter>
+          </Card>
+        </div>
+
+        {/* Monthly Trends */}
+        <div className="mt-6">
+          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
+                Monthly Patient Trends
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600"></div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {stats?.trends?.monthly?.map((item: MonthlyTrend) => {
+                    const monthName = new Date(
+                      item.date + "-01"
+                    ).toLocaleString("default", { month: "long" });
+
+                    return (
+                      <div key={item.date} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium dark:text-gray-200">
+                            {monthName} {item.year}
+                          </span>
+                          <span className="text-sm font-medium dark:text-gray-300">
+                            {item.count.toLocaleString()} patients
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                          <div
+                            className="bg-green-500 h-2.5 rounded-full"
+                            style={{
+                              width: `${
+                                (item.count /
+                                  (Math.max(
+                                    ...stats.trends.monthly.map(
+                                      (m: MonthlyTrend) => m.count
+                                    )
+                                  ) || 1)) *
+                                100
+                              }%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  }) || (
+                    <div className="text-sm text-gray-500">
+                      No trend data available
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Template Usage */}
+        <div className="mt-6">
+          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
+                Template Usage
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600"></div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {stats?.templateStats?.map((item: TemplateStats) => {
+                    const percentage = Math.round(
+                      (item.count / (stats?.patientCounts?.total || 1)) * 100
+                    );
+
+                    return (
+                      <div key={item.templateId} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium dark:text-gray-200">
+                            {item.templateName}
+                          </span>
+                          <span className="text-sm font-medium dark:text-gray-300">
+                            {item.count.toLocaleString()} uses ({percentage}%)
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                          <div
+                            className="bg-indigo-500 h-2.5 rounded-full"
+                            style={{
+                              width: `${percentage}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  }) || (
+                    <div className="text-sm text-gray-500">
+                      No template data available
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </div>
       </motion.div>
     </div>
   );
+}
+
+// Helper function to get a color for age group
+function getAgeGroupColor(range: string): string {
+  switch (range) {
+    case "0-17":
+      return "bg-blue-500";
+    case "18-29":
+      return "bg-green-500";
+    case "30-44":
+      return "bg-purple-500";
+    case "45-59":
+      return "bg-yellow-500";
+    case "60-74":
+      return "bg-pink-500";
+    case "75+":
+      return "bg-red-500";
+    default:
+      return "bg-gray-500";
+  }
 }

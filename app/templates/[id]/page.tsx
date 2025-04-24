@@ -77,15 +77,7 @@ export default function TemplateDetailPage() {
                   description: "Patient's contact number",
                   order: 1,
                 },
-                {
-                  _id: Math.random().toString(36).substr(2, 9),
-                  name: "email",
-                  label: "Email Address",
-                  type: "email",
-                  required: false,
-                  description: "Patient's email address",
-                  order: 2,
-                },
+
                 {
                   _id: Math.random().toString(36).substr(2, 9),
                   name: "birthdate",
@@ -93,7 +85,7 @@ export default function TemplateDetailPage() {
                   type: "date",
                   required: true,
                   description: "Patient's date of birth",
-                  order: 3,
+                  order: 2,
                 },
                 {
                   _id: Math.random().toString(36).substr(2, 9),
@@ -103,7 +95,7 @@ export default function TemplateDetailPage() {
                   required: true,
                   options: ["Male", "Female"],
                   description: "Patient's gender",
-                  order: 4,
+                  order: 3,
                 },
                 {
                   _id: Math.random().toString(36).substr(2, 9),
@@ -112,7 +104,7 @@ export default function TemplateDetailPage() {
                   type: "textarea",
                   required: false,
                   description: "Patient's residential address",
-                  order: 5,
+                  order: 4,
                 },
               ],
             },
@@ -268,7 +260,6 @@ export default function TemplateDetailPage() {
         label: section.label,
         description: section.description || "",
         order: section.order || 0,
-        _id: section._id,
         fields: section.fields.map((field) => ({
           name: field.name,
           label: field.label,
@@ -277,7 +268,6 @@ export default function TemplateDetailPage() {
           description: field.description || "",
           options: field.options || [],
           order: field.order || 0,
-          _id: field._id,
         })),
       }));
 
@@ -287,7 +277,6 @@ export default function TemplateDetailPage() {
         color: status.color,
         description: status.description || "",
         isDefault: status.isDefault || false,
-        _id: status._id,
       }));
 
       // Create a clean template object with only the necessary fields

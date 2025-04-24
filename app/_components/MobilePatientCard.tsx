@@ -1,83 +1,92 @@
 "use client";
 
-import { CalendarIcon, PhoneIcon, UserIcon } from "lucide-react";
+import { CalendarIcon, PhoneIcon, UserIcon, Eye, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { PatientListItem } from "../patients/page";
+import { PatientDisplayItem } from "./PatientTable";
+import { formatDate } from "../_utils/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // Define patient interface for list view
-type Props = {
-  patient: PatientListItem;
+interface Props {
+  patient: PatientDisplayItem;
   index: number;
-};
+  onView?: (id: string) => void;
+}
 
-function MobilePatientCard({ patient, index }: Props) {
-  const router = useRouter();
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US");
-  };
-
-  const handlePatientClick = (id: string) => {
-    router.push(`/patients/${id}`);
-  };
-
+const MobilePatientCard = ({ patient, index, onView }: Props) => {
   return (
     <div
-      onClick={() => handlePatientClick(patient.id)}
-      className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-4 mb-3 cursor-pointer hover:bg-green-50 dark:hover:bg-slate-700 transition-colors border border-green-100 dark:border-slate-700"
+      className="bg-white dark:bg-slate-800 border-l-4 rounded-md shadow-sm mb-2 overflow-hidden hover:shadow-md transition-shadow relative"
+      style={{ borderLeftColor: patient.statusColor || "#3498db" }}
+      onClick={() => onView && onView(patient.id)}
     >
-      <div className="flex justify-between items-start mb-2">
-        <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
-          {patient.fileNumber}
-        </span>
-        <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
-          {index + 1}
-        </span>
-      </div>
-
-      <h3 className="text-lg font-bold mb-2 text-green-800 dark:text-green-300">
-        {patient.name}
-      </h3>
-
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex items-center text-sm">
-          <UserIcon className="mr-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span>
-            {patient.age} yrs - {patient.gender}
-          </span>
+      <div className="p-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-semibold text-md">{patient.name}</h3>
+            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center mt-1">
+              <Phone className="h-3 w-3 mr-1" />
+              {patient.phone}
+            </div>
+          </div>
+          <div>
+            {patient.statusLabel && (
+              <Badge
+                style={{
+                  backgroundColor: patient.statusColor || "#3498db",
+                  color: "white",
+                }}
+                className="text-xs"
+              >
+                {patient.statusLabel}
+              </Badge>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center text-sm">
-          <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-0.5 rounded-full text-xs font-medium">
-            {patient.bloodType}
-          </span>
+        <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
+          <div className="text-gray-600 dark:text-gray-300">
+            Age: <span className="font-medium">{patient.age}</span>
+          </div>
+          <div className="text-gray-600 dark:text-gray-300">
+            Gender: <span className="font-medium">{patient.gender}</span>
+          </div>
+          <div className="text-gray-600 dark:text-gray-300">
+            Added:{" "}
+            <span className="font-medium">{formatDate(patient.createdAt)}</span>
+          </div>
+          <div className="text-gray-600 dark:text-gray-300">
+            By: <span className="font-medium">{patient.createdByName}</span>
+          </div>
         </div>
 
-        <div className="flex items-center text-sm">
-          <CalendarIcon className="mr-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span>{formatDate(patient.lastVisit)}</span>
-        </div>
+        {patient.tags && patient.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {patient.tags.map((tag, i) => (
+              <Badge key={i} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
 
-        <div className="flex items-center justify-end text-sm">
-          <PhoneIcon className="mr-1 h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span className="font-mono">{patient.phone}</span>
-        </div>
-      </div>
-
-      {patient.diagnosis && (
-        <div className="mt-2 bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded text-sm">
-          <span className="font-medium">Diagnosis:</span> {patient.diagnosis}
-        </div>
-      )}
-
-      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-        <div className="text-xs text-gray-600 dark:text-gray-400">
-          Insurance: {patient.insuranceProvider}
+        <div className="flex justify-end mt-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onView && onView(patient.id);
+            }}
+            className="h-7 w-7 p-0"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default MobilePatientCard;

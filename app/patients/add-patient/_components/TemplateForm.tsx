@@ -1,13 +1,13 @@
 import { PatientTemplate } from "@/app/_types/Template";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle } from "lucide-react";
-import { FormFields } from "./FormFields";
 import { Form } from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import { PatientStatus } from "./PatientStatus";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
 import toast from "react-hot-toast";
+import { FormFields } from "./FormFields";
+import { PatientStatus } from "./PatientStatus";
 
 interface TemplateFormProps {
   selectedTemplate: PatientTemplate;
@@ -181,6 +181,22 @@ export const TemplateForm = ({
 
   // Handle tab change with validation
   const handleTabChange = (value: string) => {
+    // Find current section index
+    const currentIndex = selectedTemplate.sections.findIndex(
+      (s) => s.name === activeTab
+    );
+    // Find target section index
+    const targetIndex = selectedTemplate.sections.findIndex(
+      (s) => s.name === value
+    );
+
+    // Allow freely moving to previous sections without validation
+    if (targetIndex < currentIndex) {
+      setActiveTab(value);
+      return;
+    }
+
+    // For moving forward, validate
     if (canMoveToSection(value)) {
       setActiveTab(value);
     } else {
@@ -286,7 +302,27 @@ export const TemplateForm = ({
               </div>
 
               {!isLastSection && (
-                <div className="flex justify-end pt-4">
+                <div className="flex justify-end pt-4 space-x-3">
+                  {/* Add Previous button - only show if not on first section */}
+                  {activeTab !== selectedTemplate.sections[0].name && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 rounded-md font-medium transition-colors bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-gray-300 dark:hover:bg-slate-600"
+                      onClick={() => {
+                        const currentIndex =
+                          selectedTemplate.sections.findIndex(
+                            (s) => s.name === activeTab
+                          );
+                        if (currentIndex > 0) {
+                          handleTabChange(
+                            selectedTemplate.sections[currentIndex - 1].name
+                          );
+                        }
+                      }}
+                    >
+                      Previous Section
+                    </button>
+                  )}
                   <button
                     type="button"
                     className={cn(
@@ -312,6 +348,29 @@ export const TemplateForm = ({
                   </button>
                 </div>
               )}
+
+              {isLastSection &&
+                activeTab !== selectedTemplate.sections[0].name && (
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      className="px-4 py-2 rounded-md font-medium transition-colors bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-gray-300 dark:hover:bg-slate-600"
+                      onClick={() => {
+                        const currentIndex =
+                          selectedTemplate.sections.findIndex(
+                            (s) => s.name === activeTab
+                          );
+                        if (currentIndex > 0) {
+                          handleTabChange(
+                            selectedTemplate.sections[currentIndex - 1].name
+                          );
+                        }
+                      }}
+                    >
+                      Previous Section
+                    </button>
+                  </div>
+                )}
             </TabsContent>
           ))}
         </Tabs>

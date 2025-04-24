@@ -1,315 +1,352 @@
 "use client";
 
-import Loading from "@/app/_components/Loading";
-import CriticalConditionsComponent from "@/app/_components/patinetInfo/CriticalConditions";
-import DiagnosisAndTreatmentTab from "@/app/_components/patinetInfo/DiagnosisAndTreatmentTab";
-import ImagingResultsTab from "@/app/_components/patinetInfo/ImagingResultsTab";
-import LaboratoryResultsTab from "@/app/_components/patinetInfo/LaboratoryResultsTab";
-import MedicalConditions from "@/app/_components/patinetInfo/MedicalConditions";
-import OverviewTab from "@/app/_components/patinetInfo/OverviewTab";
-import { PatientDashboardTabs } from "@/app/_components/patinetInfo/PatientDashboardTabs";
-import PatientNotFound from "@/app/_components/patinetInfo/PatientNotFound";
-import VitalSigns from "@/app/_components/patinetInfo/VitalSigns";
-import { Patient } from "@/app/_types/Patient";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs } from "@/components/ui/tabs";
+import { usePatient } from "@/app/_hooks/usePatient";
+import { IPatient, IVisitInput } from "@/app/_types/Patient";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
-import {
-  ArrowLeftIcon,
-  CalendarIcon,
-  ClipboardEditIcon,
-  DoorOpen,
-} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import {
+  FooterActions,
+  PatientActions,
+  PatientInfoCard,
+  PatientLoader,
+  PatientTabs,
+  ReportDialog,
+  ShareDialog,
+  TagsSection,
+  VisitDialog,
+} from "./_components";
 
-export default function PatientDetailsPage() {
-  const params = useParams();
+function PatientPage() {
   const router = useRouter();
+  const params = useParams();
   const id = params.id as string;
-  const [isLoading, setIsLoading] = useState(true);
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
 
+  const [patient, setPatient] = useState<IPatient | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isFetched, setIsFetched] = useState<boolean>(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [includeAttachment, setIncludeAttachment] = useState(true);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportOptions, setReportOptions] = useState({
+    includeVisits: true,
+    includeHistory: true,
+    customTitle: "",
+  });
+  const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
+  const [newVisit, setNewVisit] = useState<{
+    title: string;
+    date: Date;
+    notes: string;
+    sectionData: Record<string, any>;
+  }>({
+    title: "",
+    date: new Date(),
+    notes: "",
+    sectionData: {},
+  });
+
+  const {
+    getPatient,
+    exportPatientToPdf,
+    exportPatientToCsv,
+    generateMedicalReport,
+    sharePatientViaEmail,
+    printPatientDetails,
+    isExportingToPdf,
+    isExportingToCsv,
+    isGeneratingReport,
+    isSharingViaEmail,
+    addVisit,
+    isAddingVisit,
+    deleteVisit,
+    isDeletingVisit,
+    restoreVisit,
+    isRestoringVisit,
+  } = usePatient({
+    initialFetch: false,
+  });
+
+  // Memoize the fetch function to avoid recreating it on every render
   useEffect(() => {
-    // Simulate API call to fetch patient data
-    setIsLoading(true);
-    setTimeout(() => {
-      // This would typically come from an API
-      const patientData: Patient = {
-        id,
-        personalInfo: {
-          bloodType: "A+",
-          patientName: "Abdo",
-          age: "20",
-          gender: "Male",
-          address: "Mean ABC Street, City",
-          phone: "123456789",
-          date: new Date(),
-          companion: "Ahmed",
-          companionPhone: "987654321",
-          isSmoker: true,
-          smokingDetails: "10 cigarettes per day for 5 years",
-        },
-        medicalConditions: {
-          htn: true,
-          dm: true,
-          ihd: false,
-          hf: false,
-          arrhythmia: false,
-          liver: false,
-          kidney: false,
-          chest: true,
-          thyroid: false,
-          cns: false,
-          cancer: false,
-          surgery: false,
-        },
-        medicalNotes: {
-          htnNotes: "Hypertension diagnosed 2 years ago, on medication.",
-          dmNotes: "Type 2 Diabetes, controlled with oral medication.",
-          ihdNotes: "No history of ischemic heart disease.",
-          hfNotes: "No history of heart failure.",
-          arrhythmiaNotes: "No known arrhythmia.",
-          liverNotes: "No known liver disease.",
-          kidneyNotes: "No known kidney issues.",
-          chestNotes: "History of chronic bronchitis due to smoking.",
-          thyroidNotes: "No thyroid dysfunction.",
-          cnsNotes: "No neurological disorders.",
-          cancerNotes: "No history of cancer.",
-          surgeryNotes: "No past surgical history.",
-          others: "No other significant medical conditions.",
-          complaints: "Cough and shortness of breath for 1 week.",
-        },
-        vitalSigns: {
-          rbs: "150 mg/dL",
-          o2Sat: "94%",
-          hr: "80 bpm",
-          bp: "130/85 mmHg",
-          temp: "37.2°C",
-          gcs: "15/15",
-          rr: "18 breaths per minute",
-          uop: "Normal",
-          intake: "2L/day",
-          balance: "Positive by 200mL",
-          cvp: "8 mmHg",
-          ivc: "Normal",
-          diuretic: "Not on diuretics",
-          examination: "Bilateral wheezing on auscultation.",
-        },
-        labResults: {
-          tlc: "7.5 x10^9/L",
-          hb: "14.2 g/dL",
-          plt: "250 x10^9/L",
-          crp: "5 mg/L",
-          urea: "30 mg/dL",
-          creat: "0.9 mg/dL",
-          na: "140 mmol/L",
-          k: "4.2 mmol/L",
-          ca: "9.5 mg/dL",
-          alt: "25 U/L",
-          ast: "22 U/L",
-          alb: "4.3 g/dL",
-          ck: "Normal",
-          ckmb: "Normal",
-          trop: "Negative",
-          ph: "7.4",
-          co2: "40 mmHg",
-          hco3: "24 mmol/L",
-          lactate: "1.2 mmol/L",
-          o2sat: "94%",
-          pt: "12 sec",
-          ptt: "30 sec",
-          inr: "1.0",
-        },
-        imagingResults: {
-          ctBrain: "Normal",
-          ctChest: "Mild bronchial wall thickening",
-          cxr: "Hyperinflation, no infiltrates",
-          us: "No abnormalities detected",
-          dupplex: "No evidence of DVT",
-          ecg: "Normal sinus rhythm",
-          echo: "Normal cardiac function",
-          mpi: "Not performed",
-          ctAngio: "Not indicated",
-          others: "No additional imaging required",
-        },
-        diagnosisAndTreatment: {
-          diagnosis: "Acute Exacerbation of Chronic Bronchitis",
-          differentialDiagnosis: "Pneumonia, Asthma Exacerbation",
-          treatmentApproach:
-            "Supportive care, inhalers, and lifestyle modification",
-          currentMedications: "Metformin, Lisinopril, Salbutamol inhaler",
-          ivFluids: "Maintenance fluids as needed",
-          antibiotics: "Amoxicillin-Clavulanate 875/125 mg BID",
-          oxygenTherapy: "Nasal cannula if O₂ saturation drops below 92%",
-          treatmentPlans: [
-            {
-              plan: "Inhaled corticosteroids, nasal steroid inhalers",
-              planNumber: 1,
-              reminder: new Date(),
-            },
-          ],
-          // followUpPlan: "Re-evaluate in 1 week, smoking cessation counseling",
-          notes: "Encourage smoking cessation and pulmonary rehabilitation",
-          problemList: "Cough, shortness of breath, chest pain",
-          solutionList: "Inhaled corticosteroids, nasal steroid inhalers",
-          infusions: "None",
-          sedations: "None",
-        },
-      };
+    const fetchPatientData = async () => {
+      if (isFetched || !id) return;
 
-      setPatient(patientData);
-      setIsLoading(false);
-    }, 500); // Added a short delay to simulate API call
-  }, [id]);
+      console.log("Fetching patient data for ID:", id);
+      try {
+        setLoading(true);
+        console.log("Making getPatient API call...");
+        const patientData = await getPatient(id);
+        console.log("Patient data received");
 
-  const handleEdit = () => {
-    router.push(`/patients/edit-patient/${id}`);
-  };
+        if (!patientData) {
+          console.error("API returned empty patient data");
+          setError("No patient data found");
+        } else {
+          setPatient(patientData);
+        }
+      } catch (err) {
+        console.error("Error fetching patient data:", err);
+        setError("Failed to load patient data");
+      } finally {
+        setLoading(false);
+        setIsFetched(true);
+      }
+    };
 
-  const handleBack = () => {
+    fetchPatientData();
+  }, [getPatient, id, isFetched]);
+
+  const handleGoBack = () => {
     router.back();
   };
 
-  const handleAddEvent = () => {
-    router.push(`/patients/add-event/${id}`);
-  };
-  const handleExistPatient = () => {
-    router.push(`/patients/exist-patient/${id}`);
+  const handleEditPatient = () => {
+    router.push(`/patients/edit-patient/${id}`);
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  const handleExportToPdf = async () => {
+    const result = await exportPatientToPdf(id);
+    if (result.success) {
+      toast.success("Patient data exported to PDF");
+    } else {
+      toast.error(result.error || "Failed to export data");
+    }
+  };
 
-  if (!patient) {
-    return <PatientNotFound />;
-  }
+  const handleExportToCsv = async () => {
+    const result = await exportPatientToCsv(id);
+    if (result.success) {
+      toast.success("Patient data exported to CSV");
+    } else {
+      toast.error(result.error || "Failed to export data");
+    }
+  };
 
-  // Get critical medical conditions
-  const criticalConditions = [];
-  if (patient.medicalConditions.htn) criticalConditions.push("Hypertension");
-  if (patient.medicalConditions.dm) criticalConditions.push("Diabetes");
-  if (patient.medicalConditions.ihd)
-    criticalConditions.push("Ischemic Heart Disease");
-  if (patient.medicalConditions.hf) criticalConditions.push("Heart Failure");
-  if (patient.medicalConditions.chest)
-    criticalConditions.push("Chest Condition");
+  const handleGenerateReport = async () => {
+    setIsReportDialogOpen(false);
+    const result = await generateMedicalReport(id, reportOptions);
+    if (result.success) {
+      toast.success("Medical report generated successfully");
+    } else {
+      toast.error(result.error || "Failed to generate report");
+    }
+  };
+
+  const handlePrintPatient = () => {
+    if (!patient) return;
+    const result = printPatientDetails(patient);
+    if (!result.success) {
+      toast.error(result.error || "Failed to print patient details");
+    }
+  };
+
+  const handleShareViaEmail = async () => {
+    if (!recipientEmail) {
+      toast.error("Recipient email is required");
+      return;
+    }
+
+    setIsShareDialogOpen(false);
+    const result = await sharePatientViaEmail(id, {
+      recipientEmail,
+      message: emailMessage,
+      includeAttachment,
+    });
+
+    if (result.success) {
+      toast.success("Patient data shared successfully");
+      setRecipientEmail("");
+      setEmailMessage("");
+    } else {
+      toast.error(result.error || "Failed to share patient data");
+    }
+  };
+
+  // Handle adding a new visit
+  const handleAddVisit = async () => {
+    if (!patient || !newVisit.title) {
+      toast.error("Visit title is required");
+      return;
+    }
+
+    setIsVisitDialogOpen(false);
+
+    const visitData: IVisitInput = {
+      title: newVisit.title,
+      date: newVisit.date,
+      notes: newVisit.notes,
+      sectionData: newVisit.sectionData,
+      createdBy: "", // This will be filled by the server using the authenticated user
+    };
+
+    const result = await addVisit(id, visitData);
+
+    if (result.success) {
+      toast.success("Visit added successfully");
+      // Refresh patient data to include the new visit
+      const updatedPatient = await getPatient(id);
+      setPatient(updatedPatient);
+
+      // Reset form
+      setNewVisit({
+        title: "",
+        date: new Date(),
+        notes: "",
+        sectionData: {},
+      });
+    } else {
+      toast.error(result.error || "Failed to add visit");
+    }
+  };
+
+  // Handle deleting a visit
+  const handleDeleteVisit = async (visitId: string) => {
+    if (!patient) return;
+
+    if (window.confirm("Are you sure you want to delete this visit?")) {
+      const result = await deleteVisit(id, visitId);
+
+      if (result.success) {
+        toast.success("Visit deleted successfully");
+        // Refresh patient data
+        const updatedPatient = await getPatient(id);
+        setPatient(updatedPatient);
+      } else {
+        toast.error(result.error || "Failed to delete visit");
+      }
+    }
+  };
+
+  // Handle restoring a deleted visit
+  const handleRestoreVisit = async (visitId: string) => {
+    if (!patient) return;
+
+    const result = await restoreVisit(id, visitId);
+
+    if (result.success) {
+      toast.success("Visit restored successfully");
+      // Refresh patient data
+      const updatedPatient = await getPatient(id);
+      setPatient(updatedPatient);
+    } else {
+      toast.error(result.error || "Failed to restore visit");
+    }
+  };
+
+  // Format date helper
+  const formatDate = (dateString: string | Date) => {
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "PPP");
+    } catch (e) {
+      return "Invalid date";
+    }
+  };
+
+  // First render the loader for loading, error, or no patient states
+  if (loading || error || !patient) {
+    return (
+      <PatientLoader
+        loading={loading}
+        error={error}
+        patient={patient}
+        handleGoBack={handleGoBack}
+      />
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-6 max-w-6xl"
-    >
-      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
-        <CardHeader>
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
-                {patient.personalInfo.patientName}
-              </CardTitle>
-              <CardDescription className="text-blue-600 dark:text-blue-400">
-                Patient ID: {patient.id} | {patient.personalInfo.age} years |{" "}
-                {patient.personalInfo.gender} | Blood Type:{" "}
-                {patient.personalInfo.bloodType}
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="flex items-center"
-            >
-              <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              <span>Go Back</span>
-            </Button>
-          </div>
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto dark:text-slate-100">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Actions Header */}
+        <PatientActions
+          patient={patient}
+          isExportingToPdf={isExportingToPdf}
+          isExportingToCsv={isExportingToCsv}
+          isGeneratingReport={isGeneratingReport}
+          handleExportToPdf={handleExportToPdf}
+          handleExportToCsv={handleExportToCsv}
+          handleGoBack={handleGoBack}
+          handleEditPatient={handleEditPatient}
+          handlePrintPatient={handlePrintPatient}
+          setIsShareDialogOpen={setIsShareDialogOpen}
+          setIsReportDialogOpen={setIsReportDialogOpen}
+        />
 
-          {/* Critical Information Alert - Always visible */}
-          {criticalConditions.length > 0 && (
-            <CriticalConditionsComponent
-              criticalConditions={criticalConditions}
-              isSmoker={patient.personalInfo.isSmoker}
-              smokingDetails={patient.personalInfo.smokingDetails}
-            />
-          )}
+        {/* Share dialog */}
+        <ShareDialog
+          isShareDialogOpen={isShareDialogOpen}
+          setIsShareDialogOpen={setIsShareDialogOpen}
+          recipientEmail={recipientEmail}
+          setRecipientEmail={setRecipientEmail}
+          emailMessage={emailMessage}
+          setEmailMessage={setEmailMessage}
+          includeAttachment={includeAttachment}
+          setIncludeAttachment={setIncludeAttachment}
+          handleShareViaEmail={handleShareViaEmail}
+          isSharingViaEmail={isSharingViaEmail}
+        />
 
-          {/* Tabs Navigation */}
-          <Tabs
-            defaultValue="overview"
-            className="w-full"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
-            <PatientDashboardTabs />
+        {/* Medical Report Dialog */}
+        <ReportDialog
+          isReportDialogOpen={isReportDialogOpen}
+          setIsReportDialogOpen={setIsReportDialogOpen}
+          reportOptions={reportOptions}
+          setReportOptions={setReportOptions}
+          handleGenerateReport={handleGenerateReport}
+          isGeneratingReport={isGeneratingReport}
+        />
 
-            {/* Tab Contents */}
-            <CardContent className="pt-6">
-              {/* Overview Tab */}
-              <OverviewTab
-                personalInfo={patient.personalInfo}
-                diagnosis={patient.diagnosisAndTreatment.diagnosis}
-                complaints={patient.medicalNotes.complaints}
-                id={patient?.id || "N/A"}
-              />
-              {/* Vital Signs Tab */}
-              <VitalSigns vitalSigns={patient.vitalSigns} />
+        {/* Add Visit Dialog */}
+        <VisitDialog
+          isVisitDialogOpen={isVisitDialogOpen}
+          setIsVisitDialogOpen={setIsVisitDialogOpen}
+          newVisit={newVisit}
+          setNewVisit={setNewVisit}
+          handleAddVisit={handleAddVisit}
+          isAddingVisit={isAddingVisit}
+          patient={patient}
+        />
 
-              {/* Medical Conditions Tab */}
-              <MedicalConditions
-                medicalConditions={patient.medicalConditions}
-                medicalNotes={patient.medicalNotes}
-              />
-              {/* Laboratory Results Tab */}
-              <LaboratoryResultsTab labResults={patient.labResults} />
+        {/* Patient Info Card */}
+        <PatientInfoCard patient={patient} formatDate={formatDate} />
 
-              {/* Imaging Results Tab */}
-              <ImagingResultsTab imagingResults={patient.imagingResults} />
+        {/* Patient Tabs */}
+        <PatientTabs
+          patient={patient}
+          formatDate={formatDate}
+          handleDeleteVisit={handleDeleteVisit}
+          handleRestoreVisit={handleRestoreVisit}
+          isDeletingVisit={isDeletingVisit}
+          setIsVisitDialogOpen={setIsVisitDialogOpen}
+        />
 
-              {/* Diagnosis and Treatment Tab */}
-              <DiagnosisAndTreatmentTab
-                diagnosisAndTreatment={patient.diagnosisAndTreatment}
-              />
-            </CardContent>
-          </Tabs>
-        </CardHeader>
+        {/* Tags Section */}
+        <TagsSection patient={patient} />
 
-        <CardFooter className="flex justify-between gap-4 pt-6 flex-wrap">
-          <Button
-            onClick={handleEdit}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white shadow-lg transition-transform transform hover:scale-105"
-          >
-            <ClipboardEditIcon className="mr-2 h-5 w-5" />
-            Edit Patient Info
-          </Button>
-
-          <Button
-            onClick={handleAddEvent}
-            className="flex-1 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white shadow-lg transition-transform transform hover:scale-105"
-          >
-            <CalendarIcon className="mr-2 h-5 w-5" />
-            Add Event
-          </Button>
-
-          <Button
-            onClick={handleExistPatient}
-            className="flex-1 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white shadow-lg transition-transform transform hover:scale-105"
-          >
-            <DoorOpen className="mr-2 h-5 w-5" />
-            Exit Patient
-          </Button>
-        </CardFooter>
-      </Card>
-    </motion.div>
+        {/* Footer Actions */}
+        <FooterActions
+          handleGoBack={handleGoBack}
+          handlePrintPatient={handlePrintPatient}
+          handleExportToPdf={handleExportToPdf}
+          isExportingToPdf={isExportingToPdf}
+          handleEditPatient={handleEditPatient}
+          setIsShareDialogOpen={setIsShareDialogOpen}
+          setIsVisitDialogOpen={setIsVisitDialogOpen}
+        />
+      </motion.div>
+    </div>
   );
 }
+
+export default PatientPage;

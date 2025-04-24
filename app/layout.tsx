@@ -1,5 +1,4 @@
 import Footer from "@/app/_components/Footer";
-import { PatientProvider } from "@/app/_contexts/PatientContext";
 import { AuthProvider } from "@/app/_providers/AuthProvider";
 import { ReactQueryProvider } from "@/app/_providers/ReactQueryProvider";
 import "@/app/globals.css";
@@ -32,10 +31,8 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <AuthProvider>
-              <PatientProvider>
-                <LayoutClientWrapper>{children}</LayoutClientWrapper>
-                <Footer />
-              </PatientProvider>
+              <LayoutClientWrapper>{children}</LayoutClientWrapper>
+              <Footer />
             </AuthProvider>
           </ThemeProvider>
         </ReactQueryProvider>

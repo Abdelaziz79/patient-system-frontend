@@ -48,13 +48,18 @@ export interface IStatusUpdate {
 
 // Define Patient interface with instance methods
 export interface IPatient {
-  templateId: string;
-  sectionData: Map<string, any>;
+  id?: string;
+  templateId: {
+    name: string;
+  };
+  sectionData: any;
   status: IStatus;
   statusHistory: IStatusHistory[];
   isActive: boolean;
   visits: IVisit[];
-  createdBy: string;
+  createdBy: {
+    name: string;
+  };
   lastUpdatedBy?: string;
   createdAt: Date;
   updatedAt: Date;

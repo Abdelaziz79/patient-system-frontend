@@ -79,74 +79,83 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const goToSetting = () => {
     router.push("/settings");
   };
+
+  const goToLogin = () => {
+    router.push("/login");
+  };
+
   // Check if user is an admin or super_admin
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   // Navigation links with grouping
   const navItems: NavItem[] = [
     { href: "/", icon: <Home size={20} />, title: "Home", group: "Main" },
-    {
-      href: "/profile",
-      icon: <User size={20} />,
-      title: "Profile",
-      group: "Main",
-    },
-    {
-      href: "/patients",
-      icon: <Users size={20} />,
-      title: "Patients",
-      group: "Clinical",
-    },
-    {
-      href: "/appointments",
-      icon: <Calendar size={20} />,
-      title: "Appointments",
-      group: "Clinical",
-    },
-    {
-      href: "/doctors",
-      icon: <UserCircle size={20} />,
-      title: "Doctors",
-      group: "Clinical",
-    },
-    {
-      href: "/registration",
-      icon: <UserPlus size={20} />,
-      title: "Registration",
-      group: "Clinical",
-    },
-    {
-      href: "/reports",
-      icon: <FileText size={20} />,
-      title: "Reports",
-      group: "Management",
-    },
-    {
-      href: "/analytics",
-      icon: <Activity size={20} />,
-      title: "Analytics",
-      group: "Management",
-    },
-    {
-      href: "/alerts",
-      icon: <AlertCircle size={20} />,
-      title: "Alerts",
-      group: "Management",
-    },
-    ...(isAdmin
+    ...(isAuthenticated
       ? [
           {
-            href: "/admin/",
-            icon: <BarChart3 size={20} />,
-            title: "User Stats",
-            group: "Admin",
+            href: "/profile",
+            icon: <User size={20} />,
+            title: "Profile",
+            group: "Main",
           },
           {
-            href: "/templates",
-            icon: <NotebookText size={20} />,
-            title: "Templates",
-            group: "Admin",
+            href: "/patients",
+            icon: <Users size={20} />,
+            title: "Patients",
+            group: "Clinical",
           },
+          {
+            href: "/appointments",
+            icon: <Calendar size={20} />,
+            title: "Appointments",
+            group: "Clinical",
+          },
+          {
+            href: "/doctors",
+            icon: <UserCircle size={20} />,
+            title: "Doctors",
+            group: "Clinical",
+          },
+          {
+            href: "/registration",
+            icon: <UserPlus size={20} />,
+            title: "Registration",
+            group: "Clinical",
+          },
+          {
+            href: "/reports",
+            icon: <FileText size={20} />,
+            title: "Reports",
+            group: "Management",
+          },
+          {
+            href: "/analytics",
+            icon: <Activity size={20} />,
+            title: "Analytics",
+            group: "Management",
+          },
+          {
+            href: "/alerts",
+            icon: <AlertCircle size={20} />,
+            title: "Alerts",
+            group: "Management",
+          },
+          ...(isAdmin
+            ? [
+                {
+                  href: "/admin/",
+                  icon: <BarChart3 size={20} />,
+                  title: "User Stats",
+                  group: "Admin",
+                },
+                {
+                  href: "/templates",
+                  icon: <NotebookText size={20} />,
+                  title: "Templates",
+                  group: "Admin",
+                },
+              ]
+            : []),
         ]
       : []),
   ];
@@ -179,7 +188,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     }
   };
 
-  if (!isAuthenticated || !mounted) return null;
+  if (!mounted) return null;
 
   return (
     <>
@@ -206,7 +215,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           </div>
 
           {/* User info when sidebar is open */}
-          {isOpen && user && (
+          {isOpen && isAuthenticated && user && (
             <div className="mb-6 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <p className="font-medium text-blue-700 dark:text-blue-400">
                 {user.name}
@@ -269,7 +278,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                               <Tooltip content={link.title}>
                                 <Link
                                   href={link.href}
-                                  className={`flex items-center justify-center py-2 rounded-lg transition-all duration-200 ${
+                                  className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition-all duration-200 ${
                                     isActive
                                       ? isAdminLink
                                         ? "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400"
@@ -305,74 +314,134 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
             {isOpen ? (
               <>
-                <Button
-                  variant="ghost"
-                  className="w-full flex items-center justify-start mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
-                  onClick={goToSetting}
-                >
-                  <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="ml-2 whitespace-nowrap">Setting</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full flex items-center justify-start mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
-                  onClick={toggleTheme}
-                >
-                  {theme === "dark" ? (
-                    <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  ) : (
-                    <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  )}
-                  <span className="ml-2 whitespace-nowrap">
-                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                  </span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full flex items-center justify-start hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
-                  onClick={handleLogout}
-                  disabled={isLoading}
-                >
-                  <LogOut className="h-5 w-5 flex-shrink-0" />
-                  <span className="ml-2 whitespace-nowrap">Logout</span>
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center justify-start mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
+                      onClick={goToSetting}
+                    >
+                      <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      <span className="ml-2 whitespace-nowrap">Setting</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center justify-start mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
+                      onClick={toggleTheme}
+                    >
+                      {theme === "dark" ? (
+                        <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      ) : (
+                        <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      )}
+                      <span className="ml-2 whitespace-nowrap">
+                        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center justify-start hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
+                      onClick={handleLogout}
+                      disabled={isLoading}
+                    >
+                      <LogOut className="h-5 w-5 flex-shrink-0" />
+                      <span className="ml-2 whitespace-nowrap">Logout</span>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center justify-start mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
+                      onClick={toggleTheme}
+                    >
+                      {theme === "dark" ? (
+                        <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      ) : (
+                        <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      )}
+                      <span className="ml-2 whitespace-nowrap">
+                        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full flex items-center justify-start hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400"
+                      onClick={goToLogin}
+                    >
+                      <User className="h-5 w-5 flex-shrink-0" />
+                      <span className="ml-2 whitespace-nowrap">Login</span>
+                    </Button>
+                  </>
+                )}
               </>
             ) : (
               <>
-                <Tooltip content="settings">
-                  <Button
-                    variant="ghost"
-                    className="w-full flex items-center justify-center mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
-                    onClick={goToSetting}
-                  >
-                    <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  </Button>
-                </Tooltip>
-                <Tooltip
-                  content={theme === "dark" ? "Light Mode" : "Dark Mode"}
-                >
-                  <Button
-                    variant="ghost"
-                    className="w-full flex items-center justify-center mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200"
-                    onClick={toggleTheme}
-                  >
-                    {theme === "dark" ? (
-                      <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    ) : (
-                      <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    )}
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Logout">
-                  <Button
-                    variant="ghost"
-                    className="w-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
-                    onClick={handleLogout}
-                    disabled={isLoading}
-                  >
-                    <LogOut className="h-5 w-5 flex-shrink-0" />
-                  </Button>
-                </Tooltip>
+                {isAuthenticated ? (
+                  <>
+                    <Tooltip content="settings">
+                      <Button
+                        variant="ghost"
+                        className="w-full flex items-center justify-center mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200 h-10"
+                        onClick={goToSetting}
+                      >
+                        <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip
+                      content={theme === "dark" ? "Light Mode" : "Dark Mode"}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full flex items-center justify-center mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200 h-10"
+                        onClick={toggleTheme}
+                      >
+                        {theme === "dark" ? (
+                          <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        ) : (
+                          <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        )}
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Logout">
+                      <Button
+                        variant="ghost"
+                        className="w-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 h-10"
+                        onClick={handleLogout}
+                        disabled={isLoading}
+                      >
+                        <LogOut className="h-5 w-5 flex-shrink-0" />
+                      </Button>
+                    </Tooltip>
+                  </>
+                ) : (
+                  <>
+                    <Tooltip
+                      content={theme === "dark" ? "Light Mode" : "Dark Mode"}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full flex items-center justify-center mb-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-gray-700 dark:text-gray-200 h-10"
+                        onClick={toggleTheme}
+                      >
+                        {theme === "dark" ? (
+                          <Sun className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        ) : (
+                          <Moon className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        )}
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Login">
+                      <Button
+                        variant="ghost"
+                        className="w-full flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 h-10"
+                        onClick={goToLogin}
+                      >
+                        <User className="h-5 w-5 flex-shrink-0" />
+                      </Button>
+                    </Tooltip>
+                  </>
+                )}
               </>
             )}
           </div>

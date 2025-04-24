@@ -1,9 +1,9 @@
 import { useTemplates } from "@/app/_hooks/useTemplates";
 import { PatientTemplate } from "@/app/_types/Template";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ClipboardList, FileCheck, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { CheckCircle2, ClipboardList, FileCheck, Loader2 } from "lucide-react";
 
 interface TemplateSelectionProps {
   selectedTemplate: PatientTemplate | null;

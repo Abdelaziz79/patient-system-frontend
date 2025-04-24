@@ -324,4 +324,75 @@ export const patientApi = {
     }
     throw new Error(response.data.message || "Failed to search patients");
   },
+
+  // Export patient data to PDF
+  exportPatientToPdf: async (id: string) => {
+    const response = await axios.get(`${patientApi.baseUrl}/${id}/export/pdf`, {
+      withCredentials: true,
+      responseType: "blob", // Important for handling PDF binary data
+    });
+
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error("Failed to export patient data to PDF");
+  },
+
+  // Export patient data to CSV
+  exportPatientToCsv: async (id: string) => {
+    const response = await axios.get(`${patientApi.baseUrl}/${id}/export/csv`, {
+      withCredentials: true,
+      responseType: "blob",
+    });
+
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error("Failed to export patient data to CSV");
+  },
+
+  // Generate a medical report
+  generateMedicalReport: async (
+    id: string,
+    options?: {
+      includeVisits?: boolean;
+      includeHistory?: boolean;
+      customTitle?: string;
+    }
+  ) => {
+    const response = await axios.post(
+      `${patientApi.baseUrl}/${id}/report`,
+      options || {},
+      {
+        withCredentials: true,
+        responseType: "blob",
+      }
+    );
+
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error("Failed to generate medical report");
+  },
+
+  // Share patient data via email
+  sharePatientViaEmail: async (
+    id: string,
+    emailData: {
+      recipientEmail: string;
+      message?: string;
+      includeAttachment?: boolean;
+    }
+  ) => {
+    const response = await axios.post(
+      `${patientApi.baseUrl}/${id}/share`,
+      emailData,
+      { withCredentials: true }
+    );
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to share patient data");
+  },
 };

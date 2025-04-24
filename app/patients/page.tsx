@@ -1,7 +1,13 @@
 "use client";
 
 import MobilePatientCard from "@/app/_components/MobilePatientCard";
-import PatientTable from "@/app/_components/PatientTable";
+import PatientTable, {
+  PatientDisplayItem,
+} from "@/app/_components/PatientTable";
+import useMobileView from "@/app/_hooks/useMobileView";
+import { usePatient } from "@/app/_hooks/usePatient";
+import { IPatient } from "@/app/_types/Patient";
+import { calculateAge } from "@/app/_utils/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   FilterIcon,
   Loader2,
   SearchIcon,
@@ -21,99 +29,125 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import useMobileView from "../_hooks/useMobileView";
-import { mockPatients } from "./mock-data";
-
-// Define patient interface for list view
-export interface PatientListItem {
-  id: string;
-  name: string;
-  age: string;
-  gender: string;
-  bloodType: string;
-  phone: string;
-  insuranceProvider: string;
-  lastVisit: string;
-  fileNumber: string;
-  diagnosis?: string;
-}
 
 export default function PatientsPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [patients, setPatients] = useState<PatientListItem[]>([]);
-  const [filteredPatients, setFilteredPatients] = useState<PatientListItem[]>(
-    []
-  );
   const [searchQuery, setSearchQuery] = useState("");
-  const [insuranceFilter, setInsuranceFilter] = useState("");
-  const [sortField, setSortField] = useState<keyof PatientListItem>("name");
+  const [filteredPatients, setFilteredPatients] = useState<
+    PatientDisplayItem[]
+  >([]);
+  const [sortField, setSortField] = useState<keyof PatientDisplayItem>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const { isMobileView } = useMobileView();
 
+  const {
+    patients,
+    isLoading,
+    total,
+    pages,
+    page,
+    setPage,
+    limit,
+    setLimit,
+    performSearch,
+    refetch,
+  } = usePatient({
+    initialPage: currentPage,
+    initialLimit: itemsPerPage,
+    initialSortBy: sortField,
+    initialSortDir: sortDirection,
+  });
+  console.log(patients);
+  // Transform patients data into the format needed for the PatientTable
   useEffect(() => {
-    // Simulate API call to fetch patients
-    setIsLoading(true);
-    setTimeout(() => {
-      setPatients(mockPatients);
-      setFilteredPatients(mockPatients);
-      setIsLoading(false);
-    }, 0);
-  }, []);
+    if (patients && patients.length > 0) {
+      const transformedPatients = patients.map((patient: IPatient) => {
+        const personalInfo = patient.sectionData?.personalinfo || {};
+        return {
+          id: patient.id,
+          name: personalInfo.full_name || "Unknown",
+          phone: personalInfo.phone_number || "N/A",
+          createdAt: patient.createdAt,
+          age: personalInfo.birthdate
+            ? calculateAge(personalInfo.birthdate)
+            : "N/A",
+          gender: personalInfo.gender || "N/A",
+          templateName: patient.templateId?.name || "Default",
+          createdByName: patient.createdBy?.name || "N/A",
+          fileNumber: personalInfo.file_number || "",
+        };
+      });
+      setFilteredPatients(transformedPatients);
+    } else {
+      setFilteredPatients([]);
+    }
+  }, [patients]);
 
-  // Filter and sort patients
+  // Handle search
   useEffect(() => {
-    let result = [...patients];
+    if (searchQuery.trim() === "") {
+      refetch();
+    } else {
+      const fetchSearchResults = async () => {
+        const results = await performSearch({ query: searchQuery });
+        if (results && results.data) {
+          const transformedResults = results.data.map((patient: any) => {
+            const personalInfo = patient.sectionData?.personalinfo || {};
+            return {
+              id: patient.id,
+              name: personalInfo.full_name || "Unknown",
+              phone: personalInfo.phone_number || "N/A",
+              createdAt: patient.createdAt,
+              age: personalInfo.birthdate
+                ? calculateAge(personalInfo.birthdate)
+                : "N/A",
+              gender: personalInfo.gender || "N/A",
+              templateName: patient.templateId?.name || "Default",
+              createdByName: patient.createdBy?.name || "N/A",
+              fileNumber: personalInfo.file_number || "",
+            };
+          });
+          setFilteredPatients(transformedResults);
+        }
+      };
 
-    // Apply search filter
-    if (searchQuery) {
-      result = result.filter(
-        (patient) =>
-          patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          patient.phone.includes(searchQuery) ||
-          patient.fileNumber.includes(searchQuery)
-      );
+      // Debounce search requests
+      const timer = setTimeout(() => {
+        fetchSearchResults();
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
+  }, [searchQuery, refetch, performSearch]);
 
-    // Apply insurance filter
-    if (insuranceFilter) {
-      result = result.filter(
-        (patient) => patient.insuranceProvider === insuranceFilter
-      );
-    }
-
-    // Apply sorting
-    result.sort((a, b) => {
-      const valueA = a[sortField]?.toString().toLowerCase() || "";
-      const valueB = b[sortField]?.toString().toLowerCase() || "";
-
-      if (sortDirection === "asc") {
-        return valueA.localeCompare(valueB);
-      } else {
-        return valueB.localeCompare(valueA);
-      }
-    });
-
-    setFilteredPatients(result);
-  }, [searchQuery, insuranceFilter, patients, sortField, sortDirection]);
+  // Update pagination
+  useEffect(() => {
+    setPage(currentPage);
+    setLimit(itemsPerPage);
+  }, [currentPage, itemsPerPage, setPage, setLimit]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleInsuranceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setInsuranceFilter(e.target.value);
   };
 
   const handleAddPatient = () => {
     router.push("/patients/add-patient");
   };
 
-  // Get unique insurance providers for filter dropdown
-  const insuranceProviders = Array.from(
-    new Set(patients.map((patient) => patient.insuranceProvider))
-  ).sort();
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < pages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
 
   return (
     <div className="min-h-screen dark:from-slate-900 dark:to-slate-800">
@@ -161,15 +195,13 @@ export default function PatientsPage() {
                     <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                     <select
                       className="w-full rounded-md border pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none"
-                      value={insuranceFilter}
-                      onChange={handleInsuranceChange}
+                      onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                      value={itemsPerPage}
                     >
-                      <option value="">All Insurance Providers</option>
-                      {insuranceProviders.map((provider) => (
-                        <option key={provider} value={provider}>
-                          {provider}
-                        </option>
-                      ))}
+                      <option value={5}>5 per page</option>
+                      <option value={10}>10 per page</option>
+                      <option value={25}>25 per page</option>
+                      <option value={50}>50 per page</option>
                     </select>
                   </div>
                 </div>
@@ -187,7 +219,7 @@ export default function PatientsPage() {
                       {filteredPatients.length > 0 ? (
                         filteredPatients.map((patient, index) => (
                           <MobilePatientCard
-                            key={index}
+                            key={patient.id}
                             patient={patient}
                             index={index}
                           />
@@ -217,12 +249,41 @@ export default function PatientsPage() {
                       sortField={sortField}
                     />
                   )}
-                  <div className="mt-4 text-right text-sm text-gray-500 dark:text-gray-400">
-                    Total patients:{" "}
-                    <span className="font-medium">
-                      {filteredPatients.length}
-                    </span>{" "}
-                    of <span className="font-medium">{patients.length}</span>
+
+                  {/* Pagination */}
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Showing{" "}
+                      {filteredPatients.length > 0
+                        ? (currentPage - 1) * itemsPerPage + 1
+                        : 0}{" "}
+                      - {Math.min(currentPage * itemsPerPage, total)} of {total}{" "}
+                      patients
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevPage}
+                        disabled={currentPage <= 1}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm">
+                        Page {currentPage} of {pages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextPage}
+                        disabled={currentPage >= pages}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}
