@@ -87,6 +87,11 @@ export interface VisitDialogProps {
   handleAddVisit: () => Promise<void>;
   isAddingVisit: boolean;
   patient: IPatient;
+  handleGenerateVisitNotes?: (
+    symptoms?: string,
+    observations?: string
+  ) => Promise<void>;
+  isGeneratingNotes?: boolean;
 }
 
 export interface FooterActionsProps {

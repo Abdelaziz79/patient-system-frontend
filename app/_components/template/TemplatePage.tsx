@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AITemplateDialog } from "./dialogs/AITemplateDialog";
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -126,13 +127,16 @@ export default function TemplatesPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button
-            className="w-full md:w-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
-            onClick={handleCreateTemplate}
-          >
-            <PlusIcon className="mr-2 h-5 w-5" />
-            <span>Create New Template</span>
-          </Button>
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <Button
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
+              onClick={handleCreateTemplate}
+            >
+              <PlusIcon className="mr-2 h-5 w-5" />
+              <span>Create New Template</span>
+            </Button>
+            <AITemplateDialog />
+          </div>
         </div>
 
         {/* Templates List */}

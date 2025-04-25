@@ -205,6 +205,59 @@ export default function TemplateDetailPage() {
       });
   }, [isNew, templateId, getTemplate]);
 
+  // Check for AI-generated template in localStorage when creating a new template
+  useEffect(() => {
+    if (isNew) {
+      try {
+        // Only run in browser environment
+        if (typeof window !== "undefined") {
+          const aiTemplate = localStorage.getItem("aiGeneratedTemplate");
+
+          if (aiTemplate) {
+            // Parse and use the AI-generated template
+            const parsedTemplate = JSON.parse(aiTemplate);
+
+            // Add necessary properties if they're missing
+            const processedTemplate = {
+              id: "new",
+              ...parsedTemplate,
+              // Ensure each section and field has an _id
+              sections: (parsedTemplate.sections || []).map((section: any) => ({
+                ...section,
+                _id: section._id || Math.random().toString(36).substr(2, 9),
+                fields: (section.fields || []).map((field: any) => ({
+                  ...field,
+                  _id: field._id || Math.random().toString(36).substr(2, 9),
+                })),
+              })),
+              statusOptions: (parsedTemplate.statusOptions || []).map(
+                (status: any) => ({
+                  ...status,
+                  _id: status._id || Math.random().toString(36).substr(2, 9),
+                })
+              ),
+              createdBy: "currentUser",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+
+            // Set as our template
+            setTemplate(processedTemplate);
+
+            // Remove from localStorage to prevent loading it again
+            localStorage.removeItem("aiGeneratedTemplate");
+
+            // Show a success message
+            toast.success("AI-generated template loaded successfully!");
+          }
+        }
+      } catch (error) {
+        console.error("Error loading AI template:", error);
+        // If there's an error, we'll use the default template (already set)
+      }
+    }
+  }, [isNew]);
+
   const handleBack = () => {
     router.push("/templates");
   };

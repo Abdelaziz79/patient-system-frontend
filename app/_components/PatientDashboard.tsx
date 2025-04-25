@@ -12,13 +12,17 @@ import { motion } from "framer-motion";
 import {
   FileTextIcon,
   ListIcon,
+  Sparkles,
   TrendingUpIcon,
   UserPlusIcon,
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useAI } from "../_hooks/useAI";
 import { usePatient } from "../_hooks/usePatient";
+import LoadingInsights from "./ai/LoadingInsights";
 
 // Define stats interfaces
 interface AgeGroup {
@@ -73,7 +77,10 @@ interface Stats {
 export default function PatientDashboardPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-
+  const { getDemographicsSummary, isLoadingDemographics } = useAI();
+  const [demographicsSummary, setDemographicsSummary] = useState<string | null>(
+    null
+  );
   // Initialize the patient hook and fetch stats
   const { stats, isStatsLoading, refetchStats } = usePatient({
     initialFetch: false,
@@ -102,6 +109,23 @@ export default function PatientDashboardPage() {
     router.push("/analytics");
   };
 
+  const handleGenerateDemographicsSummary = async () => {
+    try {
+      const result = await getDemographicsSummary();
+      if (result.success) {
+        console.log(result);
+        setDemographicsSummary(result.data.summary);
+        toast.success("Demographics summary generated successfully");
+      } else {
+        // Handle error
+        toast.error(result.message);
+        console.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Failed to generate insights");
+      console.error(error);
+    }
+  };
   return (
     <div className="flex items-center justify-center p-4 py-6">
       <motion.div
@@ -117,6 +141,25 @@ export default function PatientDashboardPage() {
           <p className="text-green-600 dark:text-green-400">
             Patient Management and Medical Records
           </p>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 mt-4"
+            onClick={handleGenerateDemographicsSummary}
+            disabled={isLoadingDemographics}
+          >
+            <Sparkles className="h-4 w-4" />
+            {isLoadingDemographics
+              ? "Processing..."
+              : "AI Demographics Summary"}
+          </Button>
+          <LoadingInsights
+            isLoading={isLoadingDemographics}
+            isGenerating={false}
+            insights={demographicsSummary}
+            title="Demographics Summary"
+            loadingText="Generating demographics summary..."
+            loadingSubtext="This may take a moment"
+          />
         </div>
 
         {/* Summary Cards */}

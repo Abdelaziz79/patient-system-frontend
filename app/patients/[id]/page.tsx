@@ -18,6 +18,8 @@ import {
   TagsSection,
   VisitDialog,
 } from "./_components";
+import { useAI } from "@/app/_hooks/useAI";
+import { VisitNotesInput } from "@/app/_api/AIApi";
 
 function PatientPage() {
   const router = useRouter();
@@ -50,6 +52,7 @@ function PatientPage() {
     notes: "",
     sectionData: {},
   });
+  const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
 
   const {
     getPatient,
@@ -71,6 +74,8 @@ function PatientPage() {
   } = usePatient({
     initialFetch: false,
   });
+
+  const { generateVisitNotes, isLoadingVisitNotes } = useAI();
 
   // Memoize the fetch function to avoid recreating it on every render
   useEffect(() => {
@@ -165,6 +170,42 @@ function PatientPage() {
       setEmailMessage("");
     } else {
       toast.error(result.error || "Failed to share patient data");
+    }
+  };
+
+  // Generate AI Visit Notes
+  const handleGenerateVisitNotes = async (
+    symptoms?: string,
+    observations?: string
+  ) => {
+    if (!patient) return;
+
+    setIsGeneratingNotes(true);
+
+    try {
+      const notesInput: VisitNotesInput = {
+        symptoms: symptoms || "",
+        observations: observations || "",
+        patientId: id,
+      };
+
+      const result = await generateVisitNotes(notesInput);
+
+      if (result.success && result.data) {
+        // Update the notes field in the new visit form
+        setNewVisit({
+          ...newVisit,
+          notes: result.data.notes || result.data,
+        });
+        toast.success("Visit notes generated successfully");
+      } else {
+        toast.error("Failed to generate visit notes");
+      }
+    } catch (error) {
+      console.error("Error generating visit notes:", error);
+      toast.error("An error occurred while generating visit notes");
+    } finally {
+      setIsGeneratingNotes(false);
     }
   };
 
@@ -316,6 +357,8 @@ function PatientPage() {
           handleAddVisit={handleAddVisit}
           isAddingVisit={isAddingVisit}
           patient={patient}
+          handleGenerateVisitNotes={handleGenerateVisitNotes}
+          isGeneratingNotes={isGeneratingNotes}
         />
 
         {/* Patient Info Card */}

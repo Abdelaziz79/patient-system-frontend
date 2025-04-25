@@ -57,12 +57,6 @@ export default function EditPatientPage() {
     initialFetch: false,
   });
 
-  // Handle validation status changes
-  const handleValidationChange = (isValid: boolean, onLastSection: boolean) => {
-    setFormIsValid(isValid);
-    setIsLastSection(onLastSection);
-  };
-
   // Fetch patient data
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -85,7 +79,7 @@ export default function EditPatientPage() {
                 patientData.templateId.id
               );
               const fullTemplate = await getTemplate(patientData.templateId.id);
-
+              console.log("Full template:", fullTemplate);
               if (fullTemplate) {
                 console.log(
                   "Template fetched successfully:",
@@ -302,10 +296,6 @@ export default function EditPatientPage() {
 
   const handleGoBack = () => {
     router.back();
-  };
-
-  const handleStatusChange = (statusName: string) => {
-    setCurrentStatus(statusName);
   };
 
   // First render the loader for loading, error, or no patient states

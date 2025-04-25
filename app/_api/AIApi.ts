@@ -1,0 +1,142 @@
+import axios from "axios";
+
+// Base URL for AI endpoints
+const aiUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/ai";
+
+// Interface for template fields
+interface TemplateField {
+  name: string;
+  label: string;
+  type: string;
+  required: boolean;
+  options?: string[];
+  description?: string;
+  order: number;
+}
+
+// Interface for template sections
+interface TemplateSection {
+  name: string;
+  label: string;
+  description?: string;
+  order: number;
+  fields: TemplateField[];
+}
+
+// Interface for status options
+interface StatusOption {
+  name: string;
+  label: string;
+  color: string;
+  description?: string;
+  isDefault: boolean;
+}
+
+// Interface for template structure
+export interface Template {
+  name: string;
+  description: string;
+  sections: TemplateSection[];
+  statusOptions: StatusOption[];
+  createdBy?: any;
+  lastUpdatedBy?: any;
+  isPrivate?: boolean;
+}
+
+// Interface for treatment suggestions input
+export interface TreatmentSuggestionsInput {
+  symptoms?: string;
+  currentTreatments?: string;
+  medicalHistory?: string;
+}
+
+// Interface for visit notes input
+export interface VisitNotesInput {
+  symptoms?: string;
+  observations?: string;
+  patientResponses?: string;
+  patientId: string;
+}
+
+// Interface for template generation input
+export interface TemplateGenerationInput {
+  condition: string;
+  specialization?: string;
+}
+
+// API functions
+export const aiApi = {
+  // Get patient insights
+  getPatientInsights: async (patientId: string): Promise<any> => {
+    const response = await axios.get(
+      `${aiUrl}/patients/${patientId}/insights`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to get patient insights");
+  },
+
+  // Get treatment suggestions
+  getTreatmentSuggestions: async (
+    patientId: string,
+    data: TreatmentSuggestionsInput
+  ): Promise<any> => {
+    const response = await axios.post(
+      `${aiUrl}/patients/${patientId}/treatment-suggestions`,
+      data,
+      { withCredentials: true }
+    );
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(
+      response.data.message || "Failed to get treatment suggestions"
+    );
+  },
+
+  // Generate template for condition
+  generateTemplate: async (
+    data: TemplateGenerationInput
+  ): Promise<Template> => {
+    const response = await axios.post(`${aiUrl}/generate-template`, data, {
+      withCredentials: true,
+    });
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to generate template");
+  },
+
+  // Get demographics summary
+  getDemographicsSummary: async (): Promise<any> => {
+    const response = await axios.get(`${aiUrl}/demographics-summary`, {
+      withCredentials: true,
+    });
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(
+      response.data.message || "Failed to get demographics summary"
+    );
+  },
+
+  // Generate visit notes
+  generateVisitNotes: async (data: VisitNotesInput): Promise<any> => {
+    const response = await axios.post(`${aiUrl}/visit-notes-assistant`, data, {
+      withCredentials: true,
+    });
+
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to generate visit notes");
+  },
+};

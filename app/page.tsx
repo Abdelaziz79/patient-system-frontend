@@ -1,10 +1,9 @@
 "use client";
 
-// import DoctorDashboardPage from "@/app/_components/DoctorDashboard";
+import ErrorComp from "@/app/_components/ErrorComp";
+import Loading from "@/app/_components/Loading";
 import PatientDashboardPage from "@/app/_components/PatientDashboard";
-import { useAuthContext } from "./_providers/AuthProvider";
-import Loading from "./_components/Loading";
-import ErrorComp from "./_components/ErrorComp";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
 
 function Page() {
   const { isAuthenticated, isLoading } = useAuthContext();
@@ -14,10 +13,12 @@ function Page() {
   }
   return (
     <div>
-      {/* <DoctorDashboardPage /> */}
       <PatientDashboardPage />
     </div>
   );
 }
 
 export default Page;
+
+// TODO : add multi gemini api key support to backend
+// TODO : fix private and public templates

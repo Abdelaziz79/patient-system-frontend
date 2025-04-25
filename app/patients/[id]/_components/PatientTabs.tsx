@@ -19,8 +19,10 @@ import {
   FileText,
   Info,
   Shield,
+  Pill,
 } from "lucide-react";
 import { PatientTabsProps } from "./types";
+import { TreatmentSuggestions } from "./TreatmentSuggestions";
 
 // Helper component for section data display
 const InfoItem = ({
@@ -84,6 +86,13 @@ export function PatientTabs({
         >
           <Shield className="h-4 w-4 mr-2" />
           Status History
+        </TabsTrigger>
+        <TabsTrigger
+          value="treatment"
+          className="data-[state=active]:bg-green-50 data-[state=active]:text-green-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-slate-100 rounded-md"
+        >
+          <Pill className="h-4 w-4 mr-2" />
+          Treatment Suggestions
         </TabsTrigger>
       </TabsList>
 
@@ -414,6 +423,28 @@ export function PatientTabs({
                 </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* Treatment Suggestions Tab */}
+      <TabsContent
+        value="treatment"
+        className="animate-in fade-in-50 duration-300"
+      >
+        <Card className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-green-100 dark:border-slate-800 shadow-xl transition-all duration-200">
+          <CardHeader>
+            <CardTitle className="text-xl text-green-800 dark:text-slate-300 flex items-center gap-2">
+              <Pill className="h-5 w-5 text-green-600 dark:text-slate-400" />
+              Treatment Suggestions
+            </CardTitle>
+            <CardDescription className="text-green-600 dark:text-slate-400">
+              AI-powered treatment suggestions based on patient data
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <TreatmentSuggestions patientId={patient?.id || ""} />
           </CardContent>
         </Card>
       </TabsContent>

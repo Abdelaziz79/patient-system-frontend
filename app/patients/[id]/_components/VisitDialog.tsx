@@ -27,7 +27,13 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarCheck, ClipboardList, Clock, FileText } from "lucide-react";
+import {
+  CalendarCheck,
+  ClipboardList,
+  Clock,
+  FileText,
+  Sparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { VisitDialogProps } from "./types";
 
@@ -39,6 +45,8 @@ export function VisitDialog({
   handleAddVisit,
   isAddingVisit,
   patient,
+  handleGenerateVisitNotes,
+  isGeneratingNotes,
 }: VisitDialogProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState("basic");
@@ -279,9 +287,40 @@ export function VisitDialog({
 
           <TabsContent value="details" className="space-y-6 mt-2">
             <div>
-              <Label htmlFor="visit-notes" className="mb-2 block text-base">
-                Clinical Notes
-              </Label>
+              <div className="flex justify-between items-center mb-2">
+                <Label htmlFor="visit-notes" className="block text-base">
+                  Clinical Notes
+                </Label>
+                {handleGenerateVisitNotes && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const symptoms =
+                              newVisit.sectionData.symptoms || "";
+                            const observations =
+                              newVisit.sectionData.observations || "";
+                            handleGenerateVisitNotes(symptoms, observations);
+                          }}
+                          disabled={isGeneratingNotes}
+                          className="flex items-center gap-1 h-8"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          {isGeneratingNotes
+                            ? "Generating..."
+                            : "Generate with AI"}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Generate clinical notes using AI</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <Textarea
                 id="visit-notes"
                 placeholder="Enter detailed visit notes, observations, and findings..."
@@ -291,6 +330,49 @@ export function VisitDialog({
                 }
                 className="min-h-[180px] text-base"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="symptoms" className="mb-2 block text-base">
+                  Symptoms
+                </Label>
+                <Textarea
+                  id="symptoms"
+                  placeholder="Patient reported symptoms"
+                  value={newVisit.sectionData.symptoms || ""}
+                  onChange={(e) =>
+                    setNewVisit({
+                      ...newVisit,
+                      sectionData: {
+                        ...newVisit.sectionData,
+                        symptoms: e.target.value,
+                      },
+                    })
+                  }
+                  className="min-h-[100px] text-base"
+                />
+              </div>
+              <div>
+                <Label htmlFor="observations" className="mb-2 block text-base">
+                  Observations
+                </Label>
+                <Textarea
+                  id="observations"
+                  placeholder="Clinical observations"
+                  value={newVisit.sectionData.observations || ""}
+                  onChange={(e) =>
+                    setNewVisit({
+                      ...newVisit,
+                      sectionData: {
+                        ...newVisit.sectionData,
+                        observations: e.target.value,
+                      },
+                    })
+                  }
+                  className="min-h-[100px] text-base"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,3 +1,5 @@
+import LoadingInsights from "@/app/_components/ai/LoadingInsights";
+import { useAI } from "@/app/_hooks/useAI";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +17,10 @@ import {
   FileText,
   Printer,
   Share2,
+  Sparkles,
 } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { PatientActionsProps } from "./types";
 
 export function PatientActions({
@@ -31,77 +36,127 @@ export function PatientActions({
   setIsShareDialogOpen,
   setIsReportDialogOpen,
 }: PatientActionsProps) {
+  const { getPatientInsights, isLoadingInsights } = useAI();
+
+  const [insights, setInsights] = useState<string | null>(null);
+  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+
+  const handleGenerateInsights = async () => {
+    try {
+      setIsGeneratingInsights(true);
+      const result = await getPatientInsights(patient?.id || "");
+      if (result.success) {
+        setInsights(result.data.insights);
+        toast.success("Insights generated successfully");
+      } else {
+        // Handle error
+        toast.error(result.message);
+        console.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Failed to generate insights");
+      console.error(error);
+    } finally {
+      setIsGeneratingInsights(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={handleGoBack}
-        >
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Button>
-        <h1 className="text-2xl font-bold text-green-800 dark:text-green-300">
-          Patient Details
-        </h1>
+    <div className="mb-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={handleGoBack}
+          >
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Button>
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-300">
+            Patient Details
+          </h1>
+        </div>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Download className="h-4 w-4" /> Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={handleExportToPdf}
+                disabled={isExportingToPdf}
+              >
+                <File className="h-4 w-4 mr-2" />
+                {isExportingToPdf ? "Exporting..." : "Export to PDF"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleExportToCsv}
+                disabled={isExportingToCsv}
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                {isExportingToCsv ? "Exporting..." : "Export to CSV"}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setIsReportDialogOpen(true)}
+                disabled={isGeneratingReport}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                {isGeneratingReport
+                  ? "Generating..."
+                  : "Generate Medical Report"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handlePrintPatient}
+          >
+            <Printer className="h-4 w-4" /> Print
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => setIsShareDialogOpen(true)}
+          >
+            <Share2 className="h-4 w-4" /> Share
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleGenerateInsights}
+            disabled={isGeneratingInsights || isLoadingInsights}
+          >
+            <Sparkles className="h-4 w-4" />
+            {isGeneratingInsights || isLoadingInsights
+              ? "Processing..."
+              : "AI Insights"}
+          </Button>
+
+          <Button
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
+            onClick={handleEditPatient}
+          >
+            <Edit className="h-4 w-4 mr-2" /> Edit
+          </Button>
+        </div>
       </div>
-      <div className="flex gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Download className="h-4 w-4" /> Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={handleExportToPdf}
-              disabled={isExportingToPdf}
-            >
-              <File className="h-4 w-4 mr-2" />
-              {isExportingToPdf ? "Exporting..." : "Export to PDF"}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleExportToCsv}
-              disabled={isExportingToCsv}
-            >
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              {isExportingToCsv ? "Exporting..." : "Export to CSV"}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setIsReportDialogOpen(true)}
-              disabled={isGeneratingReport}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {isGeneratingReport ? "Generating..." : "Generate Medical Report"}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={handlePrintPatient}
-        >
-          <Printer className="h-4 w-4" /> Print
-        </Button>
-
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => setIsShareDialogOpen(true)}
-        >
-          <Share2 className="h-4 w-4" /> Share
-        </Button>
-
-        <Button
-          className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
-          onClick={handleEditPatient}
-        >
-          <Edit className="h-4 w-4 mr-2" /> Edit
-        </Button>
-      </div>
+      <LoadingInsights
+        isLoading={isLoadingInsights}
+        isGenerating={isGeneratingInsights}
+        insights={insights}
+        title="AI Analysis & Insights"
+        loadingText="Analyzing patient data..."
+        loadingSubtext="This may take a moment"
+      />
     </div>
   );
 }

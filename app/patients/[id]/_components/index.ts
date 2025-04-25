@@ -8,3 +8,4 @@ export * from "./ShareDialog";
 export * from "./TagsSection";
 export * from "./types";
 export * from "./VisitDialog";
+export * from "./TreatmentSuggestions";
