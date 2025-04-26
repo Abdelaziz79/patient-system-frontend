@@ -1,12 +1,12 @@
 "use client";
 import {
+  Facebook,
+  Github,
   HeartPulseIcon,
   Mail,
-  Phone,
   MapPin,
-  Github,
+  Phone,
   Twitter,
-  Facebook,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -116,14 +116,6 @@ function Footer() {
                   className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
                 >
                   Appointments
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/doctors"
-                  className="hover:text-blue-600 dark:hover:text-blue-300 transition-colors inline-flex items-center"
-                >
-                  Doctors
                 </Link>
               </li>
             </ul>

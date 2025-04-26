@@ -5,28 +5,26 @@ import {
   Activity,
   AlertCircle,
   BarChart3,
+  Bell,
   Calendar,
   ChevronLeft,
   FileText,
   HeartPulseIcon,
   Home,
   LogOut,
-  Menu,
   Moon,
   NotebookText,
   Settings,
   Sun,
   User,
-  UserCircle,
   UserPlus,
   Users,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import React, { ReactNode, useState } from "react";
 import { useThemeMode } from "../_hooks/useThemeMode";
 import { useAuthContext } from "../_providers/AuthProvider";
-import React, { ReactNode, useState } from "react";
 
 // Define props type
 interface SidebarProps {
@@ -86,6 +84,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   // Check if user is an admin or super_admin
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  // Check if user is super_admin
+  const isSuperAdmin = user?.role === "super_admin";
 
   // Navigation links with grouping
   const navItems: NavItem[] = [
@@ -111,15 +111,9 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             group: "Clinical",
           },
           {
-            href: "/doctors",
-            icon: <UserCircle size={20} />,
-            title: "Doctors",
-            group: "Clinical",
-          },
-          {
-            href: "/registration",
-            icon: <UserPlus size={20} />,
-            title: "Registration",
+            href: "/notifications",
+            icon: <Bell size={20} />,
+            title: "Notifications",
             group: "Clinical",
           },
           {
@@ -154,6 +148,16 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                   title: "Templates",
                   group: "Admin",
                 },
+                ...(isSuperAdmin
+                  ? [
+                      {
+                        href: "/admin/notifications",
+                        icon: <Bell size={20} />,
+                        title: "System Notifications",
+                        group: "Admin",
+                      },
+                    ]
+                  : []),
               ]
             : []),
         ]
