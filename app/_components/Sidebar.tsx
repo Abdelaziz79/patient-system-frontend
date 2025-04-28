@@ -2,12 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Activity,
-  AlertCircle,
   BarChart3,
   Bell,
   Calendar,
   ChevronLeft,
+  Database,
   FileText,
   HeartPulseIcon,
   Home,
@@ -17,7 +16,6 @@ import {
   Settings,
   Sun,
   User,
-  UserPlus,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -122,18 +120,6 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             title: "Reports",
             group: "Management",
           },
-          {
-            href: "/analytics",
-            icon: <Activity size={20} />,
-            title: "Analytics",
-            group: "Management",
-          },
-          {
-            href: "/alerts",
-            icon: <AlertCircle size={20} />,
-            title: "Alerts",
-            group: "Management",
-          },
           ...(isAdmin
             ? [
                 {
@@ -154,6 +140,12 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                         href: "/admin/notifications",
                         icon: <Bell size={20} />,
                         title: "System Notifications",
+                        group: "Admin",
+                      },
+                      {
+                        href: "/admin/backups",
+                        icon: <Database size={20} />,
+                        title: "Backups",
                         group: "Admin",
                       },
                     ]
