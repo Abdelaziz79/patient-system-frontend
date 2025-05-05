@@ -89,7 +89,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     placeholder="Enter your email"
-                    className="pl-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
                     value={email}
                     type="email"
@@ -107,7 +107,7 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="pl-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -137,7 +137,7 @@ export default function LoginPage() {
                   />
                   <Label
                     htmlFor="remember"
-                    className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+                    className="mx-2 text-sm text-gray-700 dark:text-gray-300"
                   >
                     Remember me
                   </Label>
@@ -164,7 +164,7 @@ export default function LoginPage() {
                         repeat: Infinity,
                         ease: "linear",
                       }}
-                      className="h-5 w-5 border-2 border-t-transparent border-white rounded-full mr-2"
+                      className="h-5 w-5 border-2 border-t-transparent border-white rounded-full mx-2"
                     />
                     <span>Loading...</span>
                   </div>

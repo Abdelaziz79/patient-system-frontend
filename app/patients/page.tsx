@@ -1,11 +1,12 @@
 "use client";
 
-import MobilePatientCard from "@/app/_components/MobilePatientCard";
+import MobilePatientCard from "@/app/patients/_components/MobilePatientCard";
 import PatientTable, {
   PatientDisplayItem,
-} from "@/app/_components/PatientTable";
+} from "@/app/patients/_components/PatientTable";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import useMobileView from "@/app/_hooks/useMobileView";
-import { usePatient } from "@/app/_hooks/usePatient";
+import { usePatient } from "@/app/_hooks/patient/usePatient";
 import { IPatient } from "@/app/_types/Patient";
 import { calculateAge } from "@/app/_utils/utils";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import { useEffect, useState } from "react";
 
 export default function PatientsPage() {
   const router = useRouter();
+  const { t, isRTL } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPatients, setFilteredPatients] = useState<
     PatientDisplayItem[]
@@ -65,26 +67,43 @@ export default function PatientsPage() {
   useEffect(() => {
     if (patients && patients.length > 0) {
       const transformedPatients = patients.map((patient: IPatient) => {
-        const personalInfo = patient.sectionData?.personalinfo || {};
+        // Get name from personalInfo instead of sectionData.personalinfo
+        const fullName = patient.personalInfo
+          ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
+          : t("unknown");
+
+        // Calculate age from date string safely
+        let ageValue = t("notAvailable");
+        if (patient.personalInfo?.dateOfBirth) {
+          try {
+            ageValue = calculateAge(String(patient.personalInfo.dateOfBirth));
+          } catch (error) {
+            console.error("Error calculating age:", error);
+          }
+        }
+
         return {
           id: patient.id,
-          name: personalInfo.full_name || "Unknown",
-          phone: personalInfo.phone_number || "N/A",
+          name: fullName,
+          phone: patient.personalInfo?.contactNumber || t("notAvailable"),
           createdAt: patient.createdAt,
-          age: personalInfo.birthdate
-            ? calculateAge(personalInfo.birthdate)
-            : "N/A",
-          gender: personalInfo.gender || "N/A",
-          templateName: patient.templateId?.name || "Default",
-          createdByName: patient.createdBy?.name || "N/A",
-          fileNumber: personalInfo.file_number || "",
+          age: ageValue,
+          gender: patient.personalInfo?.gender || t("notAvailable"),
+          templateName: patient.templateId?.name || t("default"),
+          createdByName: patient.createdBy?.name || t("notAvailable"),
+          fileNumber: patient.personalInfo?.medicalRecordNumber || "",
+          statusColor: patient.status?.color,
+          statusLabel: patient.status?.label,
+          tags: patient.tags,
+          adminId: patient.adminId,
+          isActive: patient.isActive,
         };
       });
       setFilteredPatients(transformedPatients);
     } else {
       setFilteredPatients([]);
     }
-  }, [patients]);
+  }, [patients, t]);
 
   // Handle search
   useEffect(() => {
@@ -94,20 +113,39 @@ export default function PatientsPage() {
       const fetchSearchResults = async () => {
         const results = await performSearch({ query: searchQuery });
         if (results && results.data) {
-          const transformedResults = results.data.map((patient: any) => {
-            const personalInfo = patient.sectionData?.personalinfo || {};
+          const transformedResults = results.data.map((patient: IPatient) => {
+            // Get name from personalInfo instead of sectionData.personalinfo
+            const fullName = patient.personalInfo
+              ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
+              : t("unknown");
+
+            // Calculate age from date string safely
+            let ageValue = t("notAvailable");
+            if (patient.personalInfo?.dateOfBirth) {
+              try {
+                ageValue = calculateAge(
+                  String(patient.personalInfo.dateOfBirth)
+                );
+              } catch (error) {
+                console.error("Error calculating age:", error);
+              }
+            }
+
             return {
               id: patient.id,
-              name: personalInfo.full_name || "Unknown",
-              phone: personalInfo.phone_number || "N/A",
+              name: fullName,
+              phone: patient.personalInfo?.contactNumber || t("notAvailable"),
               createdAt: patient.createdAt,
-              age: personalInfo.birthdate
-                ? calculateAge(personalInfo.birthdate)
-                : "N/A",
-              gender: personalInfo.gender || "N/A",
-              templateName: patient.templateId?.name || "Default",
-              createdByName: patient.createdBy?.name || "N/A",
-              fileNumber: personalInfo.file_number || "",
+              age: ageValue,
+              gender: patient.personalInfo?.gender || t("notAvailable"),
+              templateName: patient.templateId?.name || t("default"),
+              createdByName: patient.createdBy?.name || t("notAvailable"),
+              fileNumber: patient.personalInfo?.medicalRecordNumber || "",
+              statusColor: patient.status?.color,
+              statusLabel: patient.status?.label,
+              tags: patient.tags,
+              adminId: patient.adminId,
+              isActive: patient.isActive,
             };
           });
           setFilteredPatients(transformedResults);
@@ -121,7 +159,7 @@ export default function PatientsPage() {
 
       return () => clearTimeout(timer);
     }
-  }, [searchQuery, refetch, performSearch]);
+  }, [searchQuery, refetch, performSearch, t]);
 
   // Update pagination
   useEffect(() => {
@@ -162,19 +200,19 @@ export default function PatientsPage() {
             <CardHeader className="px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">
-                    Patients List
+                  <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-green-800 dark:from-green-400 dark:to-green-600 bg-clip-text text-transparent">
+                    {t("patientsList")}
                   </CardTitle>
                   <CardDescription className="text-green-600 dark:text-green-400 mt-1 text-sm">
-                    Manage patient records in your medical facility
+                    {t("managePatientRecords")}
                   </CardDescription>
                 </div>
                 <Button
                   onClick={handleAddPatient}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
+                  className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 dark:from-green-700 dark:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 text-white transition-all duration-300 shadow-md hover:shadow-lg"
                 >
-                  <UserPlusIcon className="mr-2 h-4 w-4" />
-                  <span>Add Patient</span>
+                  <UserPlusIcon className="mx-2 h-4 w-4" />
+                  <span>{t("addPatient")}</span>
                 </Button>
               </div>
             </CardHeader>
@@ -183,8 +221,8 @@ export default function PatientsPage() {
                 <div className="relative flex-1">
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                   <Input
-                    placeholder="Search for a patient..."
-                    className="pl-10 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    placeholder={t("searchForPatient")}
+                    className="px-10 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     value={searchQuery}
                     onChange={handleSearch}
                   />
@@ -194,14 +232,14 @@ export default function PatientsPage() {
                     <FilterIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                     <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                     <select
-                      className="w-full rounded-md border pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none"
+                      className="w-full rounded-md border px-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none"
                       onChange={(e) => setItemsPerPage(Number(e.target.value))}
                       value={itemsPerPage}
                     >
-                      <option value={5}>5 per page</option>
-                      <option value={10}>10 per page</option>
-                      <option value={25}>25 per page</option>
-                      <option value={50}>50 per page</option>
+                      <option value={5}>5 {t("perPage")}</option>
+                      <option value={10}>10 {t("perPage")}</option>
+                      <option value={25}>25 {t("perPage")}</option>
+                      <option value={50}>50 {t("perPage")}</option>
                     </select>
                   </div>
                 </div>
@@ -225,18 +263,20 @@ export default function PatientsPage() {
                           />
                         ))
                       ) : (
-                        <div className="rounded-lg border dark:border-gray-700 p-8 text-center">
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                          className="rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center"
+                        >
                           <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
                             <SearchIcon className="h-12 w-12 mb-2 opacity-20" />
                             <p className="text-lg font-medium">
-                              No patients found
+                              {t("noPatients")}
                             </p>
-                            <p className="text-sm">
-                              Try changing your search criteria or add new
-                              patients
-                            </p>
+                            <p className="text-sm">{t("tryChangingSearch")}</p>
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                     </div>
                   ) : (
@@ -253,35 +293,47 @@ export default function PatientsPage() {
                   {/* Pagination */}
                   <div className="mt-4 flex items-center justify-between">
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Showing{" "}
+                      {t("showing")}{" "}
                       {filteredPatients.length > 0
                         ? (currentPage - 1) * itemsPerPage + 1
                         : 0}{" "}
-                      - {Math.min(currentPage * itemsPerPage, total)} of {total}{" "}
-                      patients
+                      - {Math.min(currentPage * itemsPerPage, total)} {t("of")}{" "}
+                      {total} {t("patientsLabel")}
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div
+                      className={`flex items-center ${
+                        isRTL ? "gap-x-reverse" : "gap-x-2"
+                      }`}
+                    >
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handlePrevPage}
                         disabled={currentPage <= 1}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 border-green-100 dark:border-green-900 focus:ring-green-500 dark:focus:ring-green-700"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        {isRTL ? (
+                          <ChevronRight className="h-4 w-4" />
+                        ) : (
+                          <ChevronLeft className="h-4 w-4" />
+                        )}
                       </Button>
                       <span className="text-sm">
-                        Page {currentPage} of {pages}
+                        {t("page")} {currentPage} {t("of")} {pages}
                       </span>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleNextPage}
                         disabled={currentPage >= pages}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 border-green-100 dark:border-green-900 focus:ring-green-500 dark:focus:ring-green-700"
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        {isRTL ? (
+                          <ChevronLeft className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>

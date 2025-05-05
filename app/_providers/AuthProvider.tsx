@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthState, useAuth } from "@/app/_hooks/useAuth";
+import { AuthState, useAuth } from "@/app/_hooks/auth/useAuth";
 import { createContext, ReactNode, useContext } from "react";
 import { User } from "../_types/User";
 

@@ -5,12 +5,7 @@ import { ArrowLeftIcon, EyeIcon, PencilIcon, SaveIcon } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import {
-  Field,
-  PatientStatusOption,
-  PatientTemplate,
-  Section,
-} from "@/app/_types/Template";
+import { Field, PatientTemplate, Section } from "@/app/_types/Template";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import toast from "react-hot-toast";
@@ -18,23 +13,25 @@ import toast from "react-hot-toast";
 // Import component parts
 import ErrorComp from "@/app/_components/ErrorComp";
 import Loading from "@/app/_components/Loading";
-import { DeleteAlerts } from "@/app/_components/template/DeleteAlerts";
-import { StatusOptions } from "@/app/_components/template/StatusOptions";
-import { TemplateInfo } from "@/app/_components/template/TemplateInfo";
-import { TemplateSections } from "@/app/_components/template/TemplateSections";
-import { FieldDialog } from "@/app/_components/template/dialogs/FieldDialog";
-import { SectionDialog } from "@/app/_components/template/dialogs/SectionDialog";
-import { StatusDialog } from "@/app/_components/template/dialogs/StatusDialog";
-import { useTemplates } from "@/app/_hooks/useTemplates";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useTemplates } from "@/app/_hooks/template/useTemplates";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
+import { DeleteAlerts } from "@/app/templates/_components/DeleteAlerts";
+import { TemplateInfo } from "@/app/templates/_components/TemplateInfo";
+import { TemplateSections } from "@/app/templates/_components/TemplateSections";
+import { FieldDialog } from "@/app/templates/_components/dialogs/FieldDialog";
+import { SectionDialog } from "@/app/templates/_components/dialogs/SectionDialog";
 
 export default function TemplateDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t, dir } = useLanguage();
 
   const isViewMode = searchParams?.get("view") === "true";
   const isNew = params?.id === "new";
   const templateId = params?.id as string;
+  const { user } = useAuthContext();
 
   const {
     getTemplate,
@@ -54,82 +51,46 @@ export default function TemplateDetailPage() {
           sections: [
             {
               _id: Math.random().toString(36).substr(2, 9),
-              name: "personalinfo",
-              label: "Personal Information",
-              description: "Basic personal information about the patient",
+              name: "general",
+              label: "General Information",
+              description:
+                "General section that can be customized for your needs",
               order: 0,
               fields: [
                 {
                   _id: Math.random().toString(36).substr(2, 9),
-                  name: "full_name",
-                  label: "Full Name",
+                  name: "title",
+                  label: "Title",
                   type: "text",
                   required: true,
-                  description: "Patient's full name",
+                  description: "Add a title",
                   order: 0,
                 },
                 {
                   _id: Math.random().toString(36).substr(2, 9),
-                  name: "phone_number",
-                  label: "Phone Number",
-                  type: "phone",
-                  required: true,
-                  description: "Patient's contact number",
-                  order: 1,
-                },
-
-                {
-                  _id: Math.random().toString(36).substr(2, 9),
-                  name: "birthdate",
-                  label: "Date of Birth",
-                  type: "date",
-                  required: true,
-                  description: "Patient's date of birth",
-                  order: 2,
-                },
-                {
-                  _id: Math.random().toString(36).substr(2, 9),
-                  name: "gender",
-                  label: "Gender",
-                  type: "select",
-                  required: true,
-                  options: ["Male", "Female"],
-                  description: "Patient's gender",
-                  order: 3,
-                },
-                {
-                  _id: Math.random().toString(36).substr(2, 9),
-                  name: "address",
-                  label: "Address",
+                  name: "description",
+                  label: "Description",
                   type: "textarea",
                   required: false,
-                  description: "Patient's residential address",
-                  order: 4,
+                  description: "Add a description",
+                  order: 1,
+                },
+                {
+                  _id: Math.random().toString(36).substr(2, 9),
+                  name: "category",
+                  label: "Category",
+                  type: "select",
+                  required: false,
+                  options: ["Option 1", "Option 2", "Option 3"],
+                  description: "Select a category",
+                  order: 2,
                 },
               ],
             },
           ],
-          statusOptions: [
-            {
-              _id: Math.random().toString(36).substr(2, 9),
-              name: "active",
-              label: "Active",
-              color: "#4CAF50",
-              isDefault: true,
-              description: "Default status for active patients",
-            },
-            {
-              _id: Math.random().toString(36).substr(2, 9),
-              name: "inactive",
-              label: "Inactive",
-              color: "#9E9E9E",
-              isDefault: false,
-              description: "Status for inactive patients",
-            },
-          ],
-          isPrivate: false,
+          isPrivate: true, // Set private to true by default for new templates
           isDefault: false,
-          createdBy: "currentUser",
+          createdBy: user?.id || "currentUser",
           createdAt: new Date(),
           updatedAt: new Date(),
         } as PatientTemplate)
@@ -140,12 +101,9 @@ export default function TemplateDetailPage() {
 
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
-  const [selectedStatus, setSelectedStatus] =
-    useState<PatientStatusOption | null>(null);
 
   const [showFieldDialog, setShowFieldDialog] = useState(false);
   const [showSectionDialog, setShowSectionDialog] = useState(false);
-  const [showStatusDialog, setShowStatusDialog] = useState(false);
 
   const [currentTab, setCurrentTab] = useState("sections");
   const [fieldOptionText, setFieldOptionText] = useState("");
@@ -154,7 +112,27 @@ export default function TemplateDetailPage() {
     sectionId: string;
     fieldId: string;
   } | null>(null);
-  const [statusToDelete, setStatusToDelete] = useState<string | null>(null);
+
+  // Check if the current user is the creator of the template or a super_admin
+  const canEdit = () => {
+    if (!template || !user) return false;
+    if (isNew) return true;
+
+    // Allow editing if user is the creator or super_admin
+    if (user.role === "super_admin") return true;
+
+    // Check if createdBy is a string (just the ID) or an object
+    if (typeof template.createdBy === "string") {
+      return user.id === template.createdBy;
+    } else if (template.createdBy && typeof template.createdBy === "object") {
+      // If createdBy is an object with an ID field
+      return (
+        user.id === template.createdBy.id || user.id === template.createdBy._id
+      );
+    }
+
+    return false;
+  };
 
   useEffect(() => {
     // If this is a new template, we've already initialized it in the useState
@@ -180,18 +158,20 @@ export default function TemplateDetailPage() {
         // Ensure all sections and fields have proper IDs
         const processedData = {
           ...data,
-          sections: data.sections.map((section: any) => ({
+          sections: (data.sections || []).map((section: any) => ({
             ...section,
-            _id: section._id || Math.random().toString(36).substr(2, 9),
+            _id:
+              section._id ||
+              section.id ||
+              Math.random().toString(36).substr(2, 9),
             fields: (section.fields || []).map((field: any) => ({
               ...field,
-              _id: field._id || Math.random().toString(36).substr(2, 9),
+              _id:
+                field._id ||
+                field.id ||
+                Math.random().toString(36).substr(2, 9),
               options: field.options || [],
             })),
-          })),
-          statusOptions: (data.statusOptions || []).map((status: any) => ({
-            ...status,
-            _id: status._id || Math.random().toString(36).substr(2, 9),
           })),
         };
 
@@ -230,13 +210,9 @@ export default function TemplateDetailPage() {
                   _id: field._id || Math.random().toString(36).substr(2, 9),
                 })),
               })),
-              statusOptions: (parsedTemplate.statusOptions || []).map(
-                (status: any) => ({
-                  ...status,
-                  _id: status._id || Math.random().toString(36).substr(2, 9),
-                })
-              ),
-              createdBy: "currentUser",
+              createdBy: user?.id || "currentUser",
+              isPrivate: true, // Set private to true by default
+              isDefault: false, // Set default to false by default
               createdAt: new Date(),
               updatedAt: new Date(),
             };
@@ -256,7 +232,14 @@ export default function TemplateDetailPage() {
         // If there's an error, we'll use the default template (already set)
       }
     }
-  }, [isNew]);
+  }, [isNew, user]);
+
+  // If the user isn't the creator and isn't a super_admin, redirect to view mode
+  useEffect(() => {
+    if (!isNew && !isViewMode && !canEdit() && template) {
+      router.push(`/templates/${templateId}?view=true`);
+    }
+  }, [template, isNew, isViewMode, templateId, router]);
 
   const handleBack = () => {
     router.push("/templates");
@@ -264,7 +247,12 @@ export default function TemplateDetailPage() {
 
   const toggleEditMode = () => {
     if (isViewMode) {
-      router.push(`/templates/${templateId}`);
+      // Check if user can edit before switching to edit mode
+      if (canEdit()) {
+        router.push(`/templates/${templateId}`);
+      } else {
+        toast.error(t("noPermissionEdit"));
+      }
     } else {
       router.push(`/templates/${templateId}?view=true`);
     }
@@ -277,33 +265,15 @@ export default function TemplateDetailPage() {
 
     // Validate template
     if (!template.name?.trim()) {
-      toast.error("Template name is required");
+      toast.error(t("templateNameRequired"));
       setIsSaving(false);
       return;
     }
 
     if (template.sections.length === 0) {
-      toast.error("Template must have at least one section");
+      toast.error(t("templateSectionRequired"));
       setIsSaving(false);
       return;
-    }
-
-    if (template.statusOptions.length === 0) {
-      toast.error("Template must have at least one status option");
-      setIsSaving(false);
-      return;
-    }
-
-    // Ensure at least one default status
-    const hasDefaultStatus = template.statusOptions.some((s) => s.isDefault);
-    if (!hasDefaultStatus && template.statusOptions.length > 0) {
-      // Set the first status as default
-      const updatedStatusOptions = [...template.statusOptions];
-      updatedStatusOptions[0].isDefault = true;
-      setTemplate({
-        ...template,
-        statusOptions: updatedStatusOptions,
-      });
     }
 
     try {
@@ -324,27 +294,24 @@ export default function TemplateDetailPage() {
         })),
       }));
 
-      const cleanStatusOptions = template.statusOptions.map((status) => ({
-        name: status.name,
-        label: status.label,
-        color: status.color,
-        description: status.description || "",
-        isDefault: status.isDefault || false,
-      }));
-
       // Create a clean template object with only the necessary fields
       const templateToSave: Partial<PatientTemplate> = {
         name: template.name,
         description: template.description || "",
         sections: cleanSections,
-        statusOptions: cleanStatusOptions,
-        isPrivate: template.isPrivate || false,
-        isDefault: template.isDefault || false,
+        isPrivate: template.isPrivate, // Use the value from the form
+        // Only super_admin can set isDefault
+        isDefault: user?.role === "super_admin" ? template.isDefault : false,
       };
 
-      // If not a new template, include the ID
+      // Add ID if updating an existing template
       if (!isNew && template.id) {
         templateToSave.id = template.id;
+      }
+
+      // Add MongoDB ID if present
+      if (!isNew && template._id) {
+        templateToSave._id = template._id;
       }
 
       let result;
@@ -358,16 +325,14 @@ export default function TemplateDetailPage() {
 
       if (result.success) {
         toast.success(
-          isNew
-            ? "Template created successfully"
-            : "Template updated successfully"
+          isNew ? t("templateCreatedSuccess") : t("templateUpdatedSuccess")
         );
         router.push("/templates");
       } else {
-        toast.error(result.error || "Failed to save template");
+        toast.error(result.error || t("failedToSaveTemplate"));
       }
     } catch (error) {
-      toast.error("An error occurred while saving the template");
+      toast.error(t("errorSavingTemplate"));
       console.error("Save error:", error);
     } finally {
       setIsSaving(false);
@@ -568,133 +533,6 @@ export default function TemplateDetailPage() {
     setSelectedSection(null);
   };
 
-  const addFieldOption = () => {
-    if (!selectedField || !fieldOptionText.trim()) return;
-
-    const options = selectedField.options || [];
-    setSelectedField({
-      ...selectedField,
-      options: [...options, fieldOptionText.trim()],
-    });
-
-    setFieldOptionText("");
-  };
-
-  const removeFieldOption = (index: number) => {
-    if (!selectedField || !selectedField.options) return;
-
-    const options = [...selectedField.options];
-    options.splice(index, 1);
-
-    setSelectedField({
-      ...selectedField,
-      options,
-    });
-  };
-
-  // Status option handlers
-  const addStatus = () => {
-    setSelectedStatus({
-      _id: Math.random().toString(36).substr(2, 9),
-      name: "",
-      label: "",
-      color: "#3498db",
-      description: "",
-      isDefault: template?.statusOptions.length === 0,
-    });
-    setShowStatusDialog(true);
-  };
-
-  const editStatus = (statusOption: PatientStatusOption) => {
-    setSelectedStatus({ ...statusOption });
-    setShowStatusDialog(true);
-  };
-
-  const deleteStatus = (statusId: string) => {
-    if (!template) return;
-    // Check if this is the only status or the default status
-    const isDefault = template.statusOptions.find(
-      (s) => s._id === statusId
-    )?.isDefault;
-    if (template.statusOptions.length <= 1) {
-      toast.error("Templates must have at least one status option");
-      return;
-    }
-
-    const updatedStatusOptions = template.statusOptions.filter(
-      (s) => s._id !== statusId
-    );
-
-    // If the deleted status was the default, set a new default
-    if (isDefault && updatedStatusOptions.length > 0) {
-      updatedStatusOptions[0].isDefault = true;
-    }
-
-    setTemplate({
-      ...template,
-      statusOptions: updatedStatusOptions,
-    });
-
-    toast.success("The status option has been removed");
-
-    setStatusToDelete(null);
-  };
-
-  const saveStatus = () => {
-    if (!template || !selectedStatus) return;
-
-    // Validate status
-    if (!selectedStatus.name?.trim() || !selectedStatus.label?.trim()) {
-      toast("Status name and label are required");
-      return;
-    }
-
-    // Format status name (no spaces, lowercase)
-    selectedStatus.name = selectedStatus.name.replace(/\s+/g, "").toLowerCase();
-
-    const existingStatusIndex = template.statusOptions.findIndex(
-      (s) => s._id === selectedStatus._id
-    );
-    let updatedStatusOptions = [...template.statusOptions];
-
-    if (existingStatusIndex >= 0) {
-      // Update existing status
-      const wasDefault = updatedStatusOptions[existingStatusIndex].isDefault;
-      updatedStatusOptions[existingStatusIndex] = selectedStatus;
-
-      // If this was default but is no longer, set another as default
-      if (
-        wasDefault &&
-        !selectedStatus.isDefault &&
-        updatedStatusOptions.length > 0
-      ) {
-        updatedStatusOptions[0].isDefault = true;
-      }
-    } else {
-      // Add new status
-      updatedStatusOptions.push(selectedStatus);
-    }
-
-    // If this is set as default, unset any other defaults
-    if (selectedStatus.isDefault) {
-      updatedStatusOptions = updatedStatusOptions.map((status) => ({
-        ...status,
-        isDefault: status._id === selectedStatus._id,
-      }));
-    } else if (!updatedStatusOptions.some((s) => s.isDefault)) {
-      // Ensure we always have a default
-      updatedStatusOptions[0].isDefault = true;
-    }
-
-    setTemplate({
-      ...template,
-      statusOptions: updatedStatusOptions,
-    });
-
-    setShowStatusDialog(false);
-    setSelectedStatus(null);
-  };
-
   // Early return for error state
   if (error) {
     return <ErrorComp message={error} />;
@@ -723,37 +561,37 @@ export default function TemplateDetailPage() {
             <Button
               variant="ghost"
               onClick={handleBack}
-              className="mb-2 pl-0 text-green-700 dark:text-green-400 hover:text-green-800 hover:bg-transparent dark:hover:text-green-300"
+              className="mb-2 px-0 text-green-700 dark:text-green-400 hover:text-green-800 hover:bg-transparent dark:hover:text-green-300"
             >
-              <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              Back to Templates
+              <ArrowLeftIcon className="mx-2 h-4 w-4" />
+              {t("backToTemplates")}
             </Button>
             <h1 className="text-3xl font-bold text-green-800 dark:text-green-300">
-              {isNew ? "Create New Template" : template.name}
+              {isNew ? t("createNewTemplate") : template.name}
             </h1>
             <p className="text-green-600 dark:text-green-400">
               {isNew
-                ? "Define template structure and fields"
+                ? t("defineTemplateStructure")
                 : isViewMode
-                ? "View template details"
-                : "Edit template structure and fields"}
+                ? t("viewTemplateDetails")
+                : t("editTemplateStructure")}
             </p>
           </div>
           <div className="flex gap-2">
-            {!isNew && (
+            {!isNew && canEdit() && (
               <Button
                 className="bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300"
                 onClick={toggleEditMode}
               >
                 {isViewMode ? (
                   <>
-                    <PencilIcon className="mr-2 h-4 w-4" />
-                    Edit Template
+                    <PencilIcon className="mx-2 h-4 w-4" />
+                    {t("editTemplate")}
                   </>
                 ) : (
                   <>
-                    <EyeIcon className="mr-2 h-4 w-4" />
-                    View Only
+                    <EyeIcon className="mx-2 h-4 w-4" />
+                    {t("viewOnly")}
                   </>
                 )}
               </Button>
@@ -766,13 +604,13 @@ export default function TemplateDetailPage() {
               >
                 {isSaving ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                    Saving...
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mx-2"></div>
+                    {t("saving")}
                   </div>
                 ) : (
                   <>
-                    <SaveIcon className="mr-2 h-4 w-4" />
-                    Save Template
+                    <SaveIcon className="mx-2 h-4 w-4" />
+                    {t("saveTemplate")}
                   </>
                 )}
               </Button>
@@ -787,22 +625,21 @@ export default function TemplateDetailPage() {
             template={template}
             isViewMode={isViewMode}
             updateTemplateField={updateTemplateField}
+            userRole={user?.role}
           />
 
-          {/* Tabs for Sections and Status Options */}
-          <Tabs defaultValue="sections" className="w-full">
+          {/* Tabs for Sections */}
+          <Tabs
+            defaultValue="sections"
+            className="w-full"
+            dir={dir as "ltr" | "rtl"}
+          >
             <TabsList className="bg-green-50 dark:bg-slate-800 border border-green-100 dark:border-green-900 mb-4">
               <TabsTrigger
                 value="sections"
                 className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
               >
-                Sections & Fields
-              </TabsTrigger>
-              <TabsTrigger
-                value="status"
-                className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
-              >
-                Status Options
+                {t("sectionsAndFields")}
               </TabsTrigger>
             </TabsList>
 
@@ -819,17 +656,6 @@ export default function TemplateDetailPage() {
                 onDeleteField={deleteField}
                 setSectionToDelete={setSectionToDelete}
                 setFieldToDelete={setFieldToDelete}
-              />
-            </TabsContent>
-
-            {/* Status Options Tab */}
-            <TabsContent value="status" className="mt-0">
-              <StatusOptions
-                template={template}
-                isViewMode={isViewMode}
-                onAddStatus={addStatus}
-                onEditStatus={editStatus}
-                setStatusToDelete={setStatusToDelete}
               />
             </TabsContent>
           </Tabs>
@@ -853,14 +679,6 @@ export default function TemplateDetailPage() {
         onSave={saveField}
       />
 
-      <StatusDialog
-        open={showStatusDialog}
-        onOpenChange={setShowStatusDialog}
-        selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-        onSave={saveStatus}
-      />
-
       {/* Delete Alerts */}
       <DeleteAlerts
         sectionToDelete={sectionToDelete}
@@ -869,9 +687,6 @@ export default function TemplateDetailPage() {
         fieldToDelete={fieldToDelete}
         setFieldToDelete={setFieldToDelete}
         onDeleteField={deleteField}
-        statusToDelete={statusToDelete}
-        setStatusToDelete={setStatusToDelete}
-        onDeleteStatus={deleteStatus}
       />
     </div>
   );

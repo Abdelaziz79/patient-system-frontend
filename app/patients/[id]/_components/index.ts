@@ -1,11 +1,28 @@
-export * from "./FooterActions";
-export * from "./PatientActions";
-export * from "./PatientInfoCard";
-export * from "./PatientLoader";
 export * from "./PatientTabs";
 export * from "./ReportDialog";
-export * from "./ShareDialog";
+export * from "./FooterActions";
+export * from "./PatientLoader";
+export * from "./PatientActions";
+export * from "./PatientInfoCard";
+export * from "./PatientStatusSection";
 export * from "./TagsSection";
-export * from "./types";
-export * from "./VisitDialog";
+export * from "./PatientEventsSection";
+export * from "./ShareDialog";
 export * from "./TreatmentSuggestions";
+
+export type {
+  PatientPageProps,
+  PatientActionsProps,
+  PatientInfoCardProps,
+  PatientLoaderProps,
+  PatientTabsProps,
+  FooterActionsProps,
+  TagsSectionProps,
+  PatientStatusSectionProps,
+  VisitListItemProps,
+} from "./types";
+
+export { VisitDialog } from "./VisitDialog";
+export type { VisitDialogProps } from "./VisitDialog";
+
+export { PatientInfoTab, StatusTab, TreatmentTab, VisitsTab } from "./tabs";

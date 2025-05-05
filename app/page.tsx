@@ -11,14 +11,7 @@ function Page() {
   if (!isAuthenticated) {
     return <ErrorComp message="You are not authenticated. Please log in." />;
   }
-  return (
-    <div>
-      <PatientDashboardPage />
-    </div>
-  );
+  return <PatientDashboardPage />;
 }
 
 export default Page;
-
-// TODO : add multi gemini api key support to backend
-// TODO : fix private and public templates

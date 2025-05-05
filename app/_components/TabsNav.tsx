@@ -30,7 +30,7 @@ const TabsNav = ({
         >
           <div className="flex items-center justify-center w-full">
             {icons && icons[tab.value] && (
-              <span className="mr-1 md:mr-2 flex-shrink-0">
+              <span className="mx-1 md:mx-2 flex-shrink-0">
                 {icons[tab.value]}
               </span>
             )}

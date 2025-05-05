@@ -1,5 +1,5 @@
 import React from "react";
-import UsersStatsPage from "../_components/management/UsersStatsPage";
+import UsersStatsPage from "./users/_components/UsersStatsPage";
 
 function page() {
   return <UsersStatsPage />;

@@ -20,7 +20,7 @@ export function ReportDialog({
   isGeneratingReport,
 }: ReportDialogProps) {
   return (
-    <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+    <Dialog open={true} onOpenChange={setIsReportDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Generate Medical Report</DialogTitle>
@@ -43,7 +43,7 @@ export function ReportDialog({
               }
             />
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-x-2">
             <input
               type="checkbox"
               id="include-visits"
@@ -58,7 +58,7 @@ export function ReportDialog({
             />
             <Label htmlFor="include-visits">Include Visit History</Label>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-x-2">
             <input
               type="checkbox"
               id="include-history"

@@ -55,7 +55,7 @@ export default function TimePicker({ time, setTime }: TimePickerProps) {
             !time && "text-muted-foreground"
           )}
         >
-          <Clock className="mr-2 h-4 w-4" />
+          <Clock className="mx-2 h-4 w-4" />
           {timeString}
         </Button>
       </PopoverTrigger>

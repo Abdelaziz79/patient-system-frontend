@@ -1,4 +1,5 @@
-import { usePatient } from "@/app/_hooks/usePatient";
+import { usePatient } from "@/app/_hooks/patient/usePatient";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { IPatient } from "@/app/_types/Patient";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ interface TagsSectionProps {
 }
 
 export function TagsSection({ patient }: TagsSectionProps) {
+  const { t } = useLanguage();
   const [newTag, setNewTag] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   // Maintain our own tags state to ensure immediate UI updates
@@ -42,7 +44,7 @@ export function TagsSection({ patient }: TagsSectionProps) {
 
     // Check if tag already exists
     if (tags.includes(tagToAdd)) {
-      toast.error("This tag already exists");
+      toast.error(t("tagAlreadyExists"));
       return;
     }
 
@@ -56,14 +58,14 @@ export function TagsSection({ patient }: TagsSectionProps) {
       if (!result.success) {
         // Revert on failure
         setTags((prevTags) => prevTags.filter((t) => t !== tagToAdd));
-        toast.error(result.error || "Failed to add tag");
+        toast.error(result.error || t("failedToAddTag"));
       } else {
-        toast.success(`Tag "${tagToAdd}" added successfully`);
+        toast.success(t("tagAddedSuccess").replace("{{tag}}", tagToAdd));
       }
     } catch (error) {
       // Revert on error
       setTags((prevTags) => prevTags.filter((t) => t !== tagToAdd));
-      toast.error("An unexpected error occurred");
+      toast.error(t("unexpectedError"));
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -82,14 +84,14 @@ export function TagsSection({ patient }: TagsSectionProps) {
       if (!result.success) {
         // Revert on failure
         setTags((prevTags) => [...prevTags, tag]);
-        toast.error(result.error || "Failed to remove tag");
+        toast.error(result.error || t("failedToRemoveTag"));
       } else {
-        toast.success(`Tag "${tag}" removed successfully`);
+        toast.success(t("tagRemovedSuccess").replace("{{tag}}", tag));
       }
     } catch (error) {
       // Revert on error
       setTags((prevTags) => [...prevTags, tag]);
-      toast.error("An unexpected error occurred");
+      toast.error(t("unexpectedError"));
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -104,11 +106,11 @@ export function TagsSection({ patient }: TagsSectionProps) {
   };
 
   return (
-    <Card className="mt-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-green-100 dark:border-slate-800 shadow-xl transition-all duration-200">
+    <Card className="mt-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-indigo-100 dark:border-slate-800 shadow-xl transition-all duration-200">
       <CardHeader className="py-4">
-        <CardTitle className="text-lg text-green-800 dark:text-slate-300 flex items-center gap-2">
-          <Tag className="h-5 w-5 text-green-600 dark:text-slate-400" />
-          Tags
+        <CardTitle className="text-lg text-indigo-800 dark:text-slate-300 flex items-center gap-2">
+          <Tag className="h-5 w-5 text-indigo-600 dark:text-slate-400" />
+          {t("tags")}
         </CardTitle>
       </CardHeader>
 
@@ -119,7 +121,7 @@ export function TagsSection({ patient }: TagsSectionProps) {
               <Badge
                 key={`${tag}-${index}`}
                 variant="secondary"
-                className="px-3 py-1.5 pr-1 flex items-center gap-1 bg-green-50 dark:bg-slate-800 text-green-800 dark:text-slate-200 hover:bg-green-100 dark:hover:bg-slate-700 transition-colors duration-200 border border-green-200 dark:border-slate-700"
+                className="px-3 py-1.5 px-1 flex items-center gap-1 bg-indigo-50 dark:bg-slate-800 text-indigo-800 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-slate-700 transition-colors duration-200 border border-indigo-200 dark:border-slate-700"
               >
                 {tag}
                 <TooltipProvider>
@@ -135,8 +137,8 @@ export function TagsSection({ patient }: TagsSectionProps) {
                         <X className="h-3 w-3" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent className="bg-white dark:bg-slate-800 border-green-200 dark:border-slate-700">
-                      <p>Remove tag</p>
+                    <TooltipContent className="bg-white dark:bg-slate-800 border-indigo-200 dark:border-slate-700">
+                      <p>{t("removeTag")}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -144,18 +146,18 @@ export function TagsSection({ patient }: TagsSectionProps) {
             ))
           ) : (
             <div className="text-gray-500 dark:text-slate-400 italic p-2">
-              No tags added yet
+              {t("noTagsYet")}
             </div>
           )}
         </div>
 
         <div className="flex gap-2">
           <Input
-            placeholder="Add a new tag..."
+            placeholder={t("addNewTagPlaceholder")}
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="max-w-sm bg-white dark:bg-slate-800 border-green-200 dark:border-slate-700 focus-visible:ring-green-500 dark:focus-visible:ring-slate-500"
+            className="max-w-sm bg-white dark:bg-slate-800 border-indigo-200 dark:border-slate-700 focus-visible:ring-indigo-500 dark:focus-visible:ring-slate-500"
             disabled={isLoading}
           />
           <Button
@@ -165,14 +167,14 @@ export function TagsSection({ patient }: TagsSectionProps) {
             disabled={
               isAddingTag || !newTag.trim() || !patient?.id || isLoading
             }
-            className="flex items-center gap-1 bg-green-50 dark:bg-slate-800 text-green-800 dark:text-slate-200 hover:bg-green-100 dark:hover:bg-slate-700 border-green-200 dark:border-slate-700 transition-all duration-200"
+            className="flex items-center gap-1 bg-indigo-50 dark:bg-slate-800 text-indigo-800 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-slate-700 border-indigo-200 dark:border-slate-700 transition-all duration-200"
           >
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-green-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-indigo-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin" />
             ) : (
               <Plus className="h-4 w-4" />
             )}
-            Add
+            {t("add")}
           </Button>
         </div>
       </CardContent>

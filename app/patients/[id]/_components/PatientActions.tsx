@@ -1,45 +1,52 @@
-import LoadingInsights from "@/app/_components/ai/LoadingInsights";
-import { useAI } from "@/app/_hooks/useAI";
+import LoadingInsights from "@/app/_components/LoadingInsights";
+import { useAI } from "@/app/_hooks/AI/useAI";
+import { useExport } from "@/app/_hooks/export/useExport";
+import { useReport } from "@/app/_hooks/report/useReport";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   ArrowLeft,
-  Download,
   Edit,
-  File,
+  FileDown,
   FileSpreadsheet,
   FileText,
+  FileType,
+  MoreVertical,
   Printer,
-  Share2,
   Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { PatientActionsProps } from "./types";
+import ReactMarkdown from "react-markdown";
 
 export function PatientActions({
   patient,
-  isExportingToPdf,
-  isExportingToCsv,
-  isGeneratingReport,
-  handleExportToPdf,
-  handleExportToCsv,
   handleGoBack,
   handleEditPatient,
   handlePrintPatient,
-  setIsShareDialogOpen,
-  setIsReportDialogOpen,
 }: PatientActionsProps) {
+  const { t } = useLanguage();
   const { getPatientInsights, isLoadingInsights } = useAI();
+  const { exportPatient, exportPatientToPDF, patientExportLoading } =
+    useExport();
+  const { generatePatientAIReport, createReport } = useReport();
 
   const [insights, setInsights] = useState<string | null>(null);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [isSavingReport, setIsSavingReport] = useState(false);
+  const [aiReport, setAiReport] = useState<string | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
 
   const handleGenerateInsights = async () => {
     try {
@@ -47,105 +54,209 @@ export function PatientActions({
       const result = await getPatientInsights(patient?.id || "");
       if (result.success) {
         setInsights(result.data.insights);
-        toast.success("Insights generated successfully");
+        toast.success(t("insightsGeneratedSuccess"));
       } else {
         // Handle error
         toast.error(result.message);
         console.error(result.message);
       }
     } catch (error) {
-      toast.error("Failed to generate insights");
+      toast.error(t("failedToGenerateInsights"));
       console.error(error);
     } finally {
       setIsGeneratingInsights(false);
     }
   };
 
+  const handleGenerateAIReport = async () => {
+    if (!patient?.id) {
+      toast.error(t("patientIdRequired"));
+      return;
+    }
+
+    try {
+      setIsGeneratingReport(true);
+      const result = await generatePatientAIReport(patient.id);
+      console.log(result);
+
+      if (result.success) {
+        setAiReport(result.data?.aiAnalysis || t("noAnalysisAvailable"));
+        setReportData(result.data);
+        toast.success(t("aiReportGeneratedSuccess"));
+      } else {
+        toast.error(result.error || t("failedToGenerateAIReport"));
+      }
+    } catch (error) {
+      toast.error(t("errorGeneratingAIReport"));
+      console.error(error);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handleSaveReport = async () => {
+    if (!reportData || !patient?.id) {
+      toast.error(t("noReportDataToSave"));
+      return;
+    }
+
+    try {
+      setIsSavingReport(true);
+
+      // Prepare report data for saving according to backend model structure
+      const reportToSave = {
+        name: `${t("medicalAssessmentFor")} ${
+          (patient as any).name || t("patient")
+        }`,
+        description: reportData.aiAnalysis,
+        type: "patient" as "patient" | "visit" | "status" | "custom" | "event",
+        filters: [],
+        charts: [],
+        includeFields: [],
+        isPrivate: false,
+        // The createdBy field will be set on the server based on the authenticated user
+        lastGeneratedAt: new Date(reportData.generatedAt || new Date()),
+      };
+
+      const result = await createReport(reportToSave);
+
+      if (result.success) {
+        toast.success(t("reportSavedSuccess"));
+        // Close the report display after saving
+        setAiReport(null);
+        setReportData(null);
+      } else {
+        toast.error(result.error || t("failedToSaveReport"));
+      }
+    } catch (error) {
+      toast.error(t("errorSavingReport"));
+      console.error(error);
+    } finally {
+      setIsSavingReport(false);
+    }
+  };
+
+  const handleExport = async (format: string) => {
+    if (!patient?.id) {
+      toast.error(t("patientIdRequired"));
+      return;
+    }
+
+    try {
+      if (format === "pdf") {
+        await exportPatientToPDF(patient.id);
+      } else {
+        await exportPatient(patient.id, format as any);
+      }
+      toast.success(
+        t("patientDataExportedAs").replace("{{format}}", format.toUpperCase())
+      );
+    } catch (error) {
+      toast.error(
+        t("failedToExportAs").replace("{{format}}", format.toUpperCase())
+      );
+      console.error(error);
+    }
+  };
+
   return (
-    <div className="mb-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-            onClick={handleGoBack}
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Button>
-          <h1 className="text-2xl font-bold text-green-800 dark:text-green-300">
-            Patient Details
-          </h1>
-        </div>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Download className="h-4 w-4" /> Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={handleExportToPdf}
-                disabled={isExportingToPdf}
-              >
-                <File className="h-4 w-4 mr-2" />
-                {isExportingToPdf ? "Exporting..." : "Export to PDF"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleExportToCsv}
-                disabled={isExportingToCsv}
-              >
-                <FileSpreadsheet className="h-4 w-4 mr-2" />
-                {isExportingToCsv ? "Exporting..." : "Export to CSV"}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setIsReportDialogOpen(true)}
-                disabled={isGeneratingReport}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                {isGeneratingReport
-                  ? "Generating..."
-                  : "Generate Medical Report"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="mb-6">
+      <div className="p-4 rounded-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-md mb-6 border border-indigo-100 dark:border-indigo-900">
+        <div className=" flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+              onClick={handleGoBack}
+            >
+              <ArrowLeft className="h-4 w-4" /> {t("back")}
+            </Button>
+            <h1 className="text-2xl font-bold text-indigo-800 dark:text-indigo-300">
+              {t("patientDetails")}
+            </h1>
+          </div>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={handlePrintPatient}
-          >
-            <Printer className="h-4 w-4" /> Print
-          </Button>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={handlePrintPatient}
+            >
+              <Printer className="h-4 w-4" /> {t("print")}
+            </Button>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => setIsShareDialogOpen(true)}
-          >
-            <Share2 className="h-4 w-4" /> Share
-          </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+              onClick={handleGenerateInsights}
+              disabled={isGeneratingInsights || isLoadingInsights}
+            >
+              <Sparkles className="h-4 w-4" />
+              {isGeneratingInsights || isLoadingInsights
+                ? t("processing")
+                : t("aiInsights")}
+            </Button>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={handleGenerateInsights}
-            disabled={isGeneratingInsights || isLoadingInsights}
-          >
-            <Sparkles className="h-4 w-4" />
-            {isGeneratingInsights || isLoadingInsights
-              ? "Processing..."
-              : "AI Insights"}
-          </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
+              onClick={handleGenerateAIReport}
+              disabled={isGeneratingReport}
+            >
+              <Sparkles className="h-4 w-4" />
+              {isGeneratingReport ? t("generating") : t("aiReport")}
+            </Button>
 
-          <Button
-            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
-            onClick={handleEditPatient}
-          >
-            <Edit className="h-4 w-4 mr-2" /> Edit
-          </Button>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white shadow-sm"
+              onClick={handleEditPatient}
+            >
+              <Edit className="h-4 w-4 mx-2" /> {t("edit")}
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  disabled={patientExportLoading}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>{t("patientActions")}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("exportAs")}
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => handleExport("excel")}
+                    disabled={patientExportLoading}
+                  >
+                    <FileSpreadsheet className="mx-2 h-4 w-4" />
+                    <span>{t("excelFormat")}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExport("csv")}
+                    disabled={patientExportLoading}
+                  >
+                    <FileText className="mx-2 h-4 w-4" />
+                    <span>{t("csvFormat")}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExport("pdf")}
+                    disabled={patientExportLoading}
+                  >
+                    <FileType className="mx-2 h-4 w-4" />
+                    <span>{t("pdfFormat")}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
@@ -153,10 +264,71 @@ export function PatientActions({
         isLoading={isLoadingInsights}
         isGenerating={isGeneratingInsights}
         insights={insights}
-        title="AI Analysis & Insights"
-        loadingText="Analyzing patient data..."
-        loadingSubtext="This may take a moment"
+        title={t("aiAnalysisAndInsights")}
+        loadingText={t("analyzingPatientData")}
+        loadingSubtext={t("thisMayTakeAMoment")}
       />
+
+      {(isGeneratingReport || aiReport) && (
+        <div className="mb-6 p-4 rounded-lg border border-purple-200 dark:border-purple-800 bg-white/90 dark:bg-slate-800/90 shadow-md">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              {t("medicalAssessmentReport")}
+              {reportData?.generatedAt && (
+                <span className="text-xs text-purple-600 dark:text-purple-400 font-normal mx-2">
+                  {t("generated")}:{" "}
+                  {new Date(reportData.generatedAt).toLocaleDateString()}
+                </span>
+              )}
+            </h3>
+
+            {!isGeneratingReport && aiReport && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+                  onClick={() => {
+                    setAiReport(null);
+                    setReportData(null);
+                  }}
+                >
+                  {t("dismiss")}
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={handleSaveReport}
+                  disabled={isSavingReport}
+                >
+                  {isSavingReport ? t("saving") : t("saveReport")}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {isGeneratingReport ? (
+            <div className="flex flex-col items-center justify-center p-6 text-center">
+              <div className="relative w-16 h-16 mb-4">
+                <div className="absolute inset-0 border-t-2 border-r-2 border-purple-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-3 border-t-2 border-l-2 border-indigo-300 rounded-full animate-spin-slow"></div>
+                <Sparkles className="absolute inset-0 m-auto h-6 w-6 text-purple-500 animate-pulse" />
+              </div>
+              <p className="text-purple-700 dark:text-purple-300 font-medium">
+                {t("generatingComprehensiveReport")}
+              </p>
+              <p className="text-purple-500 dark:text-purple-400 text-sm mt-1">
+                {t("analyzingMedicalHistory")}
+              </p>
+            </div>
+          ) : (
+            <div className="prose prose-sm dark:prose-invert max-w-full mt-2 overflow-auto max-h-[600px] p-4 bg-purple-50 dark:bg-purple-900/20 rounded-md border border-purple-100 dark:border-purple-800/50">
+              {aiReport && <ReactMarkdown>{aiReport}</ReactMarkdown>}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

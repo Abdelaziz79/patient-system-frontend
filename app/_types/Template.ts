@@ -1,15 +1,7 @@
 // Define template interface based on your model
-export interface PatientStatusOption {
-  _id?: string;
-  name: string;
-  label: string;
-  color: string;
-  description?: string;
-  isDefault: boolean;
-}
-
 export interface Field {
   _id?: string;
+  id?: string;
   name: string;
   label: string;
   type: string;
@@ -22,6 +14,7 @@ export interface Field {
 
 export interface Section {
   _id?: string;
+  id?: string;
   name: string;
   label: string;
   description?: string;
@@ -29,15 +22,35 @@ export interface Section {
   order: number;
 }
 
+// This interface is kept for backward compatibility
+// It's now managed globally instead of per template
+export interface PatientStatusOption {
+  _id?: string;
+  id?: string;
+  name: string;
+  label: string;
+  color: string;
+  description?: string;
+  isDefault: boolean;
+}
+
+// User type for template creator
+export interface TemplateCreator {
+  id?: string;
+  _id?: string;
+  name: string;
+  email?: string;
+}
+
 export interface PatientTemplate {
-  id: string;
+  id?: string;
+  _id?: string;
   name: string;
   description?: string;
   sections: Section[];
-  statusOptions: PatientStatusOption[];
   isPrivate: boolean;
   isDefault: boolean;
-  createdBy: string;
+  createdBy: string | TemplateCreator;
   lastUpdatedBy?: string;
   createdAt: Date;
   updatedAt: Date;

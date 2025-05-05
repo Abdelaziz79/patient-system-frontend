@@ -1,13 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { ArrowLeftIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function NotFoundPage() {
+  const { t, dir } = useLanguage();
   return (
-    <div className="flex-1 flex items-center justify-center p-6">
+    <div
+      className="flex-1 flex items-center justify-center p-6"
+      dir={dir as "ltr" | "rtl"}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -98,7 +103,7 @@ export default function NotFoundPage() {
           transition={{ delay: 0.5 }}
           className="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-white"
         >
-          Page Not Found
+          {t("pageNotFound")}
         </motion.h1>
 
         <motion.p
@@ -107,8 +112,7 @@ export default function NotFoundPage() {
           transition={{ delay: 0.7 }}
           className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-lg mx-auto"
         >
-          Sorry, the page you are looking for doesn&apos;t exist, has been
-          moved, or deleted.
+          {t("pageNotFoundDescription")}
         </motion.p>
 
         <motion.div
@@ -120,7 +124,7 @@ export default function NotFoundPage() {
           <Link href="/" passHref>
             <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white flex items-center gap-2 px-6">
               <HomeIcon className="h-4 w-4" />
-              <span>Return to Home</span>
+              <span>{t("returnToHome")}</span>
             </Button>
           </Link>
 
@@ -130,7 +134,7 @@ export default function NotFoundPage() {
             onClick={() => window.history.back()}
           >
             <ArrowLeftIcon className="h-4 w-4" />
-            <span>Go Back</span>
+            <span>{t("goBack")}</span>
           </Button>
         </motion.div>
       </motion.div>

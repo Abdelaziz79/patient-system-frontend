@@ -17,7 +17,11 @@ export interface User {
   profileImage?: string;
   specialization?: string;
   contactNumber?: string;
-  createdBy?: string;
+  createdBy?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   adminId?: string;
   subscription?: ISubscription;
   createdAt?: string;

@@ -1,25 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useReport } from "@/app/_hooks/useReport";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { usePatient } from "@/app/_hooks/patient/usePatient";
+import {
+  IReport,
+  IReportChart,
+  IReportField,
+  IReportFilter,
+} from "@/app/_hooks/report/reportApi";
+import { useReport } from "@/app/_hooks/report/useReport";
+import { IPatient } from "@/app/_types/Patient";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  BarChart4,
-  PieChart,
-  Table2,
-  LineChart,
-  ListFilter,
-  ChevronRight,
-  Plus,
-  Trash2,
-  Save,
-  RotateCcw,
-  Eye,
-} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,874 +28,590 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { IReport, IReportChart, IReportFilter } from "@/app/_api/reportApi";
-import { Spinner } from "@/app/_components/Spinner";
+import { motion } from "framer-motion";
+import { ChevronDown, FileBarChart, Loader2, Save, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface ReportBuilderProps {
-  onReportCreated: () => void;
-  existingReport?: IReport;
+  onReportCreated: (report?: IReport) => void;
+  reportFields?: IReportField[];
+  isFieldsLoading?: boolean;
+  onGenerateCustomReport?: (reportConfig: {
+    type?: "patient" | "visit" | "status" | "custom" | "event";
+    filters?: IReportFilter[];
+    charts?: IReportChart[];
+    includeFields?: string[];
+  }) => Promise<any>;
+  patients?: IPatient[];
+  isPatientsLoading?: boolean;
+  createReportFn?: (
+    reportData: Partial<IReport>
+  ) => Promise<{ success: boolean; data?: IReport; error?: string }>;
 }
 
 export default function ReportBuilder({
   onReportCreated,
-  existingReport,
+  reportFields: propReportFields,
+  isFieldsLoading: propIsFieldsLoading,
+  onGenerateCustomReport,
+  patients: propPatients,
+  isPatientsLoading: propIsPatientsLoading,
+  createReportFn: propCreateReport,
 }: ReportBuilderProps) {
-  const {
-    reportFields,
-    isFieldsLoading,
-    refetchFields,
-    createReport,
-    updateReport,
-    generateCustomReport,
-  } = useReport();
-  const [activeTab, setActiveTab] = useState("info");
-  const [isLoading, setIsLoading] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const { t, isRTL } = useLanguage();
 
-  const [reportData, setReportData] = useState<Partial<IReport>>({
+  // Extract only the specific methods needed from hooks
+  const {
+    createReport: hookCreateReport,
+    isCreating,
+    refetchFields,
+  } = useReport({
+    initialFetch: false,
+  });
+
+  const {
+    patients: hookPatients,
+    isLoading: hookIsLoading,
+    stats,
+    refetchStats,
+  } = usePatient({
+    initialFetch: !propPatients,
+    initialLimit: 5, // Just need a small sample for preview
+  });
+
+  // Use props if provided, otherwise use hooks
+  const createReport = propCreateReport || hookCreateReport;
+  const reportFields = propReportFields || [];
+  const isFieldsLoading =
+    propIsFieldsLoading !== undefined ? propIsFieldsLoading : false;
+  const patients = propPatients || hookPatients;
+  const isPatientsLoading =
+    propIsPatientsLoading !== undefined ? propIsPatientsLoading : hookIsLoading;
+
+  const [reportForm, setReportForm] = useState<Partial<IReport>>({
     name: "",
     description: "",
-    type: "patient",
+    type: "patient", // Default type
     filters: [],
     charts: [],
     includeFields: [],
     isPrivate: false,
   });
 
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Load stats on component mount
   useEffect(() => {
-    // Fetch report fields if not loaded
-    if (!reportFields) {
-      refetchFields();
+    if (!stats) {
+      refetchStats();
     }
+  }, [stats, refetchStats]);
 
-    // If editing existing report, populate the form
-    if (existingReport) {
-      setReportData({
-        ...existingReport,
-      });
-    }
-  }, [reportFields, refetchFields, existingReport]);
-
-  const handleInputChange = (field: string, value: any) => {
-    setReportData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const addFilter = () => {
-    setReportData((prev) => ({
+  const updateForm = (field: keyof IReport, value: any) => {
+    setReportForm((prev) => ({
       ...prev,
-      filters: [
-        ...(prev.filters || []),
-        {
-          field: "",
-          operator: "equals",
-          value: "",
-          fieldType: "text",
-        },
-      ],
+      [field]: value,
     }));
   };
 
-  const updateFilter = (index: number, field: string, value: any) => {
-    setReportData((prev) => {
-      const updatedFilters = [...(prev.filters || [])];
-      updatedFilters[index] = { ...updatedFilters[index], [field]: value };
+  // Add a patient field filter
+  const addFilter = (
+    fieldName: string,
+    operator:
+      | "equals"
+      | "notEquals"
+      | "contains"
+      | "greaterThan"
+      | "lessThan"
+      | "between"
+      | "in",
+    value: any,
+    fieldType:
+      | "text"
+      | "number"
+      | "date"
+      | "boolean"
+      | "status"
+      | "tag"
+      | "template"
+      | "visit" = "text"
+  ) => {
+    setReportForm((prev) => {
+      const newFilters = [...(prev.filters || [])];
+      // Check if filter for this field already exists
+      const existingIndex = newFilters.findIndex((f) => f.field === fieldName);
 
-      // If field is changed, update the fieldType automatically
-      if (field === "field" && reportFields) {
-        const selectedField = reportFields.find(
-          (f: { name: string }) => f.name === value
-        );
-        if (selectedField) {
-          updatedFilters[index].fieldType = selectedField.type;
-        }
-      }
+      const newFilter: IReportFilter = {
+        field: fieldName,
+        operator,
+        value,
+        fieldType,
+      };
 
-      return { ...prev, filters: updatedFilters };
-    });
-  };
-
-  const removeFilter = (index: number) => {
-    setReportData((prev) => {
-      const updatedFilters = [...(prev.filters || [])];
-      updatedFilters.splice(index, 1);
-      return { ...prev, filters: updatedFilters };
-    });
-  };
-
-  const addChart = (type: string) => {
-    setReportData((prev) => ({
-      ...prev,
-      charts: [
-        ...(prev.charts || []),
-        {
-          type,
-          title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
-          dataField: "",
-        },
-      ],
-    }));
-  };
-
-  const updateChart = (index: number, field: string, value: any) => {
-    setReportData((prev) => {
-      const updatedCharts = [...(prev.charts || [])];
-      updatedCharts[index] = { ...updatedCharts[index], [field]: value };
-      return { ...prev, charts: updatedCharts };
-    });
-  };
-
-  const removeChart = (index: number) => {
-    setReportData((prev) => {
-      const updatedCharts = [...(prev.charts || [])];
-      updatedCharts.splice(index, 1);
-      return { ...prev, charts: updatedCharts };
-    });
-  };
-
-  const toggleIncludeField = (fieldName: string) => {
-    setReportData((prev) => {
-      const currentFields = prev.includeFields || [];
-      const updatedFields = currentFields.includes(fieldName)
-        ? currentFields.filter((f) => f !== fieldName)
-        : [...currentFields, fieldName];
-      return { ...prev, includeFields: updatedFields };
-    });
-  };
-
-  const handlePreview = async () => {
-    setIsLoading(true);
-    try {
-      const result = await generateCustomReport({
-        type: reportData.type,
-        filters: reportData.filters,
-        charts: reportData.charts,
-        includeFields: reportData.includeFields,
-      });
-      setPreviewData(result);
-      setShowPreview(true);
-    } catch (error) {
-      console.error("Error generating preview:", error);
-      alert(
-        "Failed to generate preview. Please check your report configuration."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!reportData.name) {
-      alert("Please enter a report name");
-      return;
-    }
-
-    if (!reportData.type) {
-      alert("Please select a report type");
-      return;
-    }
-
-    if (!reportData.includeFields || reportData.includeFields.length === 0) {
-      alert("Please select at least one field to include in the report");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      let result;
-      if (existingReport?.id) {
-        result = await updateReport(existingReport.id, reportData);
+      if (existingIndex >= 0) {
+        // Update existing filter
+        newFilters[existingIndex] = newFilter;
       } else {
-        result = await createReport(reportData);
+        // Add new filter
+        newFilters.push(newFilter);
       }
+
+      return {
+        ...prev,
+        filters: newFilters,
+      };
+    });
+  };
+
+  // Toggle a field in includeFields
+  const toggleField = (fieldName: string) => {
+    setReportForm((prev) => {
+      const fields = [...(prev.includeFields || [])];
+      if (fields.includes(fieldName)) {
+        return {
+          ...prev,
+          includeFields: fields.filter((f) => f !== fieldName),
+        };
+      } else {
+        return {
+          ...prev,
+          includeFields: [...fields, fieldName],
+        };
+      }
+    });
+  };
+
+  // Add a chart configuration
+  const addChart = (
+    type: "bar" | "line" | "pie" | "table" | "summary",
+    title: string,
+    dataField: string
+  ) => {
+    setReportForm((prev) => {
+      const newChart: IReportChart = {
+        type,
+        title,
+        dataField,
+      };
+
+      return {
+        ...prev,
+        charts: [...(prev.charts || []), newChart],
+      };
+    });
+  };
+
+  // Handle generating a custom report without saving it
+  const handleGeneratePreview = async () => {
+    if (!onGenerateCustomReport) return;
+
+    setIsGenerating(true);
+
+    try {
+      // Prepare report configuration
+      const reportConfig = {
+        type: reportForm.type,
+        filters: reportForm.filters,
+        charts: reportForm.charts?.length
+          ? reportForm.charts
+          : getDefaultCharts(reportForm.type),
+        includeFields: reportForm.includeFields,
+      };
+
+      await onGenerateCustomReport(reportConfig);
+
+      toast.success("Report preview generated successfully");
+    } catch (error) {
+      console.error("Error generating report preview:", error);
+      toast.error("Failed to generate report preview");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // If no charts are defined, add some default ones based on report type
+      const formData = { ...reportForm };
+
+      if (!formData.charts || formData.charts.length === 0) {
+        formData.charts = getDefaultCharts(formData.type);
+      }
+
+      const result = await createReport(formData);
 
       if (result.success) {
-        alert(`Report ${existingReport ? "updated" : "created"} successfully!`);
-        onReportCreated();
+        toast.success("Report created successfully");
+        onReportCreated(result.data);
       } else {
-        alert(
-          `Failed to ${existingReport ? "update" : "create"} report: ${
-            result.error
-          }`
-        );
+        toast.error(result.error || "Failed to create report");
       }
     } catch (error) {
-      console.error("Error saving report:", error);
-      alert(`Failed to ${existingReport ? "update" : "create"} report.`);
-    } finally {
-      setIsLoading(false);
+      console.error("Error creating report:", error);
+      toast.error("An error occurred while creating the report");
     }
   };
 
-  if (isFieldsLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
-    );
-  }
+  // Helper function to get default charts based on report type
+  const getDefaultCharts = (reportType?: string): IReportChart[] => {
+    switch (reportType) {
+      case "patient":
+        return [
+          { type: "pie", title: "Gender Distribution", dataField: "gender" },
+          {
+            type: "bar",
+            title: "Patients by Status",
+            dataField: "status.label",
+          },
+          {
+            type: "summary",
+            title: "Patient Summary",
+            dataField: "summary",
+          },
+        ];
+      case "visit":
+        return [
+          { type: "line", title: "Visit Trends", dataField: "createdAt" },
+          { type: "bar", title: "Visit Counts", dataField: "visits" },
+        ];
+      case "status":
+        return [
+          { type: "pie", title: "Status Distribution", dataField: "status" },
+          { type: "bar", title: "Status Timeline", dataField: "statusHistory" },
+        ];
+      case "event":
+        return [
+          { type: "bar", title: "Events by Type", dataField: "eventType" },
+          { type: "line", title: "Event Timeline", dataField: "eventTimeline" },
+        ];
+      default:
+        return [
+          {
+            type: "bar",
+            title: "Custom Report",
+            dataField: "data",
+          },
+        ];
+    }
+  };
 
-  const fieldsGroupedBySection = reportFields
-    ? reportFields.reduce((acc: any, field: any) => {
-        const section = field.templateName
-          ? field.templateName
-          : "Common Fields";
-        if (!acc[section]) {
-          acc[section] = [];
-        }
-        acc[section].push(field);
-        return acc;
-      }, {})
-    : {};
+  // Helper function to get report type labels
+  const getReportTypeLabel = (type: string) => {
+    switch (type) {
+      case "patient":
+        return "Patient Reports";
+      case "visit":
+        return "Visit Reports";
+      case "status":
+        return "Status Reports";
+      case "custom":
+        return "Custom Reports";
+      case "event":
+        return "Event Reports";
+      default:
+        return "Reports";
+    }
+  };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="info">Basic Info</TabsTrigger>
-          <TabsTrigger value="filters">Filters</TabsTrigger>
-          <TabsTrigger value="charts">Charts</TabsTrigger>
-          <TabsTrigger value="fields">Include Fields</TabsTrigger>
-          <TabsTrigger value="preview" disabled={isLoading}>
-            Preview
-          </TabsTrigger>
-        </TabsList>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      <div className="mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+        <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300">
+          {t("newReport")}
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          {t("reportsDescription")}
+        </p>
+      </div>
 
-        <TabsContent value="info">
-          <Card>
-            <CardHeader>
-              <CardTitle>Report Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Report Name *</Label>
-                  <Input
-                    id="name"
-                    value={reportData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder="Enter report name"
-                  />
-                </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="report-name">{t("name")}</Label>
+            <Input
+              id="report-name"
+              value={reportForm.name}
+              onChange={(e) => updateForm("name", e.target.value)}
+              placeholder={t("newReport")}
+              required
+              className="border-gray-200 dark:border-gray-700"
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={reportData.description || ""}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
-                    placeholder="Enter report description"
-                    rows={3}
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label htmlFor="report-type">{t("template")}</Label>
+            <Select
+              value={reportForm.type}
+              onValueChange={(
+                value: "patient" | "visit" | "status" | "custom" | "event"
+              ) => updateForm("type", value)}
+            >
+              <SelectTrigger
+                id="report-type"
+                className="border-gray-200 dark:border-gray-700"
+              >
+                <SelectValue placeholder={t("selectReport")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="patient">
+                  {getReportTypeLabel("patient")}
+                </SelectItem>
+                <SelectItem value="visit">
+                  {getReportTypeLabel("visit")}
+                </SelectItem>
+                <SelectItem value="status">
+                  {getReportTypeLabel("status")}
+                </SelectItem>
+                <SelectItem value="custom">
+                  {getReportTypeLabel("custom")}
+                </SelectItem>
+                <SelectItem value="event">
+                  {getReportTypeLabel("event")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="type">Report Type *</Label>
-                  <Select
-                    value={reportData.type}
-                    onValueChange={(value) => handleInputChange("type", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select report type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="patient">Patient Report</SelectItem>
-                      <SelectItem value="visit">Visit Report</SelectItem>
-                      <SelectItem value="status">Status Report</SelectItem>
-                      <SelectItem value="custom">Custom Report</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+        <div className="space-y-2">
+          <Label htmlFor="report-description">{t("description")}</Label>
+          <Textarea
+            id="report-description"
+            value={reportForm.description || ""}
+            onChange={(e) => updateForm("description", e.target.value)}
+            placeholder={t("noDescription")}
+            className="min-h-[100px] resize-y border-gray-200 dark:border-gray-700"
+          />
+        </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="isPrivate"
-                    checked={reportData.isPrivate}
-                    onCheckedChange={(checked) =>
-                      handleInputChange("isPrivate", checked === true)
-                    }
-                  />
-                  <Label htmlFor="isPrivate">
-                    Make this report private (only visible to you)
-                  </Label>
-                </div>
-              </div>
+        {/* Additional options toggled by Advanced button */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="mb-4 w-full justify-between"
+          >
+            {t("advanced")}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                showAdvanced ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
 
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={() => setActiveTab("filters")}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Next: Configure Filters
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {showAdvanced && (
+            <div className="space-y-4 mt-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="filters">
+                  <AccordionTrigger className="text-sm">
+                    {t("filters")}
+                    {reportForm.filters && reportForm.filters.length > 0 && (
+                      <Badge variant="outline" className="mx-2">
+                        {reportForm.filters.length}
+                      </Badge>
+                    )}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-1 gap-2">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="filter-active"
+                            checked={reportForm.filters?.some(
+                              (f) => f.field === "isActive" && f.value === true
+                            )}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                addFilter("isActive", "equals", true);
+                              } else {
+                                setReportForm((prev) => ({
+                                  ...prev,
+                                  filters:
+                                    prev.filters?.filter(
+                                      (f) => f.field !== "isActive"
+                                    ) || [],
+                                }));
+                              }
+                            }}
+                          />
+                          <Label htmlFor="filter-active">
+                            {t("activePatientsOnly")}
+                          </Label>
+                        </div>
 
-        <TabsContent value="filters">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Report Filters</CardTitle>
-              <Button onClick={addFilter} size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Filter
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {reportData.filters && reportData.filters.length > 0 ? (
-                <div className="space-y-4">
-                  {reportData.filters.map((filter, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-12 gap-2 items-center bg-gray-50 dark:bg-gray-900 p-3 rounded"
-                    >
-                      <div className="col-span-3">
-                        <Label>Field</Label>
-                        <Select
-                          value={filter.field}
-                          onValueChange={(value) =>
-                            updateFilter(index, "field", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select field" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {reportFields &&
-                              reportFields.map((field: any) => (
-                                <SelectItem key={field.name} value={field.name}>
-                                  {field.label}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="col-span-3">
-                        <Label>Operator</Label>
-                        <Select
-                          value={filter.operator}
-                          onValueChange={(value) =>
-                            updateFilter(index, "operator", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select operator" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="equals">Equals</SelectItem>
-                            <SelectItem value="notEquals">
-                              Not Equals
-                            </SelectItem>
-                            <SelectItem value="contains">Contains</SelectItem>
-                            <SelectItem value="greaterThan">
-                              Greater Than
-                            </SelectItem>
-                            <SelectItem value="lessThan">Less Than</SelectItem>
-                            {/* More operators can be added */}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="col-span-5">
-                        <Label>Value</Label>
-                        <Input
-                          value={filter.value}
-                          onChange={(e) =>
-                            updateFilter(index, "value", e.target.value)
-                          }
-                          placeholder="Enter filter value"
-                        />
-                      </div>
-
-                      <div className="col-span-1 flex justify-end pt-6">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFilter(index)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-100"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {/* More filters could be added here */}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <ListFilter className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No filters configured</p>
-                  <p className="text-sm">
-                    Filters help narrow down the data in your report
-                  </p>
-                  <Button
-                    onClick={addFilter}
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Filter
-                  </Button>
-                </div>
-              )}
+                  </AccordionContent>
+                </AccordionItem>
 
-              <div className="flex justify-between mt-8">
-                <Button onClick={() => setActiveTab("info")} variant="outline">
-                  Back
-                </Button>
-                <Button
-                  onClick={() => setActiveTab("charts")}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Next: Configure Charts
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="charts">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Report Charts</CardTitle>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => addChart("summary")}
-                  size="sm"
-                  variant="outline"
-                  title="Add Summary"
-                >
-                  <Table2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => addChart("bar")}
-                  size="sm"
-                  variant="outline"
-                  title="Add Bar Chart"
-                >
-                  <BarChart4 className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => addChart("pie")}
-                  size="sm"
-                  variant="outline"
-                  title="Add Pie Chart"
-                >
-                  <PieChart className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => addChart("line")}
-                  size="sm"
-                  variant="outline"
-                  title="Add Line Chart"
-                >
-                  <LineChart className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => addChart("table")}
-                  size="sm"
-                  variant="outline"
-                  title="Add Table"
-                >
-                  <Table2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {reportData.charts && reportData.charts.length > 0 ? (
-                <div className="space-y-6">
-                  {reportData.charts.map((chart, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-50 dark:bg-gray-900 p-4 rounded"
-                    >
-                      <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-medium flex items-center">
-                          {chart.type === "bar" && (
-                            <BarChart4 className="h-4 w-4 mr-2" />
-                          )}
-                          {chart.type === "pie" && (
-                            <PieChart className="h-4 w-4 mr-2" />
-                          )}
-                          {chart.type === "line" && (
-                            <LineChart className="h-4 w-4 mr-2" />
-                          )}
-                          {chart.type === "table" && (
-                            <Table2 className="h-4 w-4 mr-2" />
-                          )}
-                          {chart.type === "summary" && (
-                            <Table2 className="h-4 w-4 mr-2" />
-                          )}
-                          {chart.type.charAt(0).toUpperCase() +
-                            chart.type.slice(1)}{" "}
-                          Chart
-                        </h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeChart(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor={`chart-title-${index}`}>Title</Label>
-                          <Input
-                            id={`chart-title-${index}`}
-                            value={chart.title || ""}
-                            onChange={(e) =>
-                              updateChart(index, "title", e.target.value)
-                            }
-                            placeholder="Chart title"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor={`chart-dataField-${index}`}>
-                            Data Field
-                          </Label>
-                          <Select
-                            value={chart.dataField}
-                            onValueChange={(value) =>
-                              updateChart(index, "dataField", value)
-                            }
-                          >
-                            <SelectTrigger id={`chart-dataField-${index}`}>
-                              <SelectValue placeholder="Select data field" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {reportFields &&
-                                reportFields.map((field: any) => (
-                                  <SelectItem
-                                    key={field.name}
-                                    value={field.name}
-                                  >
-                                    {field.label}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {(chart.type === "line" || chart.type === "bar") && (
-                          <>
-                            <div>
-                              <Label htmlFor={`chart-groupBy-${index}`}>
-                                Group By
+                <AccordionItem value="fields">
+                  <AccordionTrigger className="text-sm">
+                    {t("includeFields")}
+                    {reportForm.includeFields &&
+                      reportForm.includeFields.length > 0 && (
+                        <Badge variant="outline" className="mx-2">
+                          {reportForm.includeFields.length}
+                        </Badge>
+                      )}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        {["name", "status", "createdAt", "gender", "age"].map(
+                          (field) => (
+                            <div
+                              key={field}
+                              className="flex items-center gap-2"
+                            >
+                              <Checkbox
+                                id={`field-${field}`}
+                                checked={reportForm.includeFields?.includes(
+                                  field
+                                )}
+                                onCheckedChange={() => toggleField(field)}
+                              />
+                              <Label htmlFor={`field-${field}`}>
+                                {t(field as keyof typeof t) || field}
                               </Label>
-                              <Select
-                                value={chart.groupBy || ""}
-                                onValueChange={(value) =>
-                                  updateChart(index, "groupBy", value)
-                                }
-                              >
-                                <SelectTrigger id={`chart-groupBy-${index}`}>
-                                  <SelectValue placeholder="Select grouping" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="timePeriod">
-                                    Time Period
-                                  </SelectItem>
-                                  <SelectItem value="status">Status</SelectItem>
-                                  <SelectItem value="templateId">
-                                    Template
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
                             </div>
-
-                            {chart.groupBy === "timePeriod" && (
-                              <div>
-                                <Label htmlFor={`chart-timeInterval-${index}`}>
-                                  Time Interval
-                                </Label>
-                                <Select
-                                  value={chart.timeInterval || "month"}
-                                  onValueChange={(value) =>
-                                    updateChart(index, "timeInterval", value)
-                                  }
-                                >
-                                  <SelectTrigger
-                                    id={`chart-timeInterval-${index}`}
-                                  >
-                                    <SelectValue placeholder="Select time interval" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="day">Day</SelectItem>
-                                    <SelectItem value="week">Week</SelectItem>
-                                    <SelectItem value="month">Month</SelectItem>
-                                    <SelectItem value="quarter">
-                                      Quarter
-                                    </SelectItem>
-                                    <SelectItem value="year">Year</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
-                          </>
+                          )
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <BarChart4 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No charts configured</p>
-                  <p className="text-sm">
-                    Add charts to visualize your report data
-                  </p>
-                  <div className="flex justify-center space-x-2 mt-4">
-                    <Button
-                      onClick={() => addChart("bar")}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <BarChart4 className="h-4 w-4 mr-2" />
-                      Bar Chart
-                    </Button>
-                    <Button
-                      onClick={() => addChart("pie")}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <PieChart className="h-4 w-4 mr-2" />
-                      Pie Chart
-                    </Button>
-                    <Button
-                      onClick={() => addChart("table")}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <Table2 className="h-4 w-4 mr-2" />
-                      Table
-                    </Button>
-                  </div>
-                </div>
-              )}
+                  </AccordionContent>
+                </AccordionItem>
 
-              <div className="flex justify-between mt-8">
-                <Button
-                  onClick={() => setActiveTab("filters")}
-                  variant="outline"
-                >
-                  Back
-                </Button>
-                <Button
-                  onClick={() => setActiveTab("fields")}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Next: Select Fields
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                <AccordionItem value="charts">
+                  <AccordionTrigger className="text-sm">
+                    {t("charts")}
+                    {reportForm.charts && reportForm.charts.length > 0 && (
+                      <Badge variant="outline" className="mx-2">
+                        {reportForm.charts.length}
+                      </Badge>
+                    )}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("defaultChartsWillBeAdded")}
+                      </p>
 
-        <TabsContent value="fields">
-          <Card>
-            <CardHeader>
-              <CardTitle>Include Fields</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500 mb-4">
-                Select the fields to include in your report. These fields will
-                be available in tables and for filtering.
-              </p>
+                      <div className="grid grid-cols-1 gap-3 mt-3">
+                        {reportForm.type === "patient" && (
+                          <div className="flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800">
+                            <FileBarChart className="h-4 w-4 mx-2 text-blue-500" />
+                            <span className="text-sm">
+                              Gender Distribution Chart
+                            </span>
+                          </div>
+                        )}
 
-              <div className="space-y-6">
-                {reportFields &&
-                  Object.entries(fieldsGroupedBySection).map(
-                    ([section, fields]: [string, any]) => (
-                      <div key={section} className="border rounded-md p-4">
-                        <h3 className="font-medium mb-3">{section}</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {fields.map((field: any) => (
-                            <div
-                              key={field.name}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                id={`field-${field.name}`}
-                                checked={(
-                                  reportData.includeFields || []
-                                ).includes(field.name)}
-                                onCheckedChange={() =>
-                                  toggleIncludeField(field.name)
-                                }
-                              />
-                              <Label
-                                htmlFor={`field-${field.name}`}
-                                className="text-sm cursor-pointer"
-                              >
-                                {field.label}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
+                        {reportForm.type === "patient" && (
+                          <div className="flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800">
+                            <FileBarChart className="h-4 w-4 mx-2 text-blue-500" />
+                            <span className="text-sm">
+                              Status Distribution Chart
+                            </span>
+                          </div>
+                        )}
+
+                        {reportForm.type === "visit" && (
+                          <div className="flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800">
+                            <FileBarChart className="h-4 w-4 mx-2 text-blue-500" />
+                            <span className="text-sm">Visit Trends Chart</span>
+                          </div>
+                        )}
+
+                        {reportForm.type === "custom" && (
+                          <div className="flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800">
+                            <FileBarChart className="h-4 w-4 mx-2 text-blue-500" />
+                            <span className="text-sm">Custom Report Chart</span>
+                          </div>
+                        )}
                       </div>
-                    )
-                  )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <div className="flex items-center gap-x-2">
+                <Checkbox
+                  id="report-private"
+                  checked={reportForm.isPrivate}
+                  onCheckedChange={(checked) =>
+                    updateForm("isPrivate", !!checked)
+                  }
+                />
+                <Label htmlFor="report-private" className="text-sm">
+                  {t("isPrivate")}
+                </Label>
               </div>
-
-              <div className="flex justify-between mt-8">
-                <Button
-                  onClick={() => setActiveTab("charts")}
-                  variant="outline"
-                >
-                  Back
-                </Button>
-                <div className="space-x-2">
-                  <Button
-                    onClick={handlePreview}
-                    variant="outline"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Preview
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="bg-green-600 hover:bg-green-700"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save Report
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="preview">
-          {showPreview && previewData ? (
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle>
-                    Preview: {reportData.name || "Untitled Report"}
-                  </CardTitle>
-                  <Button
-                    onClick={() => {
-                      setShowPreview(false);
-                      setActiveTab("fields");
-                    }}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Back to Edit
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {/* Reuse the ReportViewer component but embedded here */}
-                  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded">
-                    <Tabs defaultValue="chart-0">
-                      <TabsList className="mb-4">
-                        {previewData.data.map((chart: any, index: number) => (
-                          <TabsTrigger key={index} value={`chart-${index}`}>
-                            {chart.title || `Chart ${index + 1}`}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-
-                      {previewData.data.map((chart: any, index: number) => (
-                        <TabsContent key={index} value={`chart-${index}`}>
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>{chart.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              {/* Simplified preview of chart data */}
-                              <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto max-h-96">
-                                {JSON.stringify(chart, null, 2)}
-                              </pre>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                      ))}
-                    </Tabs>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleSave}
-                  className="bg-green-600 hover:bg-green-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Spinner size="sm" className="mr-2" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Report
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <Eye className="h-12 w-12 mb-4 opacity-50" />
-              <p>Generate a preview to see how your report will look</p>
-              <Button
-                onClick={handlePreview}
-                variant="outline"
-                className="mt-4"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Spinner size="sm" className="mr-2" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Generate Preview
-                  </>
-                )}
-              </Button>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+
+        {/* Patient statistics preview for report */}
+        {stats && (
+          <div className="border border-blue-100 dark:border-blue-900/30 rounded-lg bg-blue-50 dark:bg-blue-900/10 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                {t("patientsSummary")}
+              </h4>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
+              <div>
+                {t("totalPatients")}: {stats.totalPatients || 0}
+              </div>
+              <div>
+                {t("active")}: {stats.activePatients || 0}
+              </div>
+              {stats.recentPatients && (
+                <div>
+                  {t("newPatientsRecent")}: {stats.recentPatients}
+                </div>
+              )}
+              {stats.totalVisits && (
+                <div>
+                  {t("totalVisits")}: {stats.totalVisits}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-4 pt-4">
+          <Button
+            type="submit"
+            disabled={isCreating || !reportForm.name}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="mx-2 h-4 w-4 animate-spin" />
+                {t("generating")}
+              </>
+            ) : (
+              <>
+                <Save className="mx-2 h-4 w-4" />
+                {t("createReport")}
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </motion.div>
   );
 }

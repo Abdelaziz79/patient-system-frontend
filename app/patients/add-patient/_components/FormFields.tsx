@@ -1,4 +1,5 @@
 import { CustomCalendar } from "@/app/_components/CustomCalendar";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Field } from "@/app/_types/Template";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,6 +36,8 @@ interface FormFieldsProps {
 }
 
 export const FormFields = ({ field, control }: FormFieldsProps) => {
+  const { t, isRTL } = useLanguage();
+
   switch (field.type) {
     case "text":
     case "email":
@@ -47,12 +50,14 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           render={({ field: formField }) => (
             <FormItem className="mb-5 group">
               <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {t(field.label as any) || field.label}
+                {field.required && <span className="text-red-500 mx-1">*</span>}
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder={field.label}
+                  placeholder={
+                    t(`${field.name}Placeholder` as any) || field.label
+                  }
                   type={
                     field.type === "email"
                       ? "email"
@@ -63,12 +68,15 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
                   {...formField}
                   value={formField.value || ""}
                   required={field.required}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 dark:bg-slate-900/50 dark:border-slate-700 dark:placeholder:text-slate-500"
+                  className={cn(
+                    "transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 dark:bg-slate-900/50 dark:border-slate-700 dark:placeholder:text-slate-500",
+                    isRTL && "text-right"
+                  )}
                 />
               </FormControl>
               {field.description && (
                 <FormDescription className="text-xs mt-1 text-slate-500 dark:text-slate-400">
-                  {field.description}
+                  {t(field.description as any) || field.description}
                 </FormDescription>
               )}
               <FormMessage />
@@ -86,22 +94,27 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           render={({ field: formField }) => (
             <FormItem className="mb-5 group">
               <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {t(field.label as any) || field.label}
+                {field.required && <span className="text-red-500 mx-1">*</span>}
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder={field.label}
+                  placeholder={
+                    t(`${field.name}Placeholder` as any) || field.label
+                  }
                   type="number"
                   {...formField}
                   value={formField.value || ""}
                   required={field.required}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 dark:bg-slate-900/50 dark:border-slate-700 dark:placeholder:text-slate-500"
+                  className={cn(
+                    "transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 dark:bg-slate-900/50 dark:border-slate-700 dark:placeholder:text-slate-500",
+                    isRTL && "text-right"
+                  )}
                 />
               </FormControl>
               {field.description && (
                 <FormDescription className="text-xs mt-1 text-slate-500 dark:text-slate-400">
-                  {field.description}
+                  {t(field.description as any) || field.description}
                 </FormDescription>
               )}
               <FormMessage />
@@ -119,8 +132,8 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           render={({ field: formField }) => (
             <FormItem className="flex flex-col mb-5 group">
               <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {t(field.label as any) || field.label}
+                {field.required && <span className="text-red-500 mx-1">*</span>}
               </FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -128,17 +141,18 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full pl-3 text-left font-normal transition-all duration-200 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 hover:border-blue-400 dark:hover:border-blue-600 dark:text-slate-200",
+                        "w-full px-3 text-left font-normal transition-all duration-200 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 hover:border-blue-400 dark:hover:border-blue-600 dark:text-slate-200",
                         !formField.value &&
-                          "text-muted-foreground dark:text-slate-500"
+                          "text-muted-foreground dark:text-slate-500",
+                        isRTL && "text-right"
                       )}
                     >
                       {formField.value ? (
                         format(new Date(formField.value), "PPP")
                       ) : (
-                        <span>Select date</span>
+                        <span>{t("selectDate") || "Select date"}</span>
                       )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      <CalendarIcon className={"h-4 w-4 opacity-50"} />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
@@ -156,7 +170,7 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
               </Popover>
               {field.description && (
                 <FormDescription className="text-xs mt-1 text-slate-500 dark:text-slate-400">
-                  {field.description}
+                  {t(field.description as any) || field.description}
                 </FormDescription>
               )}
               <FormMessage />
@@ -172,7 +186,7 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           control={control}
           name={field.name}
           render={({ field: formField }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 mb-5 group hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 dark:border-slate-700 dark:bg-slate-900/30">
+            <FormItem className="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4 mb-5 group hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 dark:border-slate-700 dark:bg-slate-900/30">
               <FormControl>
                 <Checkbox
                   checked={formField.value || false}
@@ -186,14 +200,14 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {field.label}
+                  {t(field.label as any) || field.label}
                   {field.required && (
-                    <span className="text-red-500 ml-1">*</span>
+                    <span className="text-red-500 mx-1">*</span>
                   )}
                 </FormLabel>
                 {field.description && (
                   <FormDescription className="text-xs text-slate-500 dark:text-slate-400">
-                    {field.description}
+                    {t(field.description as any) || field.description}
                   </FormDescription>
                 )}
               </div>
@@ -212,8 +226,8 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           render={({ field: formField }) => (
             <FormItem className="mb-5 group">
               <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {t(field.label as any) || field.label}
+                {field.required && <span className="text-red-500 mx-1">*</span>}
               </FormLabel>
               <Select
                 onValueChange={formField.onChange}
@@ -221,9 +235,16 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
                 value={formField.value || ""}
               >
                 <FormControl>
-                  <SelectTrigger className="transition-all duration-200 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-600 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50">
+                  <SelectTrigger
+                    className={cn(
+                      "transition-all duration-200 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-600 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50",
+                      isRTL && "text-right"
+                    )}
+                  >
                     <SelectValue
-                      placeholder={`Select ${field.label}`}
+                      placeholder={`${t("select") || "Select"} ${
+                        t(field.label as any) || field.label
+                      }`}
                       className="dark:placeholder:text-slate-500"
                     />
                   </SelectTrigger>
@@ -233,16 +254,19 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
                     <SelectItem
                       key={option}
                       value={option}
-                      className="focus:bg-blue-50 dark:focus:bg-blue-900/30 dark:text-slate-200"
+                      className={cn(
+                        "focus:bg-blue-50 dark:focus:bg-blue-900/30 dark:text-slate-200",
+                        isRTL && "text-right"
+                      )}
                     >
-                      {option}
+                      {t(option as any) || option}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {field.description && (
                 <FormDescription className="text-xs mt-1 text-slate-500 dark:text-slate-400">
-                  {field.description}
+                  {t(field.description as any) || field.description}
                 </FormDescription>
               )}
               <FormMessage />
@@ -260,21 +284,26 @@ export const FormFields = ({ field, control }: FormFieldsProps) => {
           render={({ field: formField }) => (
             <FormItem className="mb-5 group">
               <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {t(field.label as any) || field.label}
+                {field.required && <span className="text-red-500 mx-1">*</span>}
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={field.label}
+                  placeholder={
+                    t(`${field.name}Placeholder` as any) || field.label
+                  }
                   {...formField}
                   value={formField.value || ""}
                   required={field.required}
-                  className="min-h-24 transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 dark:placeholder:text-slate-500 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-600"
+                  className={cn(
+                    "min-h-24 transition-all duration-200 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 border-slate-300 dark:border-slate-700 dark:bg-slate-900/50 dark:placeholder:text-slate-500 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-600",
+                    isRTL && "text-right"
+                  )}
                 />
               </FormControl>
               {field.description && (
                 <FormDescription className="text-xs mt-1 text-slate-500 dark:text-slate-400">
-                  {field.description}
+                  {t(field.description as any) || field.description}
                 </FormDescription>
               )}
               <FormMessage />

@@ -1,4 +1,4 @@
-import UsersManagement from "@/app/_components/management/UsersManagement";
+import UsersManagement from "@/app/admin/users/_components/UsersManagement";
 
 function page() {
   return <UsersManagement />;

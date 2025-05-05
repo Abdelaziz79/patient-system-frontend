@@ -27,7 +27,7 @@ export default function ErrorComp({
         <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-green-100 dark:border-green-900 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center">
-              <AlertCircle className="mr-2 h-6 w-6 text-red-500" />
+              <AlertCircle className="mx-2 h-6 w-6 text-red-500" />
               Error Occurred
             </CardTitle>
           </CardHeader>

@@ -15,11 +15,11 @@ const InfoItem = ({
     }`}
   >
     <div className="flex items-center mb-2">
-      <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+      <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400 mx-2" />
       <span className="font-semibold dark:text-gray-200">{label}</span>
     </div>
     {Array.isArray(value) ? (
-      <ul className="list-disc list-inside text-gray-800 dark:text-gray-200 ml-2">
+      <ul className="list-disc list-inside text-gray-800 dark:text-gray-200 mx-2">
         {value.map((item, index) => (
           <li key={index}>{item}</li>
         ))}

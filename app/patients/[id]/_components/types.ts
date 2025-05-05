@@ -1,4 +1,5 @@
-import { IPatient } from "@/app/_types/Patient";
+import { IPatient, IVisit } from "@/app/_types/Patient";
+import { Dispatch, SetStateAction } from "react";
 
 export interface PatientPageProps {
   patientId: string;
@@ -6,16 +7,9 @@ export interface PatientPageProps {
 
 export interface PatientActionsProps {
   patient: IPatient;
-  isExportingToPdf: boolean;
-  isExportingToCsv: boolean;
-  isGeneratingReport: boolean;
-  handleExportToPdf: () => Promise<void>;
-  handleExportToCsv: () => Promise<void>;
   handleGoBack: () => void;
   handleEditPatient: () => void;
   handlePrintPatient: () => void;
-  setIsShareDialogOpen: (isOpen: boolean) => void;
-  setIsReportDialogOpen: (isOpen: boolean) => void;
 }
 
 export interface PatientInfoCardProps {
@@ -33,73 +27,56 @@ export interface PatientLoaderProps {
 export interface PatientTabsProps {
   patient: IPatient;
   formatDate: (date: string | Date) => string;
-  handleDeleteVisit: (visitId: string) => Promise<void>;
-  handleRestoreVisit: (visitId: string) => Promise<void>;
+  handleDeleteVisit: (visitId: string) => void;
+  handleRestoreVisit: (visitId: string) => void;
   isDeletingVisit: boolean;
-  setIsVisitDialogOpen: (isOpen: boolean) => void;
-}
-
-export interface ReportDialogProps {
-  isReportDialogOpen: boolean;
-  setIsReportDialogOpen: (isOpen: boolean) => void;
-  reportOptions: {
-    includeVisits: boolean;
-    includeHistory: boolean;
-    customTitle: string;
-  };
-  setReportOptions: (options: {
-    includeVisits: boolean;
-    includeHistory: boolean;
-    customTitle: string;
-  }) => void;
-  handleGenerateReport: () => Promise<void>;
-  isGeneratingReport: boolean;
-}
-
-export interface ShareDialogProps {
-  isShareDialogOpen: boolean;
-  setIsShareDialogOpen: (isOpen: boolean) => void;
-  recipientEmail: string;
-  setRecipientEmail: (email: string) => void;
-  emailMessage: string;
-  setEmailMessage: (message: string) => void;
-  includeAttachment: boolean;
-  setIncludeAttachment: (include: boolean) => void;
-  handleShareViaEmail: () => Promise<void>;
-  isSharingViaEmail: boolean;
+  setIsVisitDialogOpen: (value: boolean) => void;
 }
 
 export interface VisitDialogProps {
   isVisitDialogOpen: boolean;
-  setIsVisitDialogOpen: (isOpen: boolean) => void;
+  setIsVisitDialogOpen: (value: boolean) => void;
   newVisit: {
     title: string;
     date: Date;
     notes: string;
     sectionData: Record<string, any>;
   };
-  setNewVisit: (visit: {
-    title: string;
-    date: Date;
-    notes: string;
-    sectionData: Record<string, any>;
-  }) => void;
-  handleAddVisit: () => Promise<void>;
+  setNewVisit: Dispatch<
+    SetStateAction<{
+      title: string;
+      date: Date;
+      notes: string;
+      sectionData: Record<string, any>;
+    }>
+  >;
+  handleAddVisit: () => void;
   isAddingVisit: boolean;
   patient: IPatient;
-  handleGenerateVisitNotes?: (
-    symptoms?: string,
-    observations?: string
-  ) => Promise<void>;
-  isGeneratingNotes?: boolean;
+  handleGenerateVisitNotes: (symptoms?: string, observations?: string) => void;
+  isGeneratingNotes: boolean;
 }
 
 export interface FooterActionsProps {
   handleGoBack: () => void;
   handlePrintPatient: () => void;
-  handleExportToPdf: () => Promise<void>;
-  isExportingToPdf: boolean;
   handleEditPatient: () => void;
-  setIsShareDialogOpen: (isOpen: boolean) => void;
-  setIsVisitDialogOpen: (isOpen: boolean) => void;
+  setIsVisitDialogOpen: (value: boolean) => void;
+}
+
+export interface TagsSectionProps {
+  patient: IPatient;
+}
+
+export interface PatientStatusSectionProps {
+  patient: IPatient;
+  onStatusChange?: () => Promise<void>;
+}
+
+export interface VisitListItemProps {
+  visit: IVisit;
+  formatDate: (date: string | Date) => string;
+  handleDeleteVisit: (visitId: string) => void;
+  handleRestoreVisit: (visitId: string) => void;
+  isDeletingVisit: boolean;
 }

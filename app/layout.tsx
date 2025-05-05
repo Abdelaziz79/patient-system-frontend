@@ -1,18 +1,12 @@
 import Footer from "@/app/_components/Footer";
+import LayoutClientWrapper from "@/app/_components/LayoutClientWrapper";
+import { LanguageProvider } from "@/app/_contexts/LanguageContext";
 import { AuthProvider } from "@/app/_providers/AuthProvider";
 import { ReactQueryProvider } from "@/app/_providers/ReactQueryProvider";
 import "@/app/globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import LayoutClientWrapper from "./_components/LayoutClientWrapper";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Patient Management System",
@@ -27,12 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+      <body className="antialiased">
         <ReactQueryProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <AuthProvider>
-              <LayoutClientWrapper>{children}</LayoutClientWrapper>
-              <Footer />
+              <LanguageProvider>
+                <LayoutClientWrapper>{children}</LayoutClientWrapper>
+                <Footer />
+              </LanguageProvider>
             </AuthProvider>
           </ThemeProvider>
         </ReactQueryProvider>

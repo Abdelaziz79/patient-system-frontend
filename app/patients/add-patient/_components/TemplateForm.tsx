@@ -1,3 +1,4 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { PatientTemplate } from "@/app/_types/Template";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +25,7 @@ export const TemplateForm = ({
   setActiveTab,
   onValidationChange,
 }: TemplateFormProps) => {
+  const { t, dir } = useLanguage();
   const [sectionValidation, setSectionValidation] = useState<
     Record<string, boolean>
   >({});
@@ -60,11 +62,16 @@ export const TemplateForm = ({
           if (field.type === "boolean") {
             validationRules[field.name] = {
               validate: (value: any) =>
-                value !== undefined || `${field.label} is required`,
+                value !== undefined ||
+                `${t(field.label as any) || field.label} ${
+                  t("isRequired") || "is required"
+                }`,
             };
           } else {
             validationRules[field.name] = {
-              required: `${field.label} is required`,
+              required: `${t(field.label as any) || field.label} ${
+                t("isRequired") || "is required"
+              }`,
             };
           }
 
@@ -72,14 +79,14 @@ export const TemplateForm = ({
           if (field.type === "email") {
             validationRules[field.name].pattern = {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
+              message: t("invalidEmail") || "Invalid email address",
             };
           }
 
           if (field.type === "phone") {
             validationRules[field.name].pattern = {
               value: /^[0-9+\-\s()]*$/,
-              message: "Invalid phone number",
+              message: t("invalidPhone") || "Invalid phone number",
             };
           }
         }
@@ -90,7 +97,7 @@ export const TemplateForm = ({
         form.register(fieldName, rules);
       });
     }
-  }, [selectedTemplate, form]);
+  }, [selectedTemplate, form, t]);
 
   // Update section validation status when form state changes
   useEffect(() => {
@@ -207,7 +214,8 @@ export const TemplateForm = ({
         (s) => s.name === activeTab
       )?.label;
       toast.error(
-        `Please complete all required fields in "${currentSectionLabel}" before proceeding.`
+        t("completeRequiredFields") ||
+          `Please complete all required fields in "${currentSectionLabel}" before proceeding.`
       );
     }
   };
@@ -219,9 +227,14 @@ export const TemplateForm = ({
           value={activeTab}
           onValueChange={handleTabChange}
           className="w-full"
+          dir={dir as "ltr" | "rtl"}
         >
           <div className="border dark:border-slate-700 rounded-lg mb-6 overflow-hidden">
-            <TabsList className="flex w-full bg-slate-50 dark:bg-slate-800/50 h-auto p-1 overflow-x-auto hide-scrollbar">
+            <TabsList
+              className={
+                "flex w-full bg-slate-50 dark:bg-slate-800/50 h-auto p-1 overflow-x-auto hide-scrollbar"
+              }
+            >
               {selectedTemplate.sections.map((section, index) => {
                 const isActive = activeTab === section.name;
                 const isValid = sectionValidation[section.name];
@@ -234,14 +247,14 @@ export const TemplateForm = ({
                     value={section.name}
                     className={cn(
                       "relative text-sm transition-all duration-200 flex items-center",
-                      "px-3 py-2.5 my-0.5 mx-0.5 first:ml-0.5 rounded-md",
+                      "px-3 py-2.5 my-0.5 mx-0.5 first:mx-0.5 rounded-md",
                       "flex-shrink-0 min-w-max sm:flex-1",
                       isActive
                         ? "text-white bg-blue-600 shadow-md"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/70"
                     )}
                   >
-                    <div className="flex items-center space-x-2 w-full">
+                    <div className={"flex items-center gap-x-2 w-full"}>
                       <span
                         className={cn(
                           "flex items-center justify-center w-5 h-5 rounded-full text-xs flex-shrink-0 font-medium",
@@ -253,11 +266,11 @@ export const TemplateForm = ({
                         {index + 1}
                       </span>
                       <span className="truncate max-w-[60px] sm:max-w-[100px] md:max-w-full">
-                        {section.label}
+                        {t(section.label as any) || section.label}
                       </span>
 
                       {showValidation && (
-                        <span className="ml-auto flex-shrink-0">
+                        <span className="mxauto flex-shrink-0">
                           {isValid ? (
                             <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
                           ) : (
@@ -284,9 +297,11 @@ export const TemplateForm = ({
             >
               {section.description && (
                 <div className="text-sm text-muted-foreground p-4 mb-6 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-lg">
-                  <div className="flex items-start">
-                    <AlertCircle className="h-5 w-5 text-blue-700 dark:text-blue-400 mr-2 mt-0.5" />
-                    <p className="dark:text-slate-300">{section.description}</p>
+                  <div className={"flex items-start"}>
+                    <AlertCircle className="h-5 w-5 text-blue-700 dark:text-blue-400 mx-2 mt-0.5" />
+                    <p className="dark:text-slate-300">
+                      {t(section.description as any) || section.description}
+                    </p>
                   </div>
                 </div>
               )}
@@ -302,7 +317,7 @@ export const TemplateForm = ({
               </div>
 
               {!isLastSection && (
-                <div className="flex justify-end pt-4 space-x-3">
+                <div className={"flex justify-end pt-4 gap-x-3"}>
                   {/* Add Previous button - only show if not on first section */}
                   {activeTab !== selectedTemplate.sections[0].name && (
                     <button
@@ -320,7 +335,7 @@ export const TemplateForm = ({
                         }
                       }}
                     >
-                      Previous Section
+                      {t("previousSection") || "Previous Section"}
                     </button>
                   )}
                   <button
@@ -344,14 +359,14 @@ export const TemplateForm = ({
                     }}
                     disabled={!sectionValidation[section.name]}
                   >
-                    Next Section
+                    {t("nextSection") || "Next Section"}
                   </button>
                 </div>
               )}
 
               {isLastSection &&
                 activeTab !== selectedTemplate.sections[0].name && (
-                  <div className="flex justify-end pt-4">
+                  <div className={"flex justify-end pt-4"}>
                     <button
                       type="button"
                       className="px-4 py-2 rounded-md font-medium transition-colors bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-gray-300 dark:hover:bg-slate-600"
@@ -367,7 +382,7 @@ export const TemplateForm = ({
                         }
                       }}
                     >
-                      Previous Section
+                      {t("previousSection") || "Previous Section"}
                     </button>
                   </div>
                 )}

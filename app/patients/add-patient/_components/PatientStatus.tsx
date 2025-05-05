@@ -1,25 +1,89 @@
 import { PatientTemplate } from "@/app/_types/Template";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
+// Define default statuses to use now that they're not part of the template
+const DEFAULT_STATUSES = [
+  {
+    name: "active",
+    label: "Active",
+    color: "#28a745",
+    description: "Patient is currently active and receiving regular care",
+    isDefault: true,
+    order: 0,
+  },
+  {
+    name: "on_treatment",
+    label: "On Treatment",
+    color: "#007bff",
+    description: "Patient is currently undergoing treatment",
+    isDefault: false,
+    order: 1,
+  },
+  {
+    name: "in_remission",
+    label: "In Remission",
+    color: "#17a2b8",
+    description: "Patient is in remission and requires follow-up care",
+    isDefault: false,
+    order: 2,
+  },
+  {
+    name: "discharged",
+    label: "Discharged",
+    color: "#6c757d",
+    description: "Patient has been discharged from active care",
+    isDefault: false,
+    order: 3,
+  },
+  {
+    name: "deceased",
+    label: "Deceased",
+    color: "#dc3545",
+    description: "Patient is deceased",
+    isDefault: false,
+    order: 4,
+  },
+];
+
 interface PatientStatusProps {
   selectedTemplate: PatientTemplate;
   form?: UseFormReturn<any>;
+  statusOptions?: Array<{
+    name: string;
+    label: string;
+    color: string;
+    isDefault: boolean;
+  }>;
 }
 
 export const PatientStatus = ({
   selectedTemplate,
   form,
+  statusOptions = [],
 }: PatientStatusProps) => {
+  const { t, isRTL } = useLanguage();
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
-  // Set default status when component mounts or template changes
+  // Use the provided status options or fall back to defaults
+  const availableStatusOptions =
+    statusOptions.length > 0 ? statusOptions : DEFAULT_STATUSES;
+
+  // Set default status when component mounts
   useEffect(() => {
-    const defaultStatus = selectedTemplate.statusOptions.find(
-      (s) => s.isDefault
-    );
+    // Check if form already has a selected status
+    const currentStatus = form?.getValues("patientStatus");
+
+    if (currentStatus) {
+      setSelectedStatus(currentStatus);
+      return;
+    }
+
+    // Otherwise set the default status
+    const defaultStatus = availableStatusOptions.find((s) => s.isDefault);
     if (defaultStatus) {
       setSelectedStatus(defaultStatus.name);
 
@@ -29,7 +93,7 @@ export const PatientStatus = ({
         form.setValue("patientStatusData", defaultStatus);
       }
     }
-  }, [selectedTemplate.id]); // Only run when template ID changes
+  }, [form, availableStatusOptions]); // Run when either form or availableStatusOptions changes
 
   const handleStatusSelect = (statusName: string) => {
     if (selectedStatus === statusName) return; // Prevent unnecessary updates
@@ -37,9 +101,7 @@ export const PatientStatus = ({
     setSelectedStatus(statusName);
 
     // Get the full status object
-    const statusObj = selectedTemplate.statusOptions.find(
-      (s) => s.name === statusName
-    );
+    const statusObj = availableStatusOptions.find((s) => s.name === statusName);
 
     // Update form if available
     if (form && statusObj) {
@@ -48,16 +110,33 @@ export const PatientStatus = ({
     }
   };
 
+  // Helper to get translated status label
+  const getStatusLabel = (statusName: string): string => {
+    const defaultLabel =
+      availableStatusOptions.find((s) => s.name === statusName)?.label ||
+      statusName;
+    return t(statusName as any) !== statusName
+      ? t(statusName as any)
+      : defaultLabel;
+  };
+
   return (
     <div className="border-t dark:border-slate-700 pt-6 mt-8">
       <div className="space-y-3">
-        <h3 className="text-md font-medium flex items-center text-slate-800 dark:text-slate-200">
-          <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
-          Patient Status
+        <h3
+          className={cn(
+            "text-md font-medium flex items-center text-slate-800 dark:text-slate-200",
+            isRTL && "flex-row-reverse"
+          )}
+        >
+          <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400 mx-2" />
+          {t("patientStatus")}
         </h3>
 
-        <div className="flex flex-wrap gap-3">
-          {selectedTemplate.statusOptions.map((status) => {
+        <div
+          className={cn("flex flex-wrap gap-3", isRTL && "flex-row-reverse")}
+        >
+          {availableStatusOptions.map((status) => {
             const isSelected = selectedStatus === status.name;
 
             return (
@@ -73,10 +152,11 @@ export const PatientStatus = ({
                   }
                 }}
                 className={cn(
-                  "flex items-center space-x-2 rounded-lg border px-3 py-2.5 transition-colors duration-200 cursor-pointer",
+                  "flex items-center gap-x-2 rounded-lg border px-3 py-2.5 transition-colors duration-200 cursor-pointer",
                   isSelected
                     ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800"
-                    : "hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:border-slate-700"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:border-slate-700",
+                  isRTL && "flex-row-reverse"
                 )}
               >
                 <div
@@ -84,9 +164,9 @@ export const PatientStatus = ({
                   style={{ backgroundColor: status.color }}
                 />
                 <span className="font-medium dark:text-slate-300">
-                  {status.label}
+                  {getStatusLabel(status.name)}
                 </span>
-                <div className="ml-2">
+                <div className="mx-2">
                   {/* Use visual indicator instead of actual checkbox component */}
                   <div
                     className={cn(

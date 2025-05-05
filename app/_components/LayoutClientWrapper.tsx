@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Header from "@/app/_components/Header";
+import Sidebar from "@/app/_components/Sidebar";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useEffect, useState } from "react";
+import Loading from "./Loading";
 
 interface LayoutClientWrapperProps {
   children: React.ReactNode;
@@ -11,17 +13,19 @@ interface LayoutClientWrapperProps {
 export default function LayoutClientWrapper({
   children,
 }: LayoutClientWrapperProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { isRTL, loading } = useLanguage();
 
   // Handle responsive behavior
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
-      // Auto-close sidebar on mobile
+      // Auto-close sidebar on mobile when resizing to mobile
       if (window.innerWidth < 1024) {
         setIsSidebarOpen(false);
       } else {
+        // Default sidebar to open on desktop
         setIsSidebarOpen(true);
       }
     };
@@ -37,24 +41,35 @@ export default function LayoutClientWrapper({
   }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
+  if (loading) return <Loading />;
   return (
-    <div className="font-inter min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative">
-      {/* Sidebar */}
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className={`min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900 relative`}
+    >
+      {/* Sidebar - handled within Sidebar component now */}
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay - only when sidebar is open on mobile */}
       {isSidebarOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black/30 z-30 lg:hidden backdrop-blur-sm transition-opacity duration-300 ease-in-out"
+          className="fixed inset-0 bg-black/30 z-30 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
           onClick={toggleSidebar}
         />
       )}
 
-      {/* Main content container - adjust margin for sidebar */}
+      {/* Main content container - adjust margin for sidebar on desktop */}
       <div
         className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarOpen && !isMobile ? "lg:ml-60" : "lg:ml-[70px]"
+          isSidebarOpen && !isMobile
+            ? isRTL
+              ? "lg:mr-60"
+              : "lg:ml-60"
+            : !isMobile
+            ? isRTL
+              ? "lg:mr-[70px]"
+              : "lg:ml-[70px]"
+            : ""
         }`}
       >
         {/* Header */}

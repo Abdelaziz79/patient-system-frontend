@@ -44,7 +44,7 @@ export default function DatePicker({
           )}
           {...props}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          <CalendarIcon className="mx-2 h-4 w-4" />
           {formattedDate}
         </Button>
       </PopoverTrigger>

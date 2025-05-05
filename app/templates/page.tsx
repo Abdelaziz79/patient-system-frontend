@@ -1,7 +1,9 @@
-import TemplatesPage from "@/app/_components/template/TemplatePage";
+"use client";
 
-function page() {
+import TemplatesPage from "@/app/templates/_components/TemplatePage";
+
+function TemplatesPageWrapper() {
   return <TemplatesPage />;
 }
 
-export default page;
+export default TemplatesPageWrapper;

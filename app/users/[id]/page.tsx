@@ -2,16 +2,17 @@
 
 import ErrorComp from "@/app/_components/ErrorComp";
 import Loading from "@/app/_components/Loading";
-import { PasswordResetModal } from "@/app/_components/management/PasswordResetModal";
-import { SubscriptionUpdateModal } from "@/app/_components/management/SubscriptionUpdateModal";
-import { AccountInfoCard } from "@/app/_components/profile/user/AccountInfoCard";
-import { ActivityTimelineCard } from "@/app/_components/profile/user/ActivityTimelineCard";
-import { AdminActionsCard } from "@/app/_components/profile/user/AdminActionsCard";
-import { ProfileHeader } from "@/app/_components/profile/user/ProfileHeader";
-import { ProfileSidebar } from "@/app/_components/profile/user/ProfileSidebar";
-import { UserFormModal } from "@/app/_components/profile/UserFormModal";
-import { User, useAuth } from "@/app/_hooks/useAuth";
-import { UserCreateData, useUserAdmin } from "@/app/_hooks/useUserAdmin";
+import { PasswordResetModal } from "@/app/admin/users/_components/PasswordResetModal";
+import { SubscriptionUpdateModal } from "@/app/admin/users/_components/SubscriptionUpdateModal";
+import { useAuth } from "@/app/_hooks/auth/useAuth";
+import { useUserAdmin } from "@/app/_hooks/userAdmin/useUserAdmin";
+import { User, UserCreateData } from "@/app/_types/User";
+import { UserFormModal } from "@/app/profile/_components/UserFormModal";
+import { AccountInfoCard } from "@/app/users/_components/AccountInfoCard";
+import { ActivityTimelineCard } from "@/app/users/_components/ActivityTimelineCard";
+import { AdminActionsCard } from "@/app/users/_components/AdminActionsCard";
+import { ProfileHeader } from "@/app/users/_components/ProfileHeader";
+import { ProfileSidebar } from "@/app/users/_components/ProfileSidebar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -234,7 +235,7 @@ export default function UserProfilePage() {
             size="sm"
             className="bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-colors"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mx-2 h-4 w-4" />
             Back to Users
           </Button>
         </div>
