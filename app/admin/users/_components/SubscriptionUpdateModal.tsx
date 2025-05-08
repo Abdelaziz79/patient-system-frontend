@@ -1,4 +1,5 @@
 import { ISubscription, SubscriptionUpdateData } from "@/app/_types/User";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -47,6 +48,7 @@ export function SubscriptionUpdateModal({
   onUpdate,
   isUpdating,
 }: SubscriptionUpdateModalProps) {
+  const { t, dir } = useLanguage();
   const [subscriptionData, setSubscriptionData] =
     useState<SubscriptionUpdateData>({
       type: "basic",
@@ -66,13 +68,13 @@ export function SubscriptionUpdateModal({
 
   // Available features
   const availableFeatures = [
-    "Reports Export",
-    "Patient Management",
-    "Advanced Analytics",
-    "Multiple Users",
-    "API Access",
-    "24/7 Support",
-    "Custom Integration",
+    t("reportsExport"),
+    t("patientManagement"),
+    t("advancedAnalytics"),
+    t("multipleUsers"),
+    t("apiAccess"),
+    t("support247"),
+    t("customIntegration"),
   ];
 
   useEffect(() => {
@@ -96,18 +98,22 @@ export function SubscriptionUpdateModal({
     // Set default features based on subscription type
     switch (value) {
       case "free_trial":
-        features = ["Reports Export", "Patient Management"];
+        features = [t("reportsExport"), t("patientManagement")];
         break;
       case "basic":
-        features = ["Reports Export", "Patient Management", "Multiple Users"];
+        features = [
+          t("reportsExport"),
+          t("patientManagement"),
+          t("multipleUsers"),
+        ];
         break;
       case "premium":
         features = [
-          "Reports Export",
-          "Patient Management",
-          "Advanced Analytics",
-          "Multiple Users",
-          "API Access",
+          t("reportsExport"),
+          t("patientManagement"),
+          t("advancedAnalytics"),
+          t("multipleUsers"),
+          t("apiAccess"),
         ];
         break;
       case "enterprise":
@@ -174,23 +180,23 @@ export function SubscriptionUpdateModal({
     } = {};
 
     if (!subscriptionData.type) {
-      newErrors.type = "Subscription type is required";
-      toast.error("Subscription type is required");
+      newErrors.type = t("subscriptionTypeRequired");
+      toast.error(t("subscriptionTypeRequired"));
     }
 
     if (!subscriptionData.startDate) {
-      newErrors.startDate = "Start date is required";
-      toast.error("Start date is required");
+      newErrors.startDate = t("startDateRequired");
+      toast.error(t("startDateRequired"));
     }
 
     if (!subscriptionData.endDate) {
-      newErrors.endDate = "End date is required";
-      toast.error("End date is required");
+      newErrors.endDate = t("endDateRequired");
+      toast.error(t("endDateRequired"));
     } else if (
       new Date(subscriptionData.endDate) <= new Date(subscriptionData.startDate)
     ) {
-      newErrors.endDate = "End date must be after start date";
-      toast.error("End date must be after start date");
+      newErrors.endDate = t("endDateMustBeAfterStartDate");
+      toast.error(t("endDateMustBeAfterStartDate"));
     }
 
     setErrors(newErrors);
@@ -207,13 +213,13 @@ export function SubscriptionUpdateModal({
     try {
       const result = await onUpdate(userId, subscriptionData);
       if (result.success) {
-        toast.success(result.message || "Subscription updated successfully");
+        toast.success(result.message || t("subscriptionUpdatedSuccess"));
         handleClose();
       } else {
-        toast.error(result.message || "Failed to update subscription");
+        toast.error(result.message || t("failedToUpdateSubscription"));
       }
     } catch (error) {
-      toast.error("Failed to update subscription");
+      toast.error(t("failedToUpdateSubscription"));
       console.error("Error updating subscription:", error);
     }
   };
@@ -251,15 +257,20 @@ export function SubscriptionUpdateModal({
         }
       }}
     >
-      <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg">
+      <DialogContent
+        className="sm:max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg"
+        dir={dir}
+      >
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center">
             <ZapIcon className="mx-2 h-5 w-5" />
-            Update Subscription
+            {t("updateSubscription")}
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Update subscription for user:{" "}
-            <span className="font-medium">{userName}</span>
+            <span className="flex">
+              {t("updateSubscriptionFor")}
+              <span className="font-medium">{userName}</span>
+            </span>
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-2">
@@ -269,7 +280,7 @@ export function SubscriptionUpdateModal({
                 htmlFor="type"
                 className="text-right font-medium text-gray-700 dark:text-gray-300"
               >
-                Subscription Type
+                {t("subscriptionType")}
               </Label>
               <div className="col-span-3">
                 <Select
@@ -283,32 +294,32 @@ export function SubscriptionUpdateModal({
                         : "border-gray-300 dark:border-gray-600"
                     }`}
                   >
-                    <SelectValue placeholder="Select subscription type" />
+                    <SelectValue placeholder={t("selectSubscriptionType")} />
                   </SelectTrigger>
                   <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
                     <SelectItem
                       value="free_trial"
                       className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                     >
-                      Free Trial
+                      {t("freeTrial")}
                     </SelectItem>
                     <SelectItem
                       value="basic"
                       className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                     >
-                      Basic
+                      {t("basicPlan")}
                     </SelectItem>
                     <SelectItem
                       value="premium"
                       className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                     >
-                      Premium
+                      {t("premiumPlan")}
                     </SelectItem>
                     <SelectItem
                       value="enterprise"
                       className="dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                     >
-                      Enterprise
+                      {t("enterprisePlan")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -324,7 +335,7 @@ export function SubscriptionUpdateModal({
                 htmlFor="startDate"
                 className="text-right font-medium text-gray-700 dark:text-gray-300"
               >
-                Start Date
+                {t("startDate")}
               </Label>
               <div className="col-span-3 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center px-3 pointer-events-none">
@@ -358,7 +369,7 @@ export function SubscriptionUpdateModal({
                 htmlFor="endDate"
                 className="text-right font-medium text-gray-700 dark:text-gray-300"
               >
-                End Date
+                {t("endDate")}
               </Label>
               <div className="col-span-3 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center px-3 pointer-events-none">
@@ -389,7 +400,7 @@ export function SubscriptionUpdateModal({
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label className="text-right font-medium text-gray-700 dark:text-gray-300 pt-1">
-                Status
+                {t("status")}
               </Label>
               <div className="col-span-3 flex items-center gap-x-2">
                 <Checkbox
@@ -407,13 +418,13 @@ export function SubscriptionUpdateModal({
                   htmlFor="isActive"
                   className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Active Subscription
+                  {t("activeSubscription")}
                 </Label>
               </div>
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label className="text-right font-medium text-gray-700 dark:text-gray-300 pt-1">
-                Features
+                {t("features")}
               </Label>
               <div className="col-span-3 space-y-2">
                 {availableFeatures.map((feature) => (
@@ -444,7 +455,7 @@ export function SubscriptionUpdateModal({
               onClick={handleClose}
               className="border border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -454,7 +465,7 @@ export function SubscriptionUpdateModal({
               {isUpdating ? (
                 <span className="flex items-center">
                   <svg
-                    className="animate-spin -mx-1 mx-2 h-4 w-4 text-white"
+                    className="animate-spin mx-2 h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -473,10 +484,10 @@ export function SubscriptionUpdateModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Updating...
+                  {t("updating")}
                 </span>
               ) : (
-                "Update Subscription"
+                t("updateSubscription")
               )}
             </Button>
           </DialogFooter>

@@ -1,14 +1,12 @@
 import { User } from "@/app/_types/User";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
+import { BulkActionBar } from "./BulkActionBar";
 import { UserCards } from "./UserCards";
-import { UserTable } from "./UserTable";
 import { UserFilters } from "./UserFilters";
 import { UserPagination } from "./UserPagination";
-import { BulkActionBar } from "./BulkActionBar";
 import UserSkeletons from "./UserSkeletons";
-import { FilterIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { UserTable } from "./UserTable";
 
 interface UsersManagementContentProps {
   isLoading: boolean;
@@ -84,22 +82,7 @@ export function UsersManagementContent({
   return (
     <CardContent className="px-3 sm:px-6">
       {/* Search and Filters Component */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-            Filters
-          </h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setFiltersExpanded(!filtersExpanded)}
-            className="h-8 px-2 text-gray-500 dark:text-gray-400"
-          >
-            <FilterIcon className="h-4 w-4 mx-1" />
-            {filtersExpanded ? "Hide Filters" : "Show Filters"}
-          </Button>
-        </div>
-
+      <div className="mb-3">
         <AnimatePresence>
           {(filtersExpanded || isFiltering) && (
             <motion.div

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,15 +15,17 @@ import { motion } from "framer-motion";
 import { EyeIcon, EyeOffIcon, KeyIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useAuthContext } from "../_providers/AuthProvider";
 
 export default function LoginPage() {
+  const { t, dir } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { login, isLoading, isAuthenticated, error } = useAuthContext();
+  const { login, isLoading, isAuthenticated } = useAuthContext();
   const router = useRouter();
 
   // Redirect if already authenticated
@@ -43,8 +46,17 @@ export default function LoginPage() {
     }
 
     const result = await login(email, password);
+
     if (result.success) {
       router.push("/");
+      toast.success(t("loginSuccess"));
+    } else {
+      // Show error toast and clear fields on failed login
+      if (result.error) {
+        toast.error(t("invalidCredentials"));
+      }
+      setEmail("");
+      setPassword("");
     }
   };
 
@@ -57,8 +69,20 @@ export default function LoginPage() {
     }
   }, []);
 
+  // Handle forgot password
+  const handleForgotPassword = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast.success(t("contactAdmin"));
+  };
+
+  // Handle sign up
+  const handleSignUp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast.success(t("contactAdminForAccount"));
+  };
+
   return (
-    <div className="flex items-center justify-center p-4 py-12">
+    <div className="flex items-center justify-center p-4 py-12" dir={dir}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,27 +92,22 @@ export default function LoginPage() {
         <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-blue-800 dark:text-blue-300">
-              Login
+              {t("loginHeading")}
             </CardTitle>
             <CardDescription className="text-blue-600 dark:text-blue-400">
-              Welcome to the Patient System. Please login to continue.
+              {t("loginWelcomeMessage")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                  {error}
-                </div>
-              )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="block dark:text-gray-200">
-                  Email
+                  {t("emailLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="email"
-                    placeholder="Enter your email"
+                    placeholder={t("enterYourEmail")}
                     className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
                     value={email}
@@ -100,13 +119,13 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="block dark:text-gray-200">
-                  Password
+                  {t("passwordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t("enterYourPassword")}
                     className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     required
                     value={password}
@@ -139,16 +158,16 @@ export default function LoginPage() {
                     htmlFor="remember"
                     className="mx-2 text-sm text-gray-700 dark:text-gray-300"
                   >
-                    Remember me
+                    {t("rememberMe")}
                   </Label>
                 </div>
-                {/*<a
-                  href="/forgot-password"
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
                   className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  Forgot password?
-                </a>
-                */}
+                  {t("forgotPassword")}
+                </button>
               </div>
               <Button
                 type="submit"
@@ -166,10 +185,10 @@ export default function LoginPage() {
                       }}
                       className="h-5 w-5 border-2 border-t-transparent border-white rounded-full mx-2"
                     />
-                    <span>Loading...</span>
+                    <span>{t("loading")}</span>
                   </div>
                 ) : (
-                  "Login"
+                  t("loginButton")
                 )}
               </Button>
             </form>
@@ -177,13 +196,13 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-6 text-center text-gray-600 dark:text-gray-300">
-          <span>Don&apos;t have an account? </span>
-          <a
-            href="/register"
+          <span>{t("dontHaveAccount")} </span>
+          <button
+            onClick={handleSignUp}
             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
-            Create a new account
-          </a>
+            {t("createNewAccount")}
+          </button>
         </div>
       </motion.div>
     </div>

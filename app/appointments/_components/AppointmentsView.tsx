@@ -204,9 +204,7 @@ export const AppointmentsView = () => {
                       } top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400`}
                     />
                     <select
-                      className={`w-full h-11 rounded-lg border ${
-                        isRTL ? "px-10 px-10 text-right" : "px-10 px-10"
-                      } py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none shadow-sm`}
+                      className={`w-full h-11 rounded-lg border px-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none shadow-sm`}
                       onChange={(e) => setFilterDays(Number(e.target.value))}
                       value={filterDays}
                     >

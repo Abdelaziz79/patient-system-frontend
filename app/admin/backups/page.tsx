@@ -131,6 +131,7 @@ const BackupsPage = () => {
     createBackup,
     restoreBackup,
     deleteBackup,
+    downloadBackup,
     refetchBackups,
     isCreating,
     isRestoring,
@@ -234,11 +235,9 @@ const BackupsPage = () => {
 
   // Simulate backup size for display (this would come from actual API in real implementation)
   const getBackupSize = (backup: any) => {
-    // Using backup name length as a seed for random size between 10MB and 2GB
-    const seed = backup.name.length;
-    const size = (10 + ((seed * 137) % 2000)) * 1024 * 1024; // Between 10MB and 2GB in bytes
-
-    return formatBytes(size);
+    // In a real implementation, the size would come from the API
+    // For now, use a more realistic placeholder size for backups
+    return "< 10 MB";
   };
 
   // Format bytes to human readable format
@@ -255,7 +254,7 @@ const BackupsPage = () => {
   // Handle download (in a real implementation, this would trigger a download)
   const handleDownload = (backupName: string) => {
     toast.success(`${t("downloadStarted")}: ${backupName}`);
-    // In a real implementation, this would use an API endpoint to download the backup
+    downloadBackup(backupName);
   };
 
   if (hasAccess === false) {

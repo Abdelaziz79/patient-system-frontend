@@ -49,7 +49,7 @@ export interface IPersonalInfo {
 
 export interface IVisit {
   _id: string;
-  date: Date;
+  date: string;
   title?: string;
   notes?: string;
   sectionData: Map<string, any>;

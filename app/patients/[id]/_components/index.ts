@@ -1,5 +1,4 @@
 export * from "./PatientTabs";
-export * from "./ReportDialog";
 export * from "./FooterActions";
 export * from "./PatientLoader";
 export * from "./PatientActions";
@@ -7,7 +6,6 @@ export * from "./PatientInfoCard";
 export * from "./PatientStatusSection";
 export * from "./TagsSection";
 export * from "./PatientEventsSection";
-export * from "./ShareDialog";
 export * from "./TreatmentSuggestions";
 
 export type {

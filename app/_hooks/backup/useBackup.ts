@@ -181,6 +181,31 @@ export const useBackup = () => {
     }
   };
 
+  // Download backup function
+  const downloadBackup = (backupName: string) => {
+    try {
+      if (!hasAccess) {
+        toast.error("Only super admin can download backups");
+        return {
+          success: false,
+          error: "Only super admin can download backups",
+        };
+      }
+
+      if (!backupName) {
+        toast.error("Backup name is required");
+        return { success: false, error: "Backup name is required" };
+      }
+
+      backupApi.downloadBackup(backupName);
+      return { success: true };
+    } catch (error) {
+      const errorMsg = "Failed to download backup";
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
+    }
+  };
+
   // Extract error message from failureReason
   const errorMessage = failureReason
     ? failureReason instanceof Error
@@ -196,6 +221,7 @@ export const useBackup = () => {
     createBackup,
     restoreBackup,
     deleteBackup,
+    downloadBackup,
     refetchBackups,
     // Export mutation states for UI feedback
     isCreating: createBackupMutation.isPending,

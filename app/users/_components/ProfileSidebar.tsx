@@ -1,6 +1,7 @@
 import { User } from "@/app/_types/User";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useFormattedDate } from "@/app/_hooks/useFormattedDate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDistanceToNow } from "date-fns";
 import { Calendar, Clock, Shield, Star } from "lucide-react";
 import { useMemo } from "react";
 
@@ -9,15 +10,8 @@ interface ProfileSidebarProps {
 }
 
 export function ProfileSidebar({ user }: ProfileSidebarProps) {
-  // Format date utility
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  const { t } = useLanguage();
+  const { formatDate, formatRelativeTime } = useFormattedDate();
 
   // Calculate days remaining in subscription
   const daysRemaining = useMemo(() => {
@@ -59,6 +53,19 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     }
   };
 
+  // Safely get role translation
+  const getRoleTranslation = (role: string) => {
+    if (
+      role === "doctor" ||
+      role === "nurse" ||
+      role === "staff" ||
+      role === "admin"
+    ) {
+      return t(role);
+    }
+    return role; // fallback to original value if not a known role
+  };
+
   const roleBadge = getRoleBadge(user.role);
   const subscriptionBadge = user?.subscription?.type
     ? getSubscriptionBadge(user.subscription.type)
@@ -80,7 +87,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               <span
                 className={`absolute bottom-0 right-0 px-2 py-1 rounded-full text-xs font-medium ${roleBadge} shadow-sm border border-white dark:border-slate-700`}
               >
-                {user.role}
+                {getRoleTranslation(user.role)}
               </span>
             </div>
           </div>
@@ -91,7 +98,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               {user.email}
             </p>
             <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
-              {user.specialization}
+              {user.specialization || t("notProvided")}
             </p>
 
             <div className="mt-4 flex justify-center">
@@ -102,7 +109,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                     : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                 }`}
               >
-                {user.isActive ? "Active" : "Inactive"}
+                {user.isActive ? t("active") : t("inactive")}
               </span>
             </div>
           </div>
@@ -111,21 +118,23 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             <div className="flex items-center text-sm">
               <Shield className="h-4 w-4 text-green-600 dark:text-green-400 mx-2" />
               <span className="text-gray-500 dark:text-gray-400 mx-2">
-                Role:
+                {t("roles")}:
               </span>
-              <span className="font-medium capitalize">{user.role}</span>
+              <span className="font-medium capitalize">
+                {getRoleTranslation(user.role)}
+              </span>
             </div>
             <div className="flex items-center text-sm">
               <Star className="h-4 w-4 text-green-600 dark:text-green-400 mx-2" />
               <span className="text-gray-500 dark:text-gray-400 mx-2">
-                Specialization:
+                {t("specialization")}:
               </span>
               <span className="font-medium">{user.specialization || "-"}</span>
             </div>
             <div className="flex items-center text-sm">
               <Calendar className="h-4 w-4 text-green-600 dark:text-green-400 mx-2" />
               <span className="text-gray-500 dark:text-gray-400 mx-2">
-                Created:
+                {t("created")}:
               </span>
               <span className="font-medium">
                 {formatDate(user?.createdAt || "")}
@@ -134,14 +143,10 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             <div className="flex items-center text-sm">
               <Clock className="h-4 w-4 text-green-600 dark:text-green-400 mx-2" />
               <span className="text-gray-500 dark:text-gray-400 mx-2">
-                Last Login:
+                {t("lastLogin")}:
               </span>
               <span className="font-medium">
-                {user?.lastLogin
-                  ? formatDistanceToNow(new Date(user.lastLogin), {
-                      addSuffix: true,
-                    })
-                  : "-"}
+                {user?.lastLogin ? formatRelativeTime(user.lastLogin) : "-"}
               </span>
             </div>
           </div>
@@ -154,7 +159,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
           <CardHeader className="pb-3">
             <div className="flex justify-between items-center">
               <CardTitle className="text-lg font-bold text-green-800 dark:text-green-300">
-                Subscription
+                {t("subscriptionStatus")}
               </CardTitle>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-medium ${subscriptionBadge}`}
@@ -167,7 +172,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">
-                  Status:
+                  {t("status")}:
                 </span>
                 <span
                   className={`font-medium ${
@@ -176,12 +181,12 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                       : "text-red-600 dark:text-red-400"
                   }`}
                 >
-                  {user.subscription.isActive ? "ACTIVE" : "INACTIVE"}
+                  {user.subscription.isActive ? t("active") : t("inactive")}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">
-                  End Date:
+                  {t("endDate")}:
                 </span>
                 <span className="font-medium">
                   {formatDate(user.subscription.endDate)}
@@ -189,7 +194,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">
-                  Days Remaining:
+                  {t("daysRemaining")}:
                 </span>
                 <span
                   className={`font-medium ${
@@ -198,23 +203,49 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                       : "text-red-600 dark:text-red-400"
                   }`}
                 >
-                  {daysRemaining > 0 ? `${daysRemaining} days` : "Expired"}
+                  {daysRemaining > 0
+                    ? `${daysRemaining} ${t("daysRemaining")}`
+                    : t("expired")}
                 </span>
               </div>
 
               <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  <strong>Features:</strong>
+                  <strong>{t("features")}:</strong>
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {user.subscription.features.map((feature, index) => (
-                    <span
-                      key={index}
-                      className="inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded text-xs"
-                    >
-                      {feature}
-                    </span>
-                  ))}
+                  {user.subscription.features.map((feature, index) => {
+                    // Safely translate or display the feature
+                    const featureDisplay = (() => {
+                      try {
+                        // Only attempt translation for known features
+                        if (
+                          [
+                            "reportsExport",
+                            "advancedAnalytics",
+                            "multipleUsers",
+                            "apiAccess",
+                            "support247",
+                            "customIntegration",
+                          ].includes(feature)
+                        ) {
+                          return t(feature as any);
+                        }
+                        return feature;
+                      } catch (e) {
+                        return feature;
+                      }
+                    })();
+
+                    return (
+                      <span
+                        key={index}
+                        className="inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded text-xs"
+                      >
+                        {featureDisplay}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>

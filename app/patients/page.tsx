@@ -1,14 +1,14 @@
 "use client";
 
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { usePatient } from "@/app/_hooks/patient/usePatient";
+import useMobileView from "@/app/_hooks/useMobileView";
+import { IPatient } from "@/app/_types/Patient";
+import { calculateAge } from "@/app/_utils/utils";
 import MobilePatientCard from "@/app/patients/_components/MobilePatientCard";
 import PatientTable, {
   PatientDisplayItem,
 } from "@/app/patients/_components/PatientTable";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
-import useMobileView from "@/app/_hooks/useMobileView";
-import { usePatient } from "@/app/_hooks/patient/usePatient";
-import { IPatient } from "@/app/_types/Patient";
-import { calculateAge } from "@/app/_utils/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,16 +20,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  FilterIcon,
   Loader2,
   SearchIcon,
   UserPlusIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import SearchResults from "../_components/SearchResults";
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -38,10 +37,14 @@ export default function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = useState<
     PatientDisplayItem[]
   >([]);
-  const [sortField, setSortField] = useState<keyof PatientDisplayItem>("name");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isComponentMounted = useRef(true);
 
   const { isMobileView } = useMobileView();
 
@@ -50,125 +53,137 @@ export default function PatientsPage() {
     isLoading,
     total,
     pages,
-    page,
     setPage,
-    limit,
     setLimit,
     performSearch,
     refetch,
   } = usePatient({
     initialPage: currentPage,
     initialLimit: itemsPerPage,
-    initialSortBy: sortField,
-    initialSortDir: sortDirection,
   });
-  console.log(patients);
-  // Transform patients data into the format needed for the PatientTable
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (patients && patients.length > 0) {
-      const transformedPatients = patients.map((patient: IPatient) => {
-        // Get name from personalInfo instead of sectionData.personalinfo
-        const fullName = patient.personalInfo
-          ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
-          : t("unknown");
+    return () => {
+      isComponentMounted.current = false;
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
-        // Calculate age from date string safely
-        let ageValue = t("notAvailable");
-        if (patient.personalInfo?.dateOfBirth) {
-          try {
-            ageValue = calculateAge(String(patient.personalInfo.dateOfBirth));
-          } catch (error) {
-            console.error("Error calculating age:", error);
-          }
+  // Transform patients data to display format
+  useEffect(() => {
+    if (!patients) return;
+
+    const transformedPatients = patients.map((patient: IPatient) => {
+      const fullName = patient.personalInfo
+        ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
+        : t("unknown");
+
+      let ageValue = t("notAvailable");
+      if (patient.personalInfo?.dateOfBirth) {
+        try {
+          ageValue = calculateAge(String(patient.personalInfo.dateOfBirth));
+        } catch (error) {
+          console.error("Error calculating age:", error);
         }
+      }
 
-        return {
-          id: patient.id,
-          name: fullName,
-          phone: patient.personalInfo?.contactNumber || t("notAvailable"),
-          createdAt: patient.createdAt,
-          age: ageValue,
-          gender: patient.personalInfo?.gender || t("notAvailable"),
-          templateName: patient.templateId?.name || t("default"),
-          createdByName: patient.createdBy?.name || t("notAvailable"),
-          fileNumber: patient.personalInfo?.medicalRecordNumber || "",
-          statusColor: patient.status?.color,
-          statusLabel: patient.status?.label,
-          tags: patient.tags,
-          adminId: patient.adminId,
-          isActive: patient.isActive,
-        };
-      });
-      setFilteredPatients(transformedPatients);
-    } else {
-      setFilteredPatients([]);
-    }
+      return {
+        id: patient.id || "",
+        name: fullName,
+        phone: patient.personalInfo?.contactNumber || t("notAvailable"),
+        createdAt: patient.createdAt,
+        age: ageValue,
+        gender: patient.personalInfo?.gender || t("notAvailable"),
+        templateName: patient.templateId?.name || t("default"),
+        createdByName: patient.createdBy?.name || t("notAvailable"),
+        fileNumber: patient.personalInfo?.medicalRecordNumber || "",
+        statusColor: patient.status?.color,
+        statusLabel: patient.status?.label,
+        tags: patient.tags,
+        adminId: patient.adminId,
+        isActive: patient.isActive,
+      };
+    });
+
+    setFilteredPatients(transformedPatients);
   }, [patients, t]);
 
-  // Handle search
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      refetch();
-    } else {
-      const fetchSearchResults = async () => {
-        const results = await performSearch({ query: searchQuery });
-        if (results && results.data) {
-          const transformedResults = results.data.map((patient: IPatient) => {
-            // Get name from personalInfo instead of sectionData.personalinfo
-            const fullName = patient.personalInfo
-              ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
-              : t("unknown");
-
-            // Calculate age from date string safely
-            let ageValue = t("notAvailable");
-            if (patient.personalInfo?.dateOfBirth) {
-              try {
-                ageValue = calculateAge(
-                  String(patient.personalInfo.dateOfBirth)
-                );
-              } catch (error) {
-                console.error("Error calculating age:", error);
-              }
-            }
-
-            return {
-              id: patient.id,
-              name: fullName,
-              phone: patient.personalInfo?.contactNumber || t("notAvailable"),
-              createdAt: patient.createdAt,
-              age: ageValue,
-              gender: patient.personalInfo?.gender || t("notAvailable"),
-              templateName: patient.templateId?.name || t("default"),
-              createdByName: patient.createdBy?.name || t("notAvailable"),
-              fileNumber: patient.personalInfo?.medicalRecordNumber || "",
-              statusColor: patient.status?.color,
-              statusLabel: patient.status?.label,
-              tags: patient.tags,
-              adminId: patient.adminId,
-              isActive: patient.isActive,
-            };
-          });
-          setFilteredPatients(transformedResults);
-        }
-      };
-
-      // Debounce search requests
-      const timer = setTimeout(() => {
-        fetchSearchResults();
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [searchQuery, refetch, performSearch, t]);
-
-  // Update pagination
+  // Update pagination settings when user changes page or items per page
   useEffect(() => {
     setPage(currentPage);
-    setLimit(itemsPerPage);
-  }, [currentPage, itemsPerPage, setPage, setLimit]);
+  }, [currentPage, setPage]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  useEffect(() => {
+    setLimit(itemsPerPage);
+  }, [itemsPerPage, setLimit]);
+
+  // Handle search input changes with debounce
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (query.trim() === "") {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      refetch();
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      executeSearch(query);
+    }, 300);
+  };
+
+  // Separate function to perform search
+  const executeSearch = async (query: string) => {
+    if (!isComponentMounted.current) return;
+
+    setIsSearching(true);
+    try {
+      const results = await performSearch({ query });
+
+      if (!isComponentMounted.current) return;
+
+      // Process search results
+      let searchData = [];
+
+      if (results) {
+        if (Array.isArray(results)) {
+          searchData = results;
+        } else if (results.data && Array.isArray(results.data)) {
+          searchData = results.data;
+        } else if (typeof results === "object") {
+          searchData = [results];
+        }
+      }
+
+      // Only update state if component is still mounted
+      if (isComponentMounted.current) {
+        setSearchResults(searchData);
+        setShowSearchResults(searchData.length > 0);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      if (isComponentMounted.current) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    } finally {
+      if (isComponentMounted.current) {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  const closeSearchResults = () => {
+    setShowSearchResults(false);
   };
 
   const handleAddPatient = () => {
@@ -217,31 +232,29 @@ export default function PatientsPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 sm:px-6">
-              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <div className="relative flex-1">
+              <div className="mb-4 sm:mb-6 relative">
+                <div className="relative w-full max-w-xl mx-auto md:mx-0">
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
                   <Input
+                    ref={searchInputRef}
                     placeholder={t("searchForPatient")}
                     className="px-10 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     value={searchQuery}
-                    onChange={handleSearch}
+                    onChange={handleSearchChange}
+                    onFocus={() => {
+                      if (searchResults.length > 0) {
+                        setShowSearchResults(true);
+                      }
+                    }}
                   />
-                </div>
-                <div className="relative sm:w-1/4">
-                  <div className="relative">
-                    <FilterIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500 dark:text-green-400" />
-                    <select
-                      className="w-full rounded-md border px-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white appearance-none"
-                      onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                      value={itemsPerPage}
-                    >
-                      <option value={5}>5 {t("perPage")}</option>
-                      <option value={10}>10 {t("perPage")}</option>
-                      <option value={25}>25 {t("perPage")}</option>
-                      <option value={50}>50 {t("perPage")}</option>
-                    </select>
-                  </div>
+
+                  {/* Search Results Dropdown */}
+                  <SearchResults
+                    results={searchResults}
+                    onClose={closeSearchResults}
+                    isVisible={showSearchResults}
+                    isLoading={isSearching}
+                  />
                 </div>
               </div>
 
@@ -281,13 +294,7 @@ export default function PatientsPage() {
                     </div>
                   ) : (
                     /* Desktop View - Table Layout */
-                    <PatientTable
-                      filteredPatients={filteredPatients}
-                      setSortDirection={setSortDirection}
-                      setSortField={setSortField}
-                      sortDirection={sortDirection}
-                      sortField={sortField}
-                    />
+                    <PatientTable filteredPatients={filteredPatients} />
                   )}
 
                   {/* Pagination */}

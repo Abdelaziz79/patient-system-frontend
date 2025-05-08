@@ -61,7 +61,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: TranslationKey): string => {
-    return translations[currentLocale]?.[key] || translations.en[key];
+    // If translation exists in current locale, use it, otherwise fall back to English
+    return (
+      (translations[currentLocale] as Translations)[key] || translations.en[key]
+    );
   };
 
   const value = {

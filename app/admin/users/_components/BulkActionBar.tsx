@@ -76,7 +76,7 @@ export function BulkActionBar({
         />
         <span className="font-medium">
           {selectedCount} {selectedCount === 1 ? t("user") : t("users")}{" "}
-          selected
+          {t("selected")}
         </span>
       </div>
 
@@ -120,16 +120,6 @@ export function BulkActionBar({
               <span>{t("changePassword")}</span>
             </DropdownMenuItem>
           )}
-
-          {onBulkInvite && (
-            <DropdownMenuItem
-              onClick={onBulkInvite}
-              className="cursor-pointer text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-            >
-              <Mail className={`${isRTL ? "mx-2" : "mx-2"} h-4 w-4`} />
-              <span>{t("sendNotification")}</span>
-            </DropdownMenuItem>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -150,7 +140,7 @@ export function BulkActionBar({
           onClick={onToggleBulkMode}
           className="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          Exit Bulk Mode
+          {t("exit")}
         </Button>
       )}
     </motion.div>

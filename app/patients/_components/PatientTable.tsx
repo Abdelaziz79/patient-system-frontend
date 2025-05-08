@@ -9,10 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate } from "../../_utils/utils";
-import { ArrowUpDown, Eye, SearchIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { ChevronDown, ChevronUp, Eye, SearchIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { formatDate } from "../../_utils/utils";
 
 // Updated Patient interface to match the provided data structure
 export interface PatientDisplayItem {
@@ -32,15 +32,16 @@ export interface PatientDisplayItem {
   isActive: boolean;
 }
 
-type Props = {
+// Update the Props type definition to make sort-related props optional
+export interface Props {
   filteredPatients: PatientDisplayItem[];
-  sortField: keyof PatientDisplayItem;
-  sortDirection: "asc" | "desc";
-  setSortField: (field: keyof PatientDisplayItem) => void;
-  setSortDirection: (direction: "asc" | "desc") => void;
-};
+  sortField?: keyof PatientDisplayItem;
+  sortDirection?: "asc" | "desc";
+  setSortField?: (field: keyof PatientDisplayItem) => void;
+  setSortDirection?: (direction: "asc" | "desc") => void;
+}
 
-function PatientTable({
+export default function PatientTable({
   filteredPatients,
   sortField,
   sortDirection,
@@ -48,15 +49,55 @@ function PatientTable({
   setSortDirection,
 }: Props) {
   const router = useRouter();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, dir } = useLanguage();
 
+  // Only render sort buttons if sort functionality is present
   const handleSort = (field: keyof PatientDisplayItem) => {
+    if (!setSortField || !setSortDirection) return; // Early return if sort functions are not provided
+
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+
+  // Modify the rendering of table headers to conditionally show sort buttons
+  const renderSortableHeader = (
+    label: string,
+    field: keyof PatientDisplayItem
+  ) => {
+    if (!setSortField || !setSortDirection) {
+      // Just render the header text if sort functionality is disabled
+      return <div className="font-semibold">{label}</div>;
+    }
+
+    // Render sortable header with buttons if sort functionality is enabled
+    return (
+      <div
+        className="flex items-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        onClick={() => handleSort(field)}
+      >
+        <span className="font-semibold">{label}</span>
+        <div className="flex flex-col mx-1">
+          <ChevronUp
+            className={`h-3 w-3 ${
+              sortField === field && sortDirection === "asc"
+                ? "text-blue-600 dark:text-blue-400"
+                : "text-gray-400 dark:text-gray-600"
+            }`}
+          />
+          <ChevronDown
+            className={`h-3 w-3 ${
+              sortField === field && sortDirection === "desc"
+                ? "text-blue-600 dark:text-blue-400"
+                : "text-gray-400 dark:text-gray-600"
+            }`}
+          />
+        </div>
+      </div>
+    );
   };
 
   const handlePatientClick = (id: string) => {
@@ -76,48 +117,26 @@ function PatientTable({
               <TableHead className="font-bold text-green-800 dark:text-green-300 w-12 text-start">
                 #
               </TableHead>
-              <TableHead
-                className="font-bold text-green-800 dark:text-green-300 cursor-pointer text-start"
-                onClick={() => handleSort("name")}
-              >
-                <div className="flex items-center">
-                  {t("name")}
-                  <ArrowUpDown className="mx-2 h-4 w-4" />
-                  {sortField === "name" && (
-                    <span className="text-xs">
-                      {sortDirection === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
+              <TableHead className="font-bold text-green-800 dark:text-green-300 text-start">
+                {renderSortableHeader(t("name"), "name")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 text-start">
-                {t("phoneTranslate")}
+                {renderSortableHeader(t("phoneTranslate"), "phone")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 text-start">
-                {t("age")}
+                {renderSortableHeader(t("age"), "age")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 hidden md:table-cell text-start">
-                {t("gender")}
+                {renderSortableHeader(t("gender"), "gender")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 hidden md:table-cell text-start">
-                {t("patientStatus")}
-              </TableHead>
-              <TableHead
-                className="font-bold text-green-800 dark:text-green-300 cursor-pointer hidden md:table-cell text-start"
-                onClick={() => handleSort("createdAt")}
-              >
-                <div className="flex items-center">
-                  {t("added")}
-                  <ArrowUpDown className="mx-2 h-4 w-4" />
-                  {sortField === "createdAt" && (
-                    <span className="text-xs">
-                      {sortDirection === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
+                {renderSortableHeader(t("patientStatus"), "statusLabel")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 hidden md:table-cell text-start">
-                {t("template")}
+                {renderSortableHeader(t("added"), "createdAt")}
+              </TableHead>
+              <TableHead className="font-bold text-green-800 dark:text-green-300 hidden md:table-cell text-start">
+                {renderSortableHeader(t("template"), "templateName")}
               </TableHead>
               <TableHead className="font-bold text-green-800 dark:text-green-300 w-12 hidden md:table-cell">
                 <span className="sr-only">{t("actions")}</span>
@@ -203,5 +222,3 @@ function PatientTable({
     </div>
   );
 }
-
-export default PatientTable;

@@ -121,7 +121,7 @@ export function TagsSection({ patient }: TagsSectionProps) {
               <Badge
                 key={`${tag}-${index}`}
                 variant="secondary"
-                className="px-3 py-1.5 px-1 flex items-center gap-1 bg-indigo-50 dark:bg-slate-800 text-indigo-800 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-slate-700 transition-colors duration-200 border border-indigo-200 dark:border-slate-700"
+                className="px-3 py-1.5 flex items-center gap-1 bg-indigo-50 dark:bg-slate-800 text-indigo-800 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-slate-700 transition-colors duration-200 border border-indigo-200 dark:border-slate-700"
               >
                 {tag}
                 <TooltipProvider>

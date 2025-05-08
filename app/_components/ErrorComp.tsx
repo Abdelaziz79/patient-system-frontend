@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "../_contexts/LanguageContext";
 
 interface ErrorProps {
   message: string;
@@ -16,8 +17,12 @@ export default function ErrorComp({
   retryAction,
   homeAction,
 }: ErrorProps) {
+  const { t, dir } = useLanguage();
   return (
-    <div className="flex items-center justify-center p-4 py-6 h-screen">
+    <div
+      className="flex items-center justify-center p-4 py-6 h-screen"
+      dir={dir}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -28,7 +33,7 @@ export default function ErrorComp({
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300 flex items-center">
               <AlertCircle className="mx-2 h-6 w-6 text-red-500" />
-              Error Occurred
+              {t("errorOccurred")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -42,7 +47,7 @@ export default function ErrorComp({
                   onClick={retryAction}
                   className="w-full justify-center bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white transition-all duration-200"
                 >
-                  Try Again
+                  {t("tryAgain")}
                 </Button>
               )}
 
@@ -52,7 +57,7 @@ export default function ErrorComp({
                   className="w-full justify-center bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-all duration-200"
                   variant="outline"
                 >
-                  Back to Home
+                  {t("backToHome")}
                 </Button>
               )}
             </div>

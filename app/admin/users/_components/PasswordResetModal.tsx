@@ -1,3 +1,4 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { KeyIcon } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface PasswordResetModalProps {
   isOpen: boolean;
@@ -54,16 +54,16 @@ export function PasswordResetModal({
     } = {};
 
     if (!newPassword.trim()) {
-      newErrors.newPassword = "New password is required";
-      toast.error("New password is required");
+      newErrors.newPassword = t("newPasswordRequired");
+      toast.error(t("newPasswordRequired"));
     } else if (newPassword.length < 6) {
-      newErrors.newPassword = "Password must be at least 6 characters";
-      toast.error("Password must be at least 6 characters");
+      newErrors.newPassword = t("passwordMinLength");
+      toast.error(t("passwordMinLength"));
     }
 
     if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-      toast.error("Passwords do not match");
+      newErrors.confirmPassword = t("passwordsDoNotMatch");
+      toast.error(t("passwordsDoNotMatch"));
     }
 
     setErrors(newErrors);
@@ -80,13 +80,13 @@ export function PasswordResetModal({
     try {
       const result = await onReset(userId, newPassword);
       if (result.success) {
-        toast.success(result.message || "Password reset successfully");
+        toast.success(result.message || t("successfullyResetPassword"));
         handleClose();
       } else {
-        toast.error(result.message || "Failed to reset password");
+        toast.error(result.message || t("failedToResetPassword"));
       }
     } catch (error) {
-      toast.error("Failed to reset user password");
+      toast.error(t("failedToResetPassword"));
       console.error("Error resetting password:", error);
     }
   };
@@ -127,8 +127,10 @@ export function PasswordResetModal({
             {t("changePassword")}
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Reset password for user:{" "}
-            <span className="font-medium">{userName}</span>
+            <span className="flex">
+              {t("resetPasswordForUser")}:{" "}
+              <span className="font-medium">{userName}</span>
+            </span>
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-2">
@@ -140,7 +142,7 @@ export function PasswordResetModal({
                   isRTL ? "text-left" : "text-right"
                 } font-medium text-gray-700 dark:text-gray-300`}
               >
-                New Password
+                {t("newPassword")}
               </Label>
               <div className="col-span-3">
                 <Input
@@ -177,7 +179,7 @@ export function PasswordResetModal({
                   isRTL ? "text-left" : "text-right"
                 } font-medium text-gray-700 dark:text-gray-300`}
               >
-                Confirm Password
+                {t("confirmPassword")}
               </Label>
               <div className="col-span-3">
                 <Input
@@ -229,9 +231,7 @@ export function PasswordResetModal({
               {isResetting ? (
                 <span className="flex items-center">
                   <svg
-                    className={`animate-spin ${
-                      isRTL ? "-mx-1 mx-2" : "-mx-1 mx-2"
-                    } h-4 w-4 text-white`}
+                    className={`animate-spin mx-2 h-4 w-4 text-white`}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -250,7 +250,7 @@ export function PasswordResetModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Resetting...
+                  {t("resetting")}...
                 </span>
               ) : (
                 t("changePassword")

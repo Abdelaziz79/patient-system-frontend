@@ -65,6 +65,11 @@ export const backupApi = {
     }
   },
 
+  // Download a backup
+  downloadBackup: async (backupName: string): Promise<void> => {
+    window.open(`${backupUrl}/${backupName}/download`, "_blank");
+  },
+
   // Check if user has access to backups (is super_admin)
   checkBackupAccess: async (): Promise<boolean> => {
     try {

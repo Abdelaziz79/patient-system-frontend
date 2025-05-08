@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { useAuth } from "@/app/_hooks/auth/useAuth";
 import useMobileView from "@/app/_hooks/useMobileView";
 import { useUserAdmin } from "@/app/_hooks/userAdmin/useUserAdmin";
@@ -10,13 +11,12 @@ import toast from "react-hot-toast";
 import { UsersManagementContent } from "./UsersManagementContent";
 import { UsersManagementHeader } from "./UsersManagementHeader";
 import { UsersManagementModals } from "./UsersManagementModals";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function UsersManagement() {
   // Get language context for RTL support
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, dir } = useLanguage();
 
   // Get current user authentication info
   const { user: currentUser } = useAuth();
@@ -51,14 +51,8 @@ export default function UsersManagement() {
     useState(false);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [localCurrentPage, setLocalCurrentPage] = useState(1);
   const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false);
-  const [paginatedUsers, setPaginatedUsers] = useState<User[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [bulkSelectMode, setBulkSelectMode] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(
     new Set()
@@ -70,66 +64,12 @@ export default function UsersManagement() {
   // Mobile view hook
   const { isMobileView } = useMobileView();
 
-  const isFiltering = Boolean(searchQuery || roleFilter);
-
   // Load users when component mounts
   useEffect(() => {
     fetchUsers(1).catch((error) => {
-      toast.error(error.message || "Failed to load users");
+      toast.error(t("failedToLoadUsers"));
     });
-  }, [fetchUsers]);
-
-  // Filter users
-  useEffect(() => {
-    if (!users) return;
-
-    let result = [...users];
-
-    // Apply search filter
-    if (searchQuery) {
-      result = result.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply role filter
-    if (roleFilter) {
-      result = result.filter((user) => user.role === roleFilter);
-    }
-
-    setFilteredUsers(result);
-  }, [searchQuery, roleFilter, users]);
-
-  // Handle filtered users pagination
-  useEffect(() => {
-    if (isFiltering) {
-      // Client-side pagination for filtered results
-      const startIndex = (localCurrentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      setPaginatedUsers(filteredUsers.slice(startIndex, endIndex));
-    } else {
-      // For non-filtered view, use the users from the backend directly
-      setPaginatedUsers(users);
-    }
-  }, [filteredUsers, localCurrentPage, users, isFiltering]);
-
-  // When filters change, reset to page 1
-  useEffect(() => {
-    if (searchQuery || roleFilter) {
-      setLocalCurrentPage(1);
-      // Also clear any selected users when filters change
-      setSelectedUserIds(new Set());
-    }
-  }, [searchQuery, roleFilter]);
-
-  // Sync local page state with hook page state when not filtering
-  useEffect(() => {
-    if (!searchQuery && !roleFilter) {
-      setLocalCurrentPage(currentPage);
-    }
-  }, [currentPage, searchQuery, roleFilter]);
+  }, [fetchUsers, t]);
 
   // Clean up event handlers when modals change
   useEffect(() => {
@@ -148,16 +88,12 @@ export default function UsersManagement() {
   const handlePageChange = async (page: number) => {
     // Clear selections when changing pages
     setSelectedUserIds(new Set());
-    setLocalCurrentPage(page);
 
-    // Only fetch from backend if no filters are applied
-    if (!searchQuery && !roleFilter) {
-      try {
-        await fetchUsers(page);
-      } catch (error) {
-        toast.error("Failed to load users");
-        console.error("Error fetching users:", error);
-      }
+    try {
+      await fetchUsers(page);
+    } catch (error) {
+      toast.error(t("failedToLoadUsers"));
+      console.error("Error fetching users:", error);
     }
   };
 
@@ -165,15 +101,15 @@ export default function UsersManagement() {
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      await fetchUsers(localCurrentPage);
-      toast.success("User data refreshed");
+      await fetchUsers(currentPage);
+      toast.success(t("userDataRefreshed"));
     } catch (error) {
-      toast.error("Failed to refresh data");
+      toast.error(t("failedToRefreshData"));
       console.error("Error fetching users:", error);
     } finally {
       setIsRefreshing(false);
     }
-  }, [fetchUsers, localCurrentPage]);
+  }, [fetchUsers, currentPage, t]);
 
   // Open modal for creating a new user
   const handleCreateUserClick = () => {
@@ -204,7 +140,7 @@ export default function UsersManagement() {
         result = await createUser(userData as UserCreateData);
       } else {
         if (!selectedUser?.id) {
-          toast.error("Missing user ID for update");
+          toast.error(t("missingUserIdUpdate"));
           return;
         }
         result = await updateUser(selectedUser.id, userData);
@@ -214,13 +150,15 @@ export default function UsersManagement() {
         toast.success(result.message);
         setIsUserModalOpen(false);
         // Refresh user list after operation
-        fetchUsers(localCurrentPage);
+        fetchUsers(currentPage);
       } else {
         toast.error(result.message);
       }
     } catch (error) {
       toast.error(
-        `Failed to ${userModalMode === "create" ? "create" : "update"} user`
+        userModalMode === "create"
+          ? t("failedToCreateUser")
+          : t("failedToUpdateUser")
       );
       console.error(
         `Error ${userModalMode === "create" ? "creating" : "updating"} user:`,
@@ -254,19 +192,13 @@ export default function UsersManagement() {
 
   // Toggle all users on current page
   const toggleAllUsers = () => {
-    if (selectedUserIds.size === paginatedUsers.length) {
+    if (selectedUserIds.size === users.length) {
       // If all are selected, unselect all
       setSelectedUserIds(new Set());
     } else {
       // Otherwise select all
-      setSelectedUserIds(new Set(paginatedUsers.map((user) => user.id)));
+      setSelectedUserIds(new Set(users.map((user) => user.id)));
     }
-  };
-
-  // Reset filters
-  const clearFilters = () => {
-    setSearchQuery("");
-    setRoleFilter("");
   };
 
   // Handle user status action (deactivate/reactivate)
@@ -294,15 +226,15 @@ export default function UsersManagement() {
 
       if (result.success) {
         toast.success(result.message);
-        fetchUsers(localCurrentPage);
+        fetchUsers(currentPage);
       } else {
         toast.error(result.message);
       }
     } catch (error) {
       toast.error(
-        `Failed to ${
-          selectedUser.isActive !== false ? "deactivate" : "reactivate"
-        } user`
+        selectedUser.isActive !== false
+          ? t("failedToDeactivateUser")
+          : t("failedToReactivateUser")
       );
       console.error("Error toggling user status:", error);
     } finally {
@@ -343,25 +275,31 @@ export default function UsersManagement() {
 
       if (successCount > 0) {
         toast.success(
-          `Successfully deactivated ${successCount} user${
-            successCount !== 1 ? "s" : ""
-          }`
+          successCount === 1
+            ? t("successfullyDeactivatedUser")
+            : t("successfullyDeactivatedUsers").replace(
+                "{count}",
+                successCount.toString()
+              )
         );
       }
 
       if (failureCount > 0) {
         toast.error(
-          `Failed to deactivate ${failureCount} user${
-            failureCount !== 1 ? "s" : ""
-          }`
+          failureCount === 1
+            ? t("failedToDeactivateUser")
+            : t("failedToDeactivateUsers").replace(
+                "{count}",
+                failureCount.toString()
+              )
         );
       }
 
       // Refresh user list and clear selections
-      await fetchUsers(localCurrentPage);
+      await fetchUsers(currentPage);
       clearSelections();
     } catch (error) {
-      toast.error("An error occurred during bulk deactivation");
+      toast.error(t("bulkDeactivationError"));
       console.error("Bulk deactivation error:", error);
     }
   };
@@ -385,25 +323,31 @@ export default function UsersManagement() {
 
       if (successCount > 0) {
         toast.success(
-          `Successfully reactivated ${successCount} user${
-            successCount !== 1 ? "s" : ""
-          }`
+          successCount === 1
+            ? t("successfullyReactivatedUser")
+            : t("successfullyReactivatedUsers").replace(
+                "{count}",
+                successCount.toString()
+              )
         );
       }
 
       if (failureCount > 0) {
         toast.error(
-          `Failed to reactivate ${failureCount} user${
-            failureCount !== 1 ? "s" : ""
-          }`
+          failureCount === 1
+            ? t("failedToReactivateUser")
+            : t("failedToReactivateUsers").replace(
+                "{count}",
+                failureCount.toString()
+              )
         );
       }
 
       // Refresh user list and clear selections
-      await fetchUsers(localCurrentPage);
+      await fetchUsers(currentPage);
       clearSelections();
     } catch (error) {
-      toast.error("An error occurred during bulk reactivation");
+      toast.error(t("bulkReactivationError"));
       console.error("Bulk reactivation error:", error);
     }
   };
@@ -433,24 +377,30 @@ export default function UsersManagement() {
 
       if (successCount > 0) {
         toast.success(
-          `Reset passwords for ${successCount} user${
-            successCount !== 1 ? "s" : ""
-          }`
+          successCount === 1
+            ? t("successfullyResetPassword")
+            : t("successfullyResetPasswords").replace(
+                "{count}",
+                successCount.toString()
+              )
         );
       }
 
       if (failureCount > 0) {
         toast.error(
-          `Failed to reset passwords for ${failureCount} user${
-            failureCount !== 1 ? "s" : ""
-          }`
+          failureCount === 1
+            ? t("failedToResetPassword")
+            : t("failedToResetPasswords").replace(
+                "{count}",
+                failureCount.toString()
+              )
         );
       }
 
       // Clear selections
       clearSelections();
     } catch (error) {
-      toast.error("An error occurred during bulk password reset");
+      toast.error(t("bulkPasswordResetError"));
       console.error("Bulk password reset error:", error);
     } finally {
       setIsBulkResettingPassword(false);
@@ -464,33 +414,24 @@ export default function UsersManagement() {
     try {
       // Implement your invite functionality here
       toast.success(
-        `Sent invitations to ${selectedUserIds.size} user${
-          selectedUserIds.size !== 1 ? "s" : ""
-        }`
+        selectedUserIds.size === 1
+          ? t("invitationSent")
+          : t("invitationsSent").replace(
+              "{count}",
+              selectedUserIds.size.toString()
+            )
       );
       clearSelections();
     } catch (error) {
-      toast.error("An error occurred while sending invitations");
+      toast.error(t("bulkInviteError"));
       console.error("Bulk invite error:", error);
     }
   };
 
-  // Get unique roles for filter dropdown
-  const roles =
-    users && users.length > 0
-      ? Array.from(new Set(users.map((user) => user.role))).sort()
-      : ["admin", "doctor", "nurse", "staff"];
-
-  // Calculate pagination data
-  const filteredTotalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-  const totalPages = isFiltering
-    ? filteredTotalPages
-    : pages || Math.ceil(totalUsers / ITEMS_PER_PAGE);
-
   return (
     <div
       className="min-h-screen dark:from-slate-900 dark:to-slate-800"
-      dir={isRTL ? "rtl" : "ltr"}
+      dir={dir}
     >
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <motion.div
@@ -501,12 +442,12 @@ export default function UsersManagement() {
         >
           <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-green-100 dark:border-green-900 shadow-xl">
             <UsersManagementHeader
-              isFiltering={isFiltering}
-              filteredUsersCount={filteredUsers.length}
+              isFiltering={false}
+              filteredUsersCount={users?.length || 0}
               totalUsers={totalUsers}
               onRefresh={refreshData}
               isRefreshing={isRefreshing}
-              onClearFilters={clearFilters}
+              onClearFilters={() => {}}
               onCreateUser={handleCreateUserClick}
               isRTL={isRTL}
             />
@@ -514,15 +455,15 @@ export default function UsersManagement() {
             <UsersManagementContent
               isLoading={isLoading}
               isMobileView={isMobileView}
-              isFiltering={isFiltering}
-              filtersExpanded={filtersExpanded}
-              setFiltersExpanded={setFiltersExpanded}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              roleFilter={roleFilter}
-              setRoleFilter={setRoleFilter}
-              roles={roles}
-              paginatedUsers={paginatedUsers}
+              isFiltering={false}
+              filtersExpanded={false}
+              setFiltersExpanded={() => {}}
+              searchQuery=""
+              setSearchQuery={() => {}}
+              roleFilter=""
+              setRoleFilter={() => {}}
+              roles={[]}
+              paginatedUsers={users || []}
               bulkSelectMode={bulkSelectMode}
               selectedUserIds={selectedUserIds}
               onToggleUserSelection={toggleUserSelection}
@@ -532,12 +473,12 @@ export default function UsersManagement() {
               onEditUser={handleEditUserClick}
               onUpdateSubscription={handleUpdateSubscriptionClick}
               isSuperAdmin={isSuperAdmin}
-              currentPage={localCurrentPage}
+              currentPage={currentPage}
               itemsPerPage={ITEMS_PER_PAGE}
-              totalPages={totalPages}
+              totalPages={pages || Math.ceil(totalUsers / ITEMS_PER_PAGE)}
               onPageChange={handlePageChange}
               totalUsers={totalUsers}
-              filteredUsersCount={filteredUsers.length}
+              filteredUsersCount={users?.length || 0}
               onClearSelection={clearSelections}
               onToggleBulkMode={toggleBulkSelectMode}
               onBulkDeactivate={handleBulkDeactivate}

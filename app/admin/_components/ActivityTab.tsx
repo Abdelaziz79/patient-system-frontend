@@ -140,7 +140,7 @@ const UserListItem = ({
     >
       <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50 dark:from-green-900/10 dark:to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-      <div className="relative flex flex-col z-10 mx-4 mx-2">
+      <div className="relative flex flex-col z-10 mx-4">
         {/* Name and Role */}
         <div className="flex items-center flex-wrap gap-2 mb-1.5">
           <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">

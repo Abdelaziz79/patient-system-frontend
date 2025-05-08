@@ -1,14 +1,14 @@
 "use client";
 
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { INotification } from "@/app/_hooks/notification/notificationApi";
+import { useNotification } from "@/app/_hooks/notification/useNotification";
 import {
   ISystemNotification,
   NotificationType,
 } from "@/app/_hooks/systemNotification/systemNotificationApi";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
-import useMobileView from "@/app/_hooks/useMobileView";
-import { useNotification } from "@/app/_hooks/notification/useNotification";
 import { useSystemNotification } from "@/app/_hooks/systemNotification/useSystemNotification";
+import useMobileView from "@/app/_hooks/useMobileView";
 import { useThemeMode } from "@/app/_hooks/useThemeMode";
 import { useAuthContext } from "@/app/_providers/AuthProvider";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { usePatient } from "../_hooks/patient/usePatient";
+import SearchResults from "./SearchResults";
+import toast from "react-hot-toast";
 
 interface HeaderProps {
   isOpen: boolean;
@@ -95,7 +98,77 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
     refetchUnreadCount,
     markAsRead,
   } = useSystemNotification();
-  console.log(systemNotifications);
+
+  const { performSearch } = usePatient({
+    initialFetch: false,
+  });
+
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchValue.trim().length > 0) {
+        performSearchQuery(searchValue);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+
+  const performSearchQuery = async (query: string) => {
+    if (query.trim().length === 0) return;
+
+    setIsSearching(true);
+    try {
+      const data = await performSearch({
+        query,
+      });
+
+      // Ensure results is always an array, handling various response formats
+      let resultsArray = [];
+
+      if (data) {
+        if (Array.isArray(data)) {
+          resultsArray = data;
+        } else if (typeof data === "object") {
+          // Check if data has a results property that's an array
+          if (data.results && Array.isArray(data.results)) {
+            resultsArray = data.results;
+          } else if (data.data && Array.isArray(data.data)) {
+            resultsArray = data.data;
+          } else {
+            // If it's an object but not in expected format, convert to array
+            console.warn("Search results in unexpected format", data);
+            resultsArray = [data];
+          }
+        }
+      }
+
+      setSearchResults(resultsArray);
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+
+  const closeSearchResults = () => {
+    setShowSearchResults(false);
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -252,47 +325,61 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
         </div>
 
         {/* Search bar - expandable on mobile, always visible on desktop */}
-        <div
-          className={`${
-            isMobile
-              ? isSearchExpanded
-                ? "flex absolute left-0 right-0 top-0 p-3 bg-white/95 dark:bg-slate-900/95 z-30"
-                : "hidden"
-              : "flex"
-          } flex-1 max-w-md mx-4 transition-all duration-300 ease-in-out`}
-        >
-          <div className="relative w-full">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder={t("search")}
-              className={`w-full py-2 px-4 ${
-                isRTL ? "ps-4 pe-9" : "ps-9 pe-4"
-              } rounded-full bg-blue-50/70 dark:bg-blue-900/30 text-gray-700 dark:text-gray-200 border border-blue-100 dark:border-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition-all duration-300`}
-              onBlur={() => isMobile && setIsSearchExpanded(false)}
-            />
-            <Search
-              className={`absolute ${
-                isRTL ? "right-3" : "left-3"
-              } top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400`}
-            />
-            {isMobile && isSearchExpanded && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`absolute ${isRTL ? "left-2" : "right-2"} top-1.5`}
-                onClick={() => setIsSearchExpanded(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
+        {isAuthenticated && (
+          <div
+            className={`${
+              isMobile
+                ? isSearchExpanded
+                  ? "flex absolute left-0 right-0 top-0 p-3 bg-white/95 dark:bg-slate-900/95 z-30"
+                  : "hidden"
+                : "flex"
+            } flex-1 max-w-md mx-4 transition-all duration-300 ease-in-out relative`}
+          >
+            <div className="relative w-full">
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder={t("search")}
+                className={`w-full py-2 px-8    rounded-full bg-blue-50/70 dark:bg-blue-900/30 text-gray-700 dark:text-gray-200 border border-blue-100 dark:border-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition-all duration-300`}
+                onBlur={() => isMobile && setIsSearchExpanded(false)}
+                onChange={handleSearch}
+                onFocus={(e) => {
+                  if (e.target.value.trim().length > 0) {
+                    setShowSearchResults(true);
+                  }
+                }}
+              />
+              <Search
+                className={`absolute ${
+                  isRTL ? "right-3" : "left-3"
+                }  top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400`}
+              />
+              {isMobile && isSearchExpanded && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`absolute ${isRTL ? "left-2" : "right-2"} top-1.5`}
+                  onClick={() => setIsSearchExpanded(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+
+              {/* Search Results Dropdown */}
+              <SearchResults
+                results={searchResults}
+                onClose={closeSearchResults}
+                isVisible={showSearchResults}
+                isLoading={isSearching}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Actions - right aligned */}
         <div className="flex items-center gap-1 md:gap-2">
           {/* Mobile search toggle */}
-          {isMobile && (
+          {isMobile && isAuthenticated && (
             <Button
               variant="ghost"
               size="icon"
@@ -693,14 +780,18 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
                   {t("login")}
                 </Button>
               </Link>
-              <Link href="/register">
-                <Button
-                  size={isMobile ? "sm" : "default"}
-                  className="bg-blue-600 hover:bg-blue-700 text-white mx-1 md:mx-2"
-                >
-                  {t("register")}
-                </Button>
-              </Link>
+
+              <Button
+                size={isMobile ? "sm" : "default"}
+                className="bg-blue-600 hover:bg-blue-700 text-white mx-1 md:mx-2"
+                onClick={(e) => {
+                  // Handle sign up
+                  e.preventDefault();
+                  toast.success(t("contactAdminForAccount"));
+                }}
+              >
+                {t("register")}
+              </Button>
             </div>
           )}
         </div>

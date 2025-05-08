@@ -57,8 +57,6 @@ export function PatientEventsSection({
     isDeletingEvent,
     restoreEvent,
     isRestoringEvent,
-    updateEvent,
-    isUpdatingEvent,
   } = usePatient({
     initialFetch: false,
   });
@@ -232,13 +230,6 @@ export function PatientEventsSection({
                   className="cursor-pointer"
                 >
                   {t("analyzeEventCorrelation")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleAnalyzeEvents}
-                  disabled={isAnalyzingEvents || activeEvents.length === 0}
-                  className="cursor-pointer"
-                >
-                  {t("legacyAiAnalysis")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

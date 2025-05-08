@@ -1,4 +1,6 @@
 import { User } from "@/app/_types/User";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useFormattedDate } from "@/app/_hooks/useFormattedDate";
 import {
   Card,
   CardContent,
@@ -6,31 +8,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatDistanceToNow } from "date-fns";
 
 interface ActivityTimelineCardProps {
   user: User;
 }
 
 export function ActivityTimelineCard({ user }: ActivityTimelineCardProps) {
-  // Format date utility
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  const { t } = useLanguage();
+  const { formatDate, formatRelativeTime } = useFormattedDate();
 
   return (
     <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-green-100 dark:border-green-900 shadow-md">
       <CardHeader className="pb-3">
         <CardTitle className="text-xl font-bold text-green-800 dark:text-green-300">
-          Account Activity
+          {t("accountActivity")}
         </CardTitle>
         <CardDescription className="text-green-600 dark:text-green-400">
-          User account timeline and recent activity
+          {t("usersWhoLoggedInRecently")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -41,7 +35,7 @@ export function ActivityTimelineCard({ user }: ActivityTimelineCardProps) {
             <div className="relative flex mx-6">
               <div className="absolute -left-10 mt-1 h-4 w-4 rounded-full bg-green-500 dark:bg-green-400 border-2 border-white dark:border-slate-800"></div>
               <div>
-                <p className="text-sm font-medium">Account Created</p>
+                <p className="text-sm font-medium">{t("accountCreated")}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {formatDate(user?.createdAt || "")}
                 </p>
@@ -52,11 +46,9 @@ export function ActivityTimelineCard({ user }: ActivityTimelineCardProps) {
               <div className="relative flex mx-6">
                 <div className="absolute -left-10 mt-1 h-4 w-4 rounded-full bg-green-500 dark:bg-green-400 border-2 border-white dark:border-slate-800"></div>
                 <div>
-                  <p className="text-sm font-medium">Last Login</p>
+                  <p className="text-sm font-medium">{t("lastLogin")}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {formatDistanceToNow(new Date(user.lastLogin), {
-                      addSuffix: true,
-                    })}
+                    {formatRelativeTime(user.lastLogin)}
                   </p>
                 </div>
               </div>
@@ -65,11 +57,9 @@ export function ActivityTimelineCard({ user }: ActivityTimelineCardProps) {
             <div className="relative flex mx-6">
               <div className="absolute -left-10 mt-1 h-4 w-4 rounded-full bg-green-500 dark:bg-green-400 border-2 border-white dark:border-slate-800"></div>
               <div>
-                <p className="text-sm font-medium">Account Updated</p>
+                <p className="text-sm font-medium">{t("lastUpdated")}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {formatDistanceToNow(new Date(user?.updatedAt || ""), {
-                    addSuffix: true,
-                  })}
+                  {formatRelativeTime(user?.updatedAt || "")}
                 </p>
               </div>
             </div>

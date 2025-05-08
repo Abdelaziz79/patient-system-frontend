@@ -2,11 +2,12 @@
 
 import ErrorComp from "@/app/_components/ErrorComp";
 import Loading from "@/app/_components/Loading";
-import { PasswordResetModal } from "@/app/admin/users/_components/PasswordResetModal";
-import { SubscriptionUpdateModal } from "@/app/admin/users/_components/SubscriptionUpdateModal";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { useAuth } from "@/app/_hooks/auth/useAuth";
 import { useUserAdmin } from "@/app/_hooks/userAdmin/useUserAdmin";
 import { User, UserCreateData } from "@/app/_types/User";
+import { PasswordResetModal } from "@/app/admin/users/_components/PasswordResetModal";
+import { SubscriptionUpdateModal } from "@/app/admin/users/_components/SubscriptionUpdateModal";
 import { UserFormModal } from "@/app/profile/_components/UserFormModal";
 import { AccountInfoCard } from "@/app/users/_components/AccountInfoCard";
 import { ActivityTimelineCard } from "@/app/users/_components/ActivityTimelineCard";
@@ -24,6 +25,7 @@ export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.id as string;
+  const { t, dir, isRTL } = useLanguage();
 
   // Get current user info to check if super_admin
   const { user: currentUser } = useAuth();
@@ -56,7 +58,7 @@ export default function UserProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId) {
-        setError("User ID is required");
+        setError(t("userIdRequired"));
         setLoading(false);
         return;
       }
@@ -67,10 +69,10 @@ export default function UserProfilePage() {
         if (response) {
           setUser(response);
         } else {
-          setError(response || "Failed to load user data");
+          setError(response || t("failedToLoadUserData"));
         }
       } catch (error) {
-        setError("An unexpected error occurred while fetching user data");
+        setError(t("unexpectedErrorFetchingUser"));
         console.error("Error fetching user:", error);
       } finally {
         setLoading(false);
@@ -119,7 +121,7 @@ export default function UserProfilePage() {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("Failed to update user");
+      toast.error(t("failedToUpdateUser"));
       console.error("Error updating user:", error);
     }
   };
@@ -137,9 +139,9 @@ export default function UserProfilePage() {
 
       return result;
     } catch (error) {
-      toast.error("Failed to reset password");
+      toast.error(t("failedToResetPassword"));
       console.error("Error resetting password:", error);
-      return { success: false, message: "An error occurred" };
+      return { success: false, message: t("error") };
     }
   };
 
@@ -171,9 +173,9 @@ export default function UserProfilePage() {
 
       return result;
     } catch (error) {
-      toast.error("Failed to update subscription");
+      toast.error(t("failedToUpdateSubscription"));
       console.error("Error updating subscription:", error);
-      return { success: false, message: "An error occurred" };
+      return { success: false, message: t("error") };
     }
   };
 
@@ -196,7 +198,9 @@ export default function UserProfilePage() {
       }
     } catch (error) {
       toast.error(
-        `Failed to ${user.isActive ? "deactivate" : "reactivate"} user`
+        user.isActive
+          ? t("failedToDeactivateUser")
+          : t("failedToReactivateUser")
       );
       console.error(
         `Error ${user.isActive ? "deactivating" : "reactivating"} user:`,
@@ -217,11 +221,11 @@ export default function UserProfilePage() {
   }
 
   if (error || !user) {
-    return <ErrorComp message={error || "User not found"} />;
+    return <ErrorComp message={error || t("userNotFound")} />;
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto" dir={dir}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -235,8 +239,8 @@ export default function UserProfilePage() {
             size="sm"
             className="bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-colors"
           >
-            <ArrowLeft className="mx-2 h-4 w-4" />
-            Back to Users
+            <ArrowLeft className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />
+            {t("backToUsers")}
           </Button>
         </div>
 

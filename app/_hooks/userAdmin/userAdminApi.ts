@@ -6,8 +6,8 @@ import {
   UserUpdateData,
   UsersResponse,
 } from "@/app/_types/User";
-import { UserEvent } from "../_hooks/auth/authApi";
 import axios from "axios";
+import { UserEvent } from "../auth/authApi";
 
 const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
