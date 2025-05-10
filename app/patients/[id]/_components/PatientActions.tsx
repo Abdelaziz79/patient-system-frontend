@@ -1,8 +1,9 @@
 import LoadingInsights from "@/app/_components/LoadingInsights";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { useAI } from "@/app/_hooks/AI/useAI";
 import { useExport } from "@/app/_hooks/export/useExport";
 import { useReport } from "@/app/_hooks/report/useReport";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,18 +17,16 @@ import {
 import {
   ArrowLeft,
   Edit,
-  FileDown,
   FileSpreadsheet,
   FileText,
-  FileType,
   MoreVertical,
   Printer,
   Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { PatientActionsProps } from "./types";
 import ReactMarkdown from "react-markdown";
+import { PatientActionsProps } from "./types";
 
 export function PatientActions({
   patient,
@@ -39,12 +38,16 @@ export function PatientActions({
   const { getPatientInsights, isLoadingInsights } = useAI();
   const { exportPatient, exportPatientToPDF, patientExportLoading } =
     useExport();
-  const { generatePatientAIReport, createReport } = useReport();
+  const { generatePatientAIReport } = useReport();
+  const { user } = useAuthContext();
 
+  const canUseAIFeatures =
+    user?.role === "admin" ||
+    user?.role === "super_admin" ||
+    user?.role === "doctor";
   const [insights, setInsights] = useState<string | null>(null);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [isSavingReport, setIsSavingReport] = useState(false);
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [reportData, setReportData] = useState<any>(null);
 
@@ -77,7 +80,6 @@ export function PatientActions({
     try {
       setIsGeneratingReport(true);
       const result = await generatePatientAIReport(patient.id);
-      console.log(result);
 
       if (result.success) {
         setAiReport(result.data?.aiAnalysis || t("noAnalysisAvailable"));
@@ -91,48 +93,6 @@ export function PatientActions({
       console.error(error);
     } finally {
       setIsGeneratingReport(false);
-    }
-  };
-
-  const handleSaveReport = async () => {
-    if (!reportData || !patient?.id) {
-      toast.error(t("noReportDataToSave"));
-      return;
-    }
-
-    try {
-      setIsSavingReport(true);
-
-      // Prepare report data for saving according to backend model structure
-      const reportToSave = {
-        name: `${t("medicalAssessmentFor")} ${
-          (patient as any).name || t("patient")
-        }`,
-        description: reportData.aiAnalysis,
-        type: "patient" as "patient" | "visit" | "status" | "custom" | "event",
-        filters: [],
-        charts: [],
-        includeFields: [],
-        isPrivate: false,
-        // The createdBy field will be set on the server based on the authenticated user
-        lastGeneratedAt: new Date(reportData.generatedAt || new Date()),
-      };
-
-      const result = await createReport(reportToSave);
-
-      if (result.success) {
-        toast.success(t("reportSavedSuccess"));
-        // Close the report display after saving
-        setAiReport(null);
-        setReportData(null);
-      } else {
-        toast.error(result.error || t("failedToSaveReport"));
-      }
-    } catch (error) {
-      toast.error(t("errorSavingReport"));
-      console.error(error);
-    } finally {
-      setIsSavingReport(false);
     }
   };
 
@@ -186,27 +146,31 @@ export function PatientActions({
               <Printer className="h-4 w-4" /> {t("print")}
             </Button>
 
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
-              onClick={handleGenerateInsights}
-              disabled={isGeneratingInsights || isLoadingInsights}
-            >
-              <Sparkles className="h-4 w-4" />
-              {isGeneratingInsights || isLoadingInsights
-                ? t("processing")
-                : t("aiInsights")}
-            </Button>
+            {canUseAIFeatures && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+                onClick={handleGenerateInsights}
+                disabled={isGeneratingInsights || isLoadingInsights}
+              >
+                <Sparkles className="h-4 w-4" />
+                {isGeneratingInsights || isLoadingInsights
+                  ? t("processing")
+                  : t("aiInsights")}
+              </Button>
+            )}
 
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
-              onClick={handleGenerateAIReport}
-              disabled={isGeneratingReport}
-            >
-              <Sparkles className="h-4 w-4" />
-              {isGeneratingReport ? t("generating") : t("aiReport")}
-            </Button>
+            {canUseAIFeatures && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
+                onClick={handleGenerateAIReport}
+                disabled={isGeneratingReport}
+              >
+                <Sparkles className="h-4 w-4" />
+                {isGeneratingReport ? t("generating") : t("aiReport")}
+              </Button>
+            )}
 
             <Button
               className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white shadow-sm"
@@ -246,13 +210,6 @@ export function PatientActions({
                     <FileText className="mx-2 h-4 w-4" />
                     <span>{t("csvFormat")}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleExport("pdf")}
-                    disabled={patientExportLoading}
-                  >
-                    <FileType className="mx-2 h-4 w-4" />
-                    <span>{t("pdfFormat")}</span>
-                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -260,16 +217,18 @@ export function PatientActions({
         </div>
       </div>
 
-      <LoadingInsights
-        isLoading={isLoadingInsights}
-        isGenerating={isGeneratingInsights}
-        insights={insights}
-        title={t("aiAnalysisAndInsights")}
-        loadingText={t("analyzingPatientData")}
-        loadingSubtext={t("thisMayTakeAMoment")}
-      />
+      {canUseAIFeatures && (
+        <LoadingInsights
+          isLoading={isLoadingInsights}
+          isGenerating={isGeneratingInsights}
+          insights={insights}
+          title={t("aiAnalysisAndInsights")}
+          loadingText={t("analyzingPatientData")}
+          loadingSubtext={t("thisMayTakeAMoment")}
+        />
+      )}
 
-      {(isGeneratingReport || aiReport) && (
+      {canUseAIFeatures && (isGeneratingReport || aiReport) && (
         <div className="mb-6 p-4 rounded-lg border border-purple-200 dark:border-purple-800 bg-white/90 dark:bg-slate-800/90 shadow-md">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
@@ -295,14 +254,6 @@ export function PatientActions({
                   }}
                 >
                   {t("dismiss")}
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={handleSaveReport}
-                  disabled={isSavingReport}
-                >
-                  {isSavingReport ? t("saving") : t("saveReport")}
                 </Button>
               </div>
             )}

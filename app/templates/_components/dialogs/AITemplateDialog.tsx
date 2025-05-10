@@ -7,18 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { AITemplateGenerator } from "../AITemplateGenerator";
 
 interface AITemplateDialogProps {
-  trigger?: ReactNode;
   open?: boolean;
   onOpenChange?: Dispatch<SetStateAction<boolean>>;
   onGenerate?: () => void;
 }
 
 export function AITemplateDialog({
-  trigger,
   open,
   onOpenChange,
   onGenerate,

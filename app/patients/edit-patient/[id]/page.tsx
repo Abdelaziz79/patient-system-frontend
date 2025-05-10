@@ -56,6 +56,9 @@ export default function EditPatientPage() {
     isLastSection: false,
   });
 
+  // Loading state
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(true);
+
   // Data state
   const [patientTemplate, setPatientTemplate] =
     useState<ExtendedPatientTemplate | null>(null);
@@ -192,7 +195,7 @@ export default function EditPatientPage() {
         // Process section data
         if (patientById.sectionData) {
           Object.entries(patientById.sectionData).forEach(
-            ([sectionName, sectionData]) => {
+            ([_sectionKey, sectionData]) => {
               Object.entries(sectionData as Record<string, any>).forEach(
                 ([fieldName, fieldValue]) => {
                   formValues[fieldName] = fieldValue;
@@ -237,6 +240,8 @@ export default function EditPatientPage() {
       return;
     }
 
+    setIsLoadingTemplate(true);
+
     const initializeTemplate = async () => {
       try {
         // Try to load template from API
@@ -274,16 +279,13 @@ export default function EditPatientPage() {
         templateInitialized.current = true;
       } catch (error) {
         console.error("Error initializing template:", error);
+      } finally {
+        setIsLoadingTemplate(false);
       }
     };
 
     initializeTemplate();
-  }, [
-    patientById,
-    patientStatusOptions,
-    getTemplate,
-    patientInitialized.current,
-  ]);
+  }, [patientById, patientStatusOptions, getTemplate]);
 
   // Form submission handler
   const handleSubmit = useCallback(
@@ -416,10 +418,15 @@ export default function EditPatientPage() {
   );
 
   // Loading/error state
-  if (isLoadingPatientById || patientByIdError || !patientById) {
+  if (
+    isLoadingPatientById ||
+    patientByIdError ||
+    !patientById ||
+    isLoadingTemplate
+  ) {
     return (
       <PatientLoader
-        loading={isLoadingPatientById}
+        loading={isLoadingPatientById || isLoadingTemplate}
         error={patientByIdError ? patientByIdError.message : null}
         patient={patientById}
         handleGoBack={handleGoBack}

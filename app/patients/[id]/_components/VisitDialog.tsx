@@ -1,3 +1,5 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -111,6 +113,12 @@ export function VisitDialog({
   handleGenerateVisitNotes,
   isGeneratingNotes,
 }: VisitDialogProps) {
+  const { t, dir, isRTL } = useLanguage();
+  const { user } = useAuthContext();
+  const canUseAIFeatures =
+    user?.role === "admin" ||
+    user?.role === "super_admin" ||
+    user?.role === "doctor";
   const [errors, setErrors] = useState<ErrorState>({});
   const [activeTab, setActiveTab] = useState<"basic" | "details" | "followup">(
     "basic"
@@ -136,6 +144,7 @@ export function VisitDialog({
       if (!isValid(dateObj)) return "";
       return format(dateObj, "yyyy-MM-dd");
     } catch (e) {
+      console.log(e);
       return "";
     }
   };
@@ -147,23 +156,33 @@ export function VisitDialog({
       if (!isValid(date)) return "";
       return format(date, "HH:mm");
     } catch (e) {
+      console.log(e);
       return "";
     }
   };
 
   // Common visit types
-  const visitTypes: string[] = [
-    "Initial Consultation",
-    "Follow-up",
-    "Emergency",
-    "Routine Checkup",
-    "Treatment Session",
-    "Lab Review",
-    "Specialist Referral",
-    "Telemedicine",
-    "Home Visit",
-    "Other",
-  ];
+
+  const [visitTypes, setVisitTypes] = useState<string[]>([]);
+
+  // Update visit types when language changes
+  useEffect(() => {
+    const getVisitTypes = (): string[] => {
+      return [
+        t("initialConsultation"),
+        t("followUp"),
+        t("emergency"),
+        t("routineCheckup"),
+        t("treatmentSession"),
+        t("labReview"),
+        t("specialistReferral"),
+        t("telemedicine"),
+        t("homeVisit"),
+        t("other"),
+      ];
+    };
+    setVisitTypes(getVisitTypes());
+  }, [t]);
 
   // Reset form errors when dialog opens/closes
   useEffect(() => {
@@ -179,7 +198,7 @@ export function VisitDialog({
         setFollowUpTime(format(new Date(), "HH:mm"));
       }
     }
-  }, [isVisitDialogOpen]);
+  }, [isVisitDialogOpen, followUpTime, visitTime]);
 
   // Initialize follow-up needed state based on existing data
   useEffect(() => {
@@ -228,29 +247,29 @@ export function VisitDialog({
         },
       });
     }
-  }, [visitDuration]);
+  }, [visitDuration, newVisit, setNewVisit]);
 
   const validateForm = (): boolean => {
     const newErrors: ErrorState = {};
 
     if (!newVisit.title.trim()) {
-      newErrors.title = "Title is required";
+      newErrors.title = t("titleRequired");
     }
 
     if (!newVisit.date) {
-      newErrors.date = "Date is required";
+      newErrors.date = t("dateRequired");
     }
 
     if (!visitTime) {
-      newErrors.time = "Time is required";
+      newErrors.time = t("timeRequired");
     }
 
     if (followUpNeeded && !newVisit.sectionData.followUpDate) {
-      newErrors.followUpDate = "Follow-up date is required";
+      newErrors.followUpDate = t("followUpDateRequired");
     }
 
     if (followUpNeeded && !followUpTime) {
-      newErrors.followUpTime = "Follow-up time is required";
+      newErrors.followUpTime = t("followUpTimeRequired");
     }
 
     setErrors(newErrors);
@@ -271,26 +290,6 @@ export function VisitDialog({
     newDate.setMinutes(minutes || 0);
 
     return newDate;
-  };
-
-  // Update date helper to handle time setting
-  const updateDateWithTime = (
-    date: Date | null,
-    timeString: string
-  ): Date | undefined => {
-    if (!date) {
-      // If no date is set, use today with the specified time
-      const now = new Date();
-      const [hours, minutes] = timeString.split(":").map(Number);
-      now.setHours(hours || 0);
-      now.setMinutes(minutes || 0);
-      now.setSeconds(0);
-      now.setMilliseconds(0);
-      return now;
-    }
-
-    const combinedDate = combineDateAndTime(date, timeString);
-    return combinedDate || undefined;
   };
 
   // Convert Date | null to Date | undefined for type safety
@@ -433,16 +432,27 @@ export function VisitDialog({
     setActiveTab(tab);
   };
 
+  // Update form direction and layout when language changes
+  useEffect(() => {
+    if (isVisitDialogOpen) {
+      // Reset any layout-specific state if needed when language changes
+      // This ensures proper layout when switching between LTR and RTL
+    }
+  }, [isVisitDialogOpen, dir]);
+
   return (
     <Dialog open={isVisitDialogOpen} onOpenChange={setIsVisitDialogOpen}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900 rounded-xl shadow-lg">
+      <DialogContent
+        className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900 rounded-xl shadow-lg"
+        dir={dir}
+      >
         {/* Header with gradient background */}
         <DialogHeader className="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-700 dark:to-purple-800 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CalendarCheck className="h-6 w-6 text-indigo-200" />
               <DialogTitle className="text-2xl font-bold">
-                Add New Visit
+                {t("addVisit")}
               </DialogTitle>
             </div>
             <Button
@@ -455,10 +465,12 @@ export function VisitDialog({
             </Button>
           </div>
           <DialogDescription className="text-base mt-2 text-indigo-100">
-            Recording visit for{" "}
-            <span className="font-medium text-white">
-              {patient?.personalInfo?.firstName}{" "}
-              {patient?.personalInfo?.lastName || ""}
+            <span className="flex">
+              {t("recordingVisitFor")}{" "}
+              <span className="font-medium text-white">
+                {patient?.personalInfo?.firstName}{" "}
+                {patient?.personalInfo?.lastName || ""}
+              </span>
             </span>
           </DialogDescription>
         </DialogHeader>
@@ -472,6 +484,7 @@ export function VisitDialog({
               setActiveTab(value as "basic" | "details" | "followup")
             }
             className="w-full"
+            dir={dir as "ltr" | "rtl"}
           >
             <div className="mb-8">
               <div className="flex justify-between mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -484,7 +497,7 @@ export function VisitDialog({
                   )}
                   onClick={() => handleTabHeaderClick("basic")}
                 >
-                  Basic Info
+                  {t("basicInfo")}
                 </span>
                 <span
                   className={cn(
@@ -495,7 +508,7 @@ export function VisitDialog({
                   )}
                   onClick={() => handleTabHeaderClick("details")}
                 >
-                  Clinical Details
+                  {t("clinicalDetails")}
                 </span>
                 <span
                   className={cn(
@@ -506,7 +519,7 @@ export function VisitDialog({
                   )}
                   onClick={() => handleTabHeaderClick("followup")}
                 >
-                  Follow-up
+                  {t("followup")}
                 </span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -525,9 +538,9 @@ export function VisitDialog({
             </div>
 
             <TabsList className="hidden">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="details">Clinical Details</TabsTrigger>
-              <TabsTrigger value="followup">Follow-up</TabsTrigger>
+              <TabsTrigger value="basic">{t("basicInfo")}</TabsTrigger>
+              <TabsTrigger value="details">{t("clinicalDetails")}</TabsTrigger>
+              <TabsTrigger value="followup">{t("followup")}</TabsTrigger>
             </TabsList>
 
             <TabsContent
@@ -541,7 +554,7 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Visit Type
+                    {t("visitType")}
                   </Label>
                   <Select
                     onValueChange={handleVisitTypeSelect}
@@ -549,7 +562,7 @@ export function VisitDialog({
                     value={newVisit.sectionData.visitType || ""}
                   >
                     <SelectTrigger className="w-full h-12 text-base border-indigo-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg">
-                      <SelectValue placeholder="Select visit type" />
+                      <SelectValue placeholder={t("selectVisitType")} />
                     </SelectTrigger>
                     <SelectContent className="max-h-60">
                       {visitTypes.map((type) => (
@@ -571,12 +584,12 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Title
+                    {t("title")}
                     <span className="text-red-500 mx-1">*</span>
                   </Label>
                   <Input
                     id="visit-title"
-                    placeholder="Visit title"
+                    placeholder={t("visitTitlePlaceholder")}
                     value={newVisit.title}
                     onChange={handleTitleChange}
                     className={cn(
@@ -596,7 +609,7 @@ export function VisitDialog({
                       className="mb-2 text-base font-medium flex items-center gap-2"
                     >
                       <CalendarCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Visit Date
+                      {t("visitDate")}
                       <span className="text-red-500 mx-1">*</span>
                     </Label>
                     <Input
@@ -622,7 +635,7 @@ export function VisitDialog({
                       className="mb-2 text-base font-medium flex items-center gap-2"
                     >
                       <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Visit Time
+                      {t("visitTime")}
                       <span className="text-red-500 mx-1">*</span>
                     </Label>
                     <Input
@@ -647,7 +660,7 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Visit Duration
+                    {t("visitDuration")}
                   </Label>
                   <Select
                     onValueChange={setVisitDuration}
@@ -655,26 +668,26 @@ export function VisitDialog({
                     value={visitDuration}
                   >
                     <SelectTrigger className="w-full h-12 text-base border-indigo-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg">
-                      <SelectValue placeholder="Select duration" />
+                      <SelectValue placeholder={t("selectDuration")} />
                     </SelectTrigger>
                     <SelectContent className="max-h-60">
                       <SelectItem value="15 minutes" className="text-base">
-                        15 minutes
+                        {t("15minutes")}
                       </SelectItem>
                       <SelectItem value="30 minutes" className="text-base">
-                        30 minutes
+                        {t("30minutes")}
                       </SelectItem>
                       <SelectItem value="45 minutes" className="text-base">
-                        45 minutes
+                        {t("45minutes")}
                       </SelectItem>
                       <SelectItem value="1 hour" className="text-base">
-                        1 hour
+                        {t("1hour")}
                       </SelectItem>
                       <SelectItem value="1.5 hours" className="text-base">
-                        1.5 hours
+                        {t("1.5hours")}
                       </SelectItem>
                       <SelectItem value="2+ hours" className="text-base">
-                        2+ hours
+                        {t("2+hours")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -693,42 +706,42 @@ export function VisitDialog({
                     className="text-base font-medium flex items-center gap-2"
                   >
                     <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Clinical Notes
+                    {t("clinicalNotes")}
                   </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={generateNotes}
-                          disabled={isGeneratingNotes}
-                          className="flex items-center gap-2 h-10 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg"
-                        >
-                          {isGeneratingNotes ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>Generating...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="h-4 w-4" />
-                              <span>Generate with AI</span>
-                            </>
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          Generate clinical notes using AI based on symptoms and
-                          observations
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  {canUseAIFeatures &&
+                  (symptoms.trim() || observations.trim()) ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={generateNotes}
+                            disabled={isGeneratingNotes}
+                            className="flex items-center gap-2 h-10 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg"
+                          >
+                            {isGeneratingNotes ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>{t("generating")}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4" />
+                                <span>{t("generateWithAI")}</span>
+                              </>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{t("generateClinicalNotesTooltip")}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : null}
                 </div>
                 <Textarea
                   id="visit-notes"
-                  placeholder="Enter detailed visit notes, observations, and findings..."
+                  placeholder={t("visitNotesPlaceholder")}
                   value={newVisit.notes}
                   onChange={handleNotesChange}
                   className="min-h-[150px] text-base border-indigo-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg"
@@ -742,11 +755,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Symptoms
+                    {t("symptoms")}
                   </Label>
                   <Textarea
                     id="symptoms"
-                    placeholder="Patient reported symptoms"
+                    placeholder={t("symptomsPlaceholder")}
                     value={symptoms}
                     onChange={(e) => {
                       setSymptoms(e.target.value);
@@ -767,11 +780,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Observations
+                    {t("observations")}
                   </Label>
                   <Textarea
                     id="observations"
-                    placeholder="Clinical observations"
+                    placeholder={t("observationsPlaceholder")}
                     value={observations}
                     onChange={(e) => {
                       setObservations(e.target.value);
@@ -795,11 +808,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Stethoscope className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Diagnosis
+                    {t("diagnosis")}
                   </Label>
                   <Input
                     id="diagnosis"
-                    placeholder="Primary diagnosis"
+                    placeholder={t("diagnosisPlaceholder")}
                     value={newVisit.sectionData.diagnosis || ""}
                     onChange={(e) =>
                       setNewVisit({
@@ -819,11 +832,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Pill className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Treatment Plan
+                    {t("treatmentPlan")}
                   </Label>
                   <Input
                     id="treatment"
-                    placeholder="Treatment provided"
+                    placeholder={t("treatmentPlaceholder")}
                     value={newVisit.sectionData.treatment || ""}
                     onChange={(e) =>
                       setNewVisit({
@@ -846,11 +859,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Pill className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Medications
+                    {t("medications")}
                   </Label>
                   <Input
                     id="medications"
-                    placeholder="Prescribed medications"
+                    placeholder={t("medicationsPlaceholder")}
                     value={newVisit.sectionData.medications || ""}
                     onChange={(e) =>
                       setNewVisit({
@@ -870,11 +883,11 @@ export function VisitDialog({
                     className="mb-2 text-base font-medium flex items-center gap-2"
                   >
                     <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    Vital Signs
+                    {t("vitalSigns")}
                   </Label>
                   <Input
                     id="vitals"
-                    placeholder="BP, HR, Temp, etc."
+                    placeholder={t("vitalsPlaceholder")}
                     value={newVisit.sectionData.vitals || ""}
                     onChange={(e) =>
                       setNewVisit({
@@ -903,7 +916,7 @@ export function VisitDialog({
                     setFollowUpNeeded(checked);
                     if (!checked) {
                       // Create new object without followUpDate
-                      const { followUpDate, ...rest } = newVisit.sectionData;
+                      const { ...rest } = newVisit.sectionData;
                       setNewVisit({
                         ...newVisit,
                         sectionData: rest,
@@ -930,7 +943,7 @@ export function VisitDialog({
                   className="text-lg font-medium flex items-center gap-2"
                 >
                   <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  Schedule follow-up visit
+                  {t("scheduleFollowUpVisit")}
                 </Label>
               </div>
 
@@ -942,7 +955,7 @@ export function VisitDialog({
                       className="mb-2 text-base font-medium flex items-center gap-2"
                     >
                       <CalendarCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Follow-up Date
+                      {t("followUpDate")}
                       <span className="text-red-500 mx-1">*</span>
                     </Label>
                     <Input
@@ -976,7 +989,7 @@ export function VisitDialog({
                       className="mb-2 text-base font-medium flex items-center gap-2"
                     >
                       <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Follow-up Time
+                      {t("followUpTime")}
                       <span className="text-red-500 mx-1">*</span>
                     </Label>
                     <Input
@@ -1005,11 +1018,11 @@ export function VisitDialog({
                   className="mb-2 text-base font-medium flex items-center gap-2"
                 >
                   <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  Follow-up Instructions
+                  {t("followUpInstructions")}
                 </Label>
                 <Textarea
                   id="follow-up-notes"
-                  placeholder="Instructions for the patient's follow-up care..."
+                  placeholder={t("followUpInstructionsPlaceholder")}
                   value={newVisit.sectionData.followUpNotes || ""}
                   onChange={(e) =>
                     setNewVisit({
@@ -1028,14 +1041,28 @@ export function VisitDialog({
         </div>
 
         {/* Fixed footer with gradient divider and navigation buttons */}
-        <DialogFooter className="mt-8 px-6 py-4 border-t border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 dark:bg-slate-800/50">
+        <DialogFooter
+          className={
+            "mt-8 px-6 py-4 border-t border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 dark:bg-slate-800/50"
+          }
+          dir={dir as "ltr" | "rtl"}
+        >
           <Button
             variant="ghost"
             onClick={handlePreviousTab}
             className="h-12 px-6 text-base text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg flex items-center gap-2 w-full sm:w-auto"
           >
-            <ChevronLeft className="h-5 w-5" />
-            {activeTab === "basic" ? "Cancel" : "Back"}
+            {isRTL ? (
+              <>
+                {activeTab === "basic" ? t("cancel") : t("back")}
+                <ChevronRight className="h-5 w-5" />
+              </>
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5" />
+                {activeTab === "basic" ? t("cancel") : t("back")}
+              </>
+            )}
           </Button>
 
           <div className="flex gap-3 w-full sm:w-auto">
@@ -1044,8 +1071,7 @@ export function VisitDialog({
                 onClick={handleNextTab}
                 className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white h-12 px-6 text-base rounded-lg flex items-center gap-2 w-full sm:w-auto"
               >
-                Next
-                <ChevronRight className="h-5 w-5" />
+                {t("nextStep")}
               </Button>
             ) : (
               <Button
@@ -1056,11 +1082,11 @@ export function VisitDialog({
                 {isAddingVisit ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    Adding Visit...
+                    {t("addingVisit")}
                   </>
                 ) : (
                   <>
-                    <Plus className="h-5 w-5" /> Save Visit
+                    <Plus className="h-5 w-5" /> {t("saveVisit")}
                   </>
                 )}
               </Button>

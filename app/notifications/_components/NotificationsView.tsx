@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
-import { useAuthContext } from "@/app/_providers/AuthProvider";
-import { useNotification } from "@/app/_hooks/notification/useNotification";
-import { useSystemNotification } from "@/app/_hooks/systemNotification/useSystemNotification";
 import { INotification } from "@/app/_hooks/notification/notificationApi";
+import { useNotification } from "@/app/_hooks/notification/useNotification";
 import {
   ISystemNotification,
   NotificationType,
 } from "@/app/_hooks/systemNotification/systemNotificationApi";
+import { useSystemNotification } from "@/app/_hooks/systemNotification/useSystemNotification";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -20,8 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -34,9 +33,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bell, Calendar, Filter, InfoIcon, Loader2 } from "lucide-react";
 import {
   AppointmentNotificationCard,
-  SystemNotificationCard,
   EmptyState,
   NotificationSummaryFooter,
+  SystemNotificationCard,
   SystemNotificationFooter,
 } from "./";
 

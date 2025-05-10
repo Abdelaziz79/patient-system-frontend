@@ -99,7 +99,6 @@ export const usePatient = (
   const {
     data: patientsData,
     isPending,
-    error,
     failureReason,
     refetch,
   } = useQuery({

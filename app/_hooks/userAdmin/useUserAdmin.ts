@@ -1,4 +1,3 @@
-// hooks/useUserAdmin.ts
 import {
   SubscriptionUpdateData,
   User,
@@ -96,7 +95,7 @@ export const useUserAdmin = () => {
   // Mutations
   const createUserMutation = useMutation({
     mutationFn: userAdminApi.createUser,
-    onSuccess: (newUser) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["userStats"] });
     },

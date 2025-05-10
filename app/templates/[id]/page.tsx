@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeftIcon, EyeIcon, PencilIcon, SaveIcon } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Field, PatientTemplate, Section } from "@/app/_types/Template";
 import { Button } from "@/components/ui/button";
@@ -33,12 +33,7 @@ export default function TemplateDetailPage() {
   const templateId = params?.id as string;
   const { user } = useAuthContext();
 
-  const {
-    getTemplate,
-    createTemplate,
-    updateTemplate,
-    isLoading: isTemplateLoading,
-  } = useTemplates(false); // Don't fetch all templates on mount
+  const { getTemplate, createTemplate, updateTemplate } = useTemplates(false); // Don't fetch all templates on mount
 
   const [isLoading, setIsLoading] = useState(isNew ? false : true);
   const [isSaving, setIsSaving] = useState(false);
@@ -105,8 +100,6 @@ export default function TemplateDetailPage() {
   const [showFieldDialog, setShowFieldDialog] = useState(false);
   const [showSectionDialog, setShowSectionDialog] = useState(false);
 
-  const [currentTab, setCurrentTab] = useState("sections");
-  const [fieldOptionText, setFieldOptionText] = useState("");
   const [sectionToDelete, setSectionToDelete] = useState<string | null>(null);
   const [fieldToDelete, setFieldToDelete] = useState<{
     sectionId: string;
@@ -114,7 +107,7 @@ export default function TemplateDetailPage() {
   } | null>(null);
 
   // Check if the current user is the creator of the template or a super_admin
-  const canEdit = () => {
+  const canEdit = useCallback(() => {
     if (!template || !user) return false;
     if (isNew) return true;
 
@@ -132,7 +125,7 @@ export default function TemplateDetailPage() {
     }
 
     return false;
-  };
+  }, [isNew, template, user]);
 
   useEffect(() => {
     // If this is a new template, we've already initialized it in the useState
@@ -239,7 +232,7 @@ export default function TemplateDetailPage() {
     if (!isNew && !isViewMode && !canEdit() && template) {
       router.push(`/templates/${templateId}?view=true`);
     }
-  }, [template, isNew, isViewMode, templateId, router]);
+  }, [template, isNew, isViewMode, templateId, router, canEdit]);
 
   const handleBack = () => {
     router.push("/templates");
@@ -650,10 +643,8 @@ export default function TemplateDetailPage() {
                 isViewMode={isViewMode}
                 onAddSection={addSection}
                 onEditSection={editSection}
-                onDeleteSection={deleteSection}
                 onAddField={addField}
                 onEditField={editField}
-                onDeleteField={deleteField}
                 setSectionToDelete={setSectionToDelete}
                 setFieldToDelete={setFieldToDelete}
               />

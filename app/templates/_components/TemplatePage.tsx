@@ -15,15 +15,13 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { AITemplateDialog } from "./dialogs/AITemplateDialog";
 import TemplateCard from "./TemplateCard";
 
 export default function TemplatesPage() {
   const router = useRouter();
-  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const { t } = useLanguage();
   const { user } = useAuthContext();
@@ -34,15 +32,8 @@ export default function TemplatesPage() {
     searchTerm,
     setSearchTerm,
     createTemplate,
-    updateTemplate,
     deleteTemplate,
   } = useTemplates();
-
-  useEffect(() => {
-    if (!apiLoading && templates) {
-      console.log("Loaded templates:", templates);
-    }
-  }, [apiLoading, templates]);
 
   const handleCreateTemplate = () => {
     router.push("/templates/new");
@@ -60,25 +51,21 @@ export default function TemplatesPage() {
     if (!id) return;
 
     try {
-      setIsLoading(true);
       const result = await deleteTemplate(id);
       if (result.success) {
         toast.success(t("templateDeletedSuccess"));
-        setTemplateToDelete(null);
       } else {
         toast.error(result.error || t("failedToDeleteTemplate"));
       }
     } catch (error) {
       toast.error(t("errorDeletingTemplate"));
       console.error("Delete error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleDuplicateTemplate = async (template: PatientTemplate) => {
     // Remove ID and modify name for the duplicate
-    const { id, ...templateData } = template;
+    const { ...templateData } = template;
     const duplicateData = {
       ...templateData,
       name: `${template.name} (${t("copy")})`,
@@ -87,7 +74,6 @@ export default function TemplatesPage() {
     };
 
     try {
-      setIsLoading(true);
       const result = await createTemplate(
         duplicateData as Partial<PatientTemplate>
       );
@@ -100,8 +86,6 @@ export default function TemplatesPage() {
     } catch (error) {
       toast.error(t("errorDuplicatingTemplate"));
       console.error("Duplication error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

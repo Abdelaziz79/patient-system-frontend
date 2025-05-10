@@ -8,8 +8,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface UserPaginationProps {
   currentPage: number;
@@ -32,8 +30,6 @@ export function UserPagination({
   filteredCount,
   isRTL,
 }: UserPaginationProps) {
-  const { t } = useLanguage();
-
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];

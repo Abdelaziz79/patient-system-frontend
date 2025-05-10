@@ -55,7 +55,7 @@ function PatientPage() {
     patientId: id,
   });
 
-  const { generateVisitNotes, isLoadingVisitNotes } = useAI();
+  const { generateVisitNotes } = useAI();
 
   const handleGoBack = () => {
     router.back();
@@ -185,6 +185,7 @@ function PatientPage() {
     try {
       return format(new Date(dateString), "PPP");
     } catch (e) {
+      console.error("Error formatting date:", e);
       return "Invalid date";
     }
   };

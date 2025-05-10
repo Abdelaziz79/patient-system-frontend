@@ -1,3 +1,4 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { IStatus } from "@/app/_types/Patient";
 import { PatientTemplate } from "@/app/_types/Template";
 import { FormFields } from "@/app/patients/add-patient/_components/FormFields";
@@ -5,9 +6,8 @@ import { PatientStatus } from "@/app/patients/add-patient/_components/PatientSta
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { memo, useCallback, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { memo, useMemo, useCallback } from "react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface PatientFormData {
   patientStatus?: string;
@@ -74,7 +74,7 @@ export const PatientForm = memo(function PatientForm({
         </motion.div>
       </TabsContent>
     ));
-  }, [patientTemplate.sections, form.control]);
+  }, [patientTemplate.sections, form.control, dir]);
 
   // Memoize tabs triggers
   const tabsTriggers = useMemo(() => {
@@ -122,11 +122,7 @@ export const PatientForm = memo(function PatientForm({
         <h3 className="font-medium text-lg text-green-700 dark:text-green-400 mb-4 pb-2 dark:border-green-900/50">
           {t("patientStatus")}
         </h3>
-        <PatientStatus
-          selectedTemplate={patientTemplate}
-          form={form}
-          statusOptions={memoizedStatusOptions}
-        />
+        <PatientStatus form={form} statusOptions={memoizedStatusOptions} />
       </motion.div>
     </Form>
   );

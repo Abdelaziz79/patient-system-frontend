@@ -107,11 +107,12 @@ export function EventCard({
     try {
       return format(new Date(date), "PPP");
     } catch (error) {
+      console.log("error", error);
       return t("invalidDate");
     }
   };
 
-  const { lightColor, darkColor, alpha } = getEventColor(
+  const { lightColor, alpha } = getEventColor(
     event.eventType || "general",
     event.importance || "medium"
   );

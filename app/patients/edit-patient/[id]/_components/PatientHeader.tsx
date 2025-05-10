@@ -1,10 +1,9 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { IPatient } from "@/app/_types/Patient";
 import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { ArrowLeft, ClipboardEdit, User } from "lucide-react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface PatientHeaderProps {
   patient: IPatient;
@@ -17,7 +16,7 @@ export function PatientHeader({
   formProgress,
   handleGoBack,
 }: PatientHeaderProps) {
-  const { t, dir } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <div className="bg-gradient-to-r from-green-600 to-emerald-700 dark:from-green-900 dark:to-emerald-950 text-white px-6 py-5 relative overflow-hidden">

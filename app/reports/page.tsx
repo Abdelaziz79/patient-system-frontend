@@ -1,6 +1,5 @@
 "use client";
 
-import ErrorComp from "@/app/_components/ErrorComp";
 import Loading from "@/app/_components/Loading";
 import { IReport } from "@/app/_hooks/report/reportApi";
 import { ReportFilterParams, useReport } from "@/app/_hooks/report/useReport";
@@ -21,19 +20,26 @@ import {
   Settings,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../_contexts/LanguageContext";
+import { usePatient } from "../_hooks/patient/usePatient";
 import ReportCard from "./_components/ReportCard";
 
 export default function Reports() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("all");
   const { t, dir } = useLanguage();
-  const { reports, isReportsLoading, hasAccess, useFilteredReports } =
-    useReport({
-      initialFetch: true,
-    });
+  const { reports, isReportsLoading, useFilteredReports } = useReport({
+    initialFetch: true,
+  });
+  const { stats, isStatsLoading, refetchStats } = usePatient({
+    initialFetch: false,
+  });
 
+  useEffect(() => {
+    // Fetch stats data when component mounts
+    refetchStats();
+  }, [refetchStats]);
   // Use the filtered reports hook for the current active tab and search
   const getFilterParams = (): ReportFilterParams => {
     const params: ReportFilterParams = {};
@@ -63,19 +69,8 @@ export default function Reports() {
     setActiveTab(value);
   };
 
-  if (isReportsLoading) {
+  if (isStatsLoading || isReportsLoading) {
     return <Loading />;
-  }
-
-  if (!hasAccess) {
-    return (
-      <ErrorComp
-        message={
-          t("noAccessToReports") ||
-          "You don't have access to the reports feature."
-        }
-      />
-    );
   }
 
   // Count statistics
@@ -99,7 +94,7 @@ export default function Reports() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  return (
+  return stats?.patientCounts.total ? (
     <div
       className="flex items-center justify-center p-3 sm:p-4 md:p-6"
       dir={dir}
@@ -260,6 +255,44 @@ export default function Reports() {
               </div>
             )}
           </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  ) : (
+    <div
+      className="flex items-center justify-center p-3 sm:p-4 md:p-6"
+      dir={dir}
+    >
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="z-10 w-full max-w-md"
+      >
+        <motion.div
+          variants={itemVariants}
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-blue-100 dark:border-blue-900 rounded-lg shadow-lg p-6 text-center"
+        >
+          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <FileBarChart className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+          </div>
+
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent mb-2">
+            {t("noReportsFound")}
+          </h2>
+
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            {t("noReportsYet")}
+          </p>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            {t("createPatientsFirst")}
+          </p>
+          <Button
+            onClick={() => router.push("/patients")}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white w-full py-2"
+          >
+            {t("patients")}
+          </Button>
         </motion.div>
       </motion.div>
     </div>

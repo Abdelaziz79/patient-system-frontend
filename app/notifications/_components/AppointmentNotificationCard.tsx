@@ -1,11 +1,11 @@
-import { useMemo } from "react";
-import { INotification } from "@/app/_hooks/notification/notificationApi";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { INotification } from "@/app/_hooks/notification/notificationApi";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Video, Stethoscope } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { Calendar, Clock, User } from "lucide-react";
+import { useMemo } from "react";
 
 interface AppointmentNotificationCardProps {
   notification: INotification;
@@ -57,22 +57,6 @@ export const AppointmentNotificationCard = ({
       locale: dateLocale,
     });
   }, [notification.followUpDate, dateLocale]);
-
-  const getAppointmentTypeIcon = () => {
-    const type = notification.appointmentType?.toLowerCase() || "";
-
-    if (
-      type.includes("video") ||
-      type.includes("remote") ||
-      type.includes("online")
-    ) {
-      return <Video className="h-3.5 w-3.5" />;
-    } else if (type.includes("check") || type.includes("exam")) {
-      return <Stethoscope className="h-3.5 w-3.5" />;
-    } else {
-      return <User className="h-3.5 w-3.5" />;
-    }
-  };
 
   return (
     <motion.div

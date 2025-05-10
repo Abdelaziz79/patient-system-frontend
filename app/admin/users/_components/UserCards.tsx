@@ -1,5 +1,5 @@
-import { UserUtils } from "@/app/admin/users/_components/UserUtils";
 import { User } from "@/app/_types/User";
+import { UserUtils } from "@/app/admin/users/_components/UserUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,7 +17,6 @@ import {
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface UserCardsProps {
   users: User[];
@@ -45,7 +44,6 @@ export function UserCards({
   isRTL,
 }: UserCardsProps) {
   const { getRoleBadge, getStatusBadge } = UserUtils();
-  const { t } = useLanguage();
 
   if (users.length === 0) {
     return (

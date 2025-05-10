@@ -1,11 +1,10 @@
-import ErrorComp from "@/app/_components/ErrorComp";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { IPatient } from "@/app/_types/Patient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowLeft, FileX } from "lucide-react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface PatientLoaderProps {
   loading: boolean;

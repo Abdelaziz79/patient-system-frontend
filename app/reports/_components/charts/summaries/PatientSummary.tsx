@@ -6,7 +6,6 @@ import { useTheme } from "next-themes";
 
 interface PatientSummaryProps {
   title: string;
-  field: string;
   total: number;
   active: number;
   inactive: number;
@@ -26,7 +25,6 @@ interface PatientSummaryProps {
 
 export const PatientSummaryComponent = ({
   title,
-  field,
   total,
   active,
   inactive,
@@ -44,7 +42,6 @@ export const PatientSummaryComponent = ({
     : "from-blue-50/80 to-white/80";
   const borderColor = isDark ? "border-blue-950/30" : "border-blue-100/60";
   const tileBg = isDark ? "bg-blue-950/30" : "bg-blue-50/40";
-  const tileColor = isDark ? "text-blue-300" : "text-blue-700";
   const tileBorder = isDark ? "border-blue-900/30" : "border-blue-100/80";
   const progressBg = isDark ? "bg-blue-900/30" : "bg-blue-100/50";
   const progressFill = isDark ? "bg-blue-600" : "bg-blue-500";

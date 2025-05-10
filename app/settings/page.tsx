@@ -63,15 +63,17 @@ export default function SettingsPage() {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <ExportSettings />
-            </motion.div>
-          </div>
+          {user.role === "admin" || user.role === "super_admin" ? (
+            <div className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <ExportSettings />
+              </motion.div>
+            </div>
+          ) : null}
         </div>
       </motion.div>
     </div>

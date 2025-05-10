@@ -3,6 +3,7 @@ import { CalendarDays, FileText, Shield, Pill } from "lucide-react";
 import { PatientTabsProps } from "./types";
 import { PatientInfoTab, StatusTab, TreatmentTab, VisitsTab } from "./tabs";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
 
 export function PatientTabs({
   patient,
@@ -13,6 +14,11 @@ export function PatientTabs({
   setIsVisitDialogOpen,
 }: PatientTabsProps) {
   const { t, dir } = useLanguage();
+  const { user } = useAuthContext();
+  const canUseAIFeatures =
+    user?.role === "admin" ||
+    user?.role === "super_admin" ||
+    user?.role === "doctor";
 
   return (
     <Tabs defaultValue="sections" className="w-full" dir={dir as "ltr" | "rtl"}>
@@ -43,14 +49,18 @@ export function PatientTabs({
           <span className="hidden xs:inline">{t("statusHistory")}</span>
           <span className="xs:hidden">{t("status")}</span>
         </TabsTrigger>
-        <TabsTrigger
-          value="treatment"
-          className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-slate-100 rounded-md transition-all duration-200 flex-grow text-sm sm:text-base"
-        >
-          <Pill className="h-4 w-4 mx-1 sm:mx-2" />
-          <span className="hidden xs:inline">{t("treatmentSuggestions")}</span>
-          <span className="xs:hidden">{t("treatment")}</span>
-        </TabsTrigger>
+        {canUseAIFeatures && (
+          <TabsTrigger
+            value="treatment"
+            className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-slate-100 rounded-md transition-all duration-200 flex-grow text-sm sm:text-base"
+          >
+            <Pill className="h-4 w-4 mx-1 sm:mx-2" />
+            <span className="hidden xs:inline">
+              {t("treatmentSuggestions")}
+            </span>
+            <span className="xs:hidden">{t("treatment")}</span>
+          </TabsTrigger>
+        )}
       </TabsList>
 
       {/* Patient Information Tab */}
@@ -84,13 +94,15 @@ export function PatientTabs({
         <StatusTab patient={patient} formatDate={formatDate} />
       </TabsContent>
 
-      {/* Treatment Suggestions Tab */}
-      <TabsContent
-        value="treatment"
-        className="animate-in fade-in-50 duration-300"
-      >
-        <TreatmentTab patient={patient} formatDate={formatDate} />
-      </TabsContent>
+      {/* Treatment Suggestions Tab - Only show if user has permission */}
+      {canUseAIFeatures && (
+        <TabsContent
+          value="treatment"
+          className="animate-in fade-in-50 duration-300"
+        >
+          <TreatmentTab patient={patient} formatDate={formatDate} />
+        </TabsContent>
+      )}
     </Tabs>
   );
 }

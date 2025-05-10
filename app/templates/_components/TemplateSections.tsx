@@ -18,10 +18,8 @@ interface TemplateSectionsProps {
   isViewMode: boolean;
   onAddSection: () => void;
   onEditSection: (section: Section) => void;
-  onDeleteSection: (sectionId: string) => void;
   onAddField: (sectionId: string) => void;
   onEditField: (sectionId: string, fieldId: string) => void;
-  onDeleteField: (sectionId: string, fieldId: string) => void;
   setSectionToDelete: (sectionId: string | null) => void;
   setFieldToDelete: (
     data: { sectionId: string; fieldId: string } | null
@@ -33,10 +31,8 @@ export function TemplateSections({
   isViewMode,
   onAddSection,
   onEditSection,
-  onDeleteSection,
   onAddField,
   onEditField,
-  onDeleteField,
   setSectionToDelete,
   setFieldToDelete,
 }: TemplateSectionsProps) {
@@ -52,7 +48,7 @@ export function TemplateSections({
         setOpenSections([template.sections[0]._id]);
       }
     }
-  }, [template.sections, isViewMode]);
+  }, [template.sections, isViewMode, openSections.length]);
 
   // Handle section value change in accordion
   const handleValueChange = (value: string[]) => {

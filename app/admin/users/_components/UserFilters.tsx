@@ -1,6 +1,5 @@
 import { Input } from "@/components/ui/input";
 import { ChevronDown, FilterIcon, SearchIcon } from "lucide-react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface UserFiltersProps {
   searchQuery: string;
@@ -19,8 +18,6 @@ export function UserFilters({
   roles,
   isRTL,
 }: UserFiltersProps) {
-  const { t } = useLanguage();
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };

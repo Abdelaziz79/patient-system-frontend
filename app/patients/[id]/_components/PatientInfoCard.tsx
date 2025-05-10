@@ -1,5 +1,5 @@
-import { IStatus } from "@/app/_types/Patient";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { IStatus } from "@/app/_types/Patient";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { differenceInYears, format } from "date-fns";
-import { Cake, Info, Mail, MapPin, Phone, Star, User } from "lucide-react";
+import { Info, Phone, Star, User } from "lucide-react";
 import { PatientInfoCardProps } from "./types";
 
-export function PatientInfoCard({ patient, formatDate }: PatientInfoCardProps) {
+export function PatientInfoCard({ patient }: PatientInfoCardProps) {
   const { t } = useLanguage();
 
   // Calculate patient age if birthdate is available
@@ -33,6 +33,7 @@ export function PatientInfoCard({ patient, formatDate }: PatientInfoCardProps) {
     try {
       return format(new Date(date), "PP");
     } catch (e) {
+      console.log("error", e);
       return t("invalidDate");
     }
   };

@@ -33,7 +33,6 @@ const TemplateCard = ({
   userRole: string;
 }) => {
   const { t, isRTL, dir } = useLanguage();
-  console.log(template);
   // Ensure the template has a valid ID to use
   const templateId = (template.id || template._id || "").toString();
 

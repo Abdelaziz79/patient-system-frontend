@@ -67,6 +67,7 @@ export default function UsersManagement() {
   // Load users when component mounts
   useEffect(() => {
     fetchUsers(1).catch((error) => {
+      console.error("Error fetching users:", error);
       toast.error(t("failedToLoadUsers"));
     });
   }, [fetchUsers, t]);
@@ -407,27 +408,6 @@ export default function UsersManagement() {
     }
   };
 
-  // Optional: Bulk invite users (if you have this functionality)
-  const handleBulkInvite = async () => {
-    if (selectedUserIds.size === 0) return;
-
-    try {
-      // Implement your invite functionality here
-      toast.success(
-        selectedUserIds.size === 1
-          ? t("invitationSent")
-          : t("invitationsSent").replace(
-              "{count}",
-              selectedUserIds.size.toString()
-            )
-      );
-      clearSelections();
-    } catch (error) {
-      toast.error(t("bulkInviteError"));
-      console.error("Bulk invite error:", error);
-    }
-  };
-
   return (
     <div
       className="min-h-screen dark:from-slate-900 dark:to-slate-800"
@@ -449,7 +429,6 @@ export default function UsersManagement() {
               isRefreshing={isRefreshing}
               onClearFilters={() => {}}
               onCreateUser={handleCreateUserClick}
-              isRTL={isRTL}
             />
 
             <UsersManagementContent
@@ -457,7 +436,6 @@ export default function UsersManagement() {
               isMobileView={isMobileView}
               isFiltering={false}
               filtersExpanded={false}
-              setFiltersExpanded={() => {}}
               searchQuery=""
               setSearchQuery={() => {}}
               roleFilter=""
@@ -484,7 +462,6 @@ export default function UsersManagement() {
               onBulkDeactivate={handleBulkDeactivate}
               onBulkReactivate={handleBulkReactivate}
               onBulkResetPassword={handleBulkPasswordReset}
-              onBulkInvite={handleBulkInvite}
               isRTL={isRTL}
             />
           </Card>

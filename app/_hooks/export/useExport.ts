@@ -15,11 +15,7 @@ export type {
   ExportUserParams,
 } from "./exportApi";
 
-interface UseExportOptions {
-  initialFetch?: boolean;
-}
-
-export const useExport = (options: UseExportOptions = {}) => {
+export const useExport = () => {
   const [patientExportLoading, setPatientExportLoading] = useState(false);
   const [userExportLoading, setUserExportLoading] = useState(false);
   const [hasRegularAccess, setHasRegularAccess] = useState<boolean | null>(

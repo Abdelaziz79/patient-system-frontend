@@ -1,3 +1,4 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,22 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isValid } from "date-fns";
 import {
   AlertCircle,
+  Calendar,
   CalendarDays,
   CheckCircle2,
-  Clock,
-  Calendar,
-  PlusCircle,
-  FileText,
   ChevronDown,
+  Clock,
+  FileText,
   Info,
+  PlusCircle,
 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface SectionData {
   visitType?: string;
@@ -65,6 +65,7 @@ const formatDateHelper = (
     if (!isValid(dateObj)) return t("invalidDate");
     return formatDate(dateObj);
   } catch (e) {
+    console.log(e);
     return t("invalidDate");
   }
 };
@@ -113,17 +114,6 @@ const isLikelyDate = (value: any, fieldName: string): boolean => {
   return false;
 };
 
-// Get visit type color
-const getVisitTypeColor = (visitType?: string): string => {
-  if (!visitType) return "indigo";
-
-  const type = visitType.toLowerCase();
-  if (type.includes("emergency")) return "red";
-  if (type.includes("treatment")) return "green";
-  if (type.includes("follow")) return "blue";
-  return "indigo";
-};
-
 // EmptyState component
 interface EmptyStateProps {
   isDeleted?: boolean;
@@ -155,19 +145,11 @@ const EmptyState = ({ isDeleted = false, t, onAddVisit }: EmptyStateProps) => (
 // VisitDetails component
 interface VisitDetailsProps {
   visit: Visit;
-  typeColor: string;
   formatDateCleaner: (date?: string) => string;
   t: any;
-  dir: string;
 }
 
-const VisitDetails = ({
-  visit,
-  typeColor,
-  formatDateCleaner,
-  t,
-  dir,
-}: VisitDetailsProps) => (
+const VisitDetails = ({ visit, formatDateCleaner, t }: VisitDetailsProps) => (
   <CardContent className="pt-4 dark:bg-slate-900/95">
     {visit.notes && (
       <div className="mb-5">
@@ -178,26 +160,24 @@ const VisitDetails = ({
         <div className="text-gray-800 dark:text-slate-300 text-sm bg-indigo-50/80 dark:bg-slate-800/80 p-4 rounded-md border border-indigo-100/60 dark:border-slate-700/60">
           <ReactMarkdown
             components={{
-              p: ({ node, ...props }) => (
-                <p className="mb-2 last:mb-0" {...props} />
-              ),
-              h1: ({ node, ...props }) => (
+              p: ({ ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+              h1: ({ ...props }) => (
                 <h1 className="text-lg font-bold mb-2" {...props} />
               ),
-              h2: ({ node, ...props }) => (
+              h2: ({ ...props }) => (
                 <h2 className="text-md font-bold mb-2" {...props} />
               ),
-              h3: ({ node, ...props }) => (
+              h3: ({ ...props }) => (
                 <h3 className="text-sm font-bold mb-1" {...props} />
               ),
-              ul: ({ node, ...props }) => (
+              ul: ({ ...props }) => (
                 <ul className="list-disc px-4 mb-2" {...props} />
               ),
-              ol: ({ node, ...props }) => (
+              ol: ({ ...props }) => (
                 <ol className="list-decimal px-4 mb-2" {...props} />
               ),
-              li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-              strong: ({ node, ...props }) => (
+              li: ({ ...props }) => <li className="mb-1" {...props} />,
+              strong: ({ ...props }) => (
                 <strong
                   className="font-bold text-indigo-700 dark:text-slate-200"
                   {...props}
@@ -273,7 +253,6 @@ const VisitCard = ({
   dir,
 }: VisitCardProps) => {
   const visitType = visit.sectionData?.visitType || "";
-  const typeColor = getVisitTypeColor(visitType);
 
   return (
     <Card
@@ -374,10 +353,8 @@ const VisitCard = ({
       {isExpanded && (
         <VisitDetails
           visit={visit}
-          typeColor={typeColor}
           formatDateCleaner={formatDateCleaner}
           t={t}
-          dir={dir}
         />
       )}
     </Card>

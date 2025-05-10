@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
-import { useAuthContext } from "@/app/_providers/AuthProvider";
-import { useSystemNotification } from "@/app/_hooks/systemNotification/useSystemNotification";
-import { useUserAdmin } from "@/app/_hooks/userAdmin/useUserAdmin";
 import {
   ISystemNotification,
   NotificationType,
 } from "@/app/_hooks/systemNotification/systemNotificationApi";
+import { useSystemNotification } from "@/app/_hooks/systemNotification/useSystemNotification";
+import { useUserAdmin } from "@/app/_hooks/userAdmin/useUserAdmin";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -22,20 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertTriangleIcon,
-  Bell,
-  Calendar,
-  CheckSquare,
-  Filter,
-  PlusCircle,
-  RefreshCw,
-} from "lucide-react";
+import { Bell, Calendar, CheckSquare, Filter, RefreshCw } from "lucide-react";
 
-import { EmptyNotificationState } from "./EmptyNotificationState";
+import { AccessDeniedCard } from "./AccessDeniedCard";
 import { AdminNotificationCard } from "./AdminNotificationCard";
 import { CreateNotificationDialog } from "./CreateNotificationDialog";
-import { AccessDeniedCard } from "./AccessDeniedCard";
+import { EmptyNotificationState } from "./EmptyNotificationState";
 
 export const AdminNotificationsView = () => {
   const router = useRouter();
@@ -108,7 +100,7 @@ export const AdminNotificationsView = () => {
     setCheckResult({});
 
     try {
-      const result = await checkSubscriptionExpirations();
+      await checkSubscriptionExpirations();
       refetchSystemNotifications();
       refetchUnreadCount();
       setCheckResult({
@@ -134,7 +126,7 @@ export const AdminNotificationsView = () => {
     setCheckResult({});
 
     try {
-      const result = await checkUpcomingEvents();
+      await checkUpcomingEvents();
       refetchSystemNotifications();
       refetchUnreadCount();
       setCheckResult({

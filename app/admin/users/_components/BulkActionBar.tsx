@@ -1,3 +1,4 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,12 +11,10 @@ import {
   CheckSquare,
   ChevronDown,
   KeyRound,
-  Mail,
   User,
   UserMinus,
   XSquare,
 } from "lucide-react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -25,7 +24,6 @@ interface BulkActionBarProps {
   onBulkDeactivate: () => void;
   onBulkReactivate: () => void;
   onBulkResetPassword: () => void;
-  onBulkInvite: () => void;
   isRTL?: boolean;
 }
 
@@ -37,7 +35,6 @@ export function BulkActionBar({
   onBulkDeactivate,
   onBulkReactivate,
   onBulkResetPassword,
-  onBulkInvite,
   isRTL,
 }: BulkActionBarProps) {
   const { t } = useLanguage();

@@ -1,5 +1,7 @@
 "use client";
 
+import { CustomCalendar } from "@/app/_components/CustomCalendar";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { usePatient } from "@/app/_hooks/patient/usePatient";
 import { PatientTemplate } from "@/app/_types/Template";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -22,9 +29,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
+  CalendarIcon,
   CheckCircle2,
   Loader2,
   SaveIcon,
@@ -39,15 +48,6 @@ import { useAuthContext } from "../../_providers/AuthProvider";
 import { IPersonalInfo, IStatus } from "../../_types/Patient";
 import { TemplateForm } from "./_components/TemplateForm";
 import { TemplateSelection } from "./_components/TemplateSelection";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
-import { CustomCalendar } from "@/app/_components/CustomCalendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 
 // Define the form data interface
 interface PatientFormData {
@@ -67,9 +67,7 @@ export default function AddPatientPage() {
     useState<PatientTemplate | null>(null);
   const [formProgress, setFormProgress] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [submittedPatientId, setSubmittedPatientId] = useState<string | null>(
-    null
-  );
+
   const [formIsValid, setFormIsValid] = useState(false);
   const [isLastSection, setIsLastSection] = useState(false);
   const [personalInfoValid, setPersonalInfoValid] = useState(false);
@@ -207,7 +205,6 @@ export default function AddPatientPage() {
       toast.error("Please fill in all required fields");
 
       // Find the first section with validation errors
-      const formValues = form.getValues();
       const formErrors = form.formState.errors;
       const errorFields = Object.keys(formErrors);
 
@@ -271,11 +268,10 @@ export default function AddPatientPage() {
       createdBy: user?.id, // Replace with actual user ID from auth context
       tags: [], // Initialize with empty tags array
     };
-
+    console.log("patientData", patientData);
     const result = await createPatient(patientData);
 
     if (result.success) {
-      setSubmittedPatientId(result.data?.id || null);
       setShowSuccess(true);
       toast.success("Patient data saved successfully");
       setTimeout(() => {

@@ -182,51 +182,7 @@ export default function ReportDetailsPage() {
   const initialFetchDone = useRef(false);
   const reportDataFetchAttempted = useRef(false);
 
-  const { getReport, generateReport, toggleFavorite, deleteReport } =
-    useReport();
-
-  // Format date helper function
-  const formatDate = (dateString: string | Date): string => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleString();
-    } catch (e) {
-      return String(dateString);
-    }
-  };
-
-  // Format user-friendly date
-  const formatUserFriendlyDate = (dateString: string | Date): string => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      const today = new Date();
-      const diffMs = today.getTime() - date.getTime();
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) {
-        return (
-          "Today at " +
-          date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        );
-      } else if (diffDays === 1) {
-        return (
-          "Yesterday at " +
-          date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        );
-      } else if (diffDays < 7) {
-        return `${diffDays} days ago`;
-      } else {
-        return date.toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-      }
-    } catch (e) {
-      return String(dateString);
-    }
-  };
+  const { getReport, generateReport } = useReport();
 
   // Fetch report details on initial mount
   useEffect(() => {
@@ -237,7 +193,6 @@ export default function ReportDetailsPage() {
       try {
         setIsLoading(true);
         const result = await getReport(reportId);
-        console.log(result);
         if (result.success) {
           setReport(result.data);
         } else {
@@ -245,6 +200,7 @@ export default function ReportDetailsPage() {
           router.push("/reports");
         }
       } catch (error) {
+        console.log(error);
         toast.error("An error occurred while loading the report");
       } finally {
         setIsLoading(false);
@@ -282,6 +238,7 @@ export default function ReportDetailsPage() {
     try {
       setIsLoadingReportData(true);
       const result = await generateReport(reportId);
+      console.log(result);
 
       if (result.success) {
         setGeneratedData(result.data);
@@ -289,6 +246,7 @@ export default function ReportDetailsPage() {
         toast.error("Failed to load report data");
       }
     } catch (error) {
+      console.log(error);
       toast.error("Failed to load report visualizations");
     } finally {
       setIsLoadingReportData(false);
@@ -297,40 +255,6 @@ export default function ReportDetailsPage() {
 
   // Action handlers
   const handleGoBack = () => router.back();
-  const handleEdit = () => router.push(`/reports/${reportId}/edit`);
-
-  const handleToggleFavorite = async () => {
-    if (!report) return;
-
-    try {
-      const result = await toggleFavorite(reportId);
-      if (result.success) {
-        setReport(result.data);
-        toast.success(
-          result.data.isFavorite
-            ? "Added to favorites"
-            : "Removed from favorites"
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to update favorite status");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!report || !confirm("Are you sure you want to delete this report?"))
-      return;
-
-    try {
-      const result = await deleteReport(reportId);
-      if (result.success) {
-        toast.success("Report deleted successfully");
-        router.push("/reports");
-      }
-    } catch (error) {
-      toast.error("Failed to delete report");
-    }
-  };
 
   const handleGenerateReport = async () => {
     if (!report || isGenerating || isLoadingReportData) return;
@@ -350,14 +274,11 @@ export default function ReportDetailsPage() {
         toast.success("Report generated successfully");
       }
     } catch (error) {
+      console.log(error);
       toast.error("Failed to generate report");
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const handleDownloadPDF = () => {
-    toast.success("PDF download functionality to be implemented");
   };
 
   // Render report type badge helper
@@ -910,7 +831,7 @@ export default function ReportDetailsPage() {
                       {t("reportVisualizations")}
                     </CardTitle>
                     <CardDescription className="text-blue-600/70 dark:text-blue-400/70">
-                      {report.charts?.length || 0} {t("reportChart")}
+                      {report.charts?.length || 0} {t("reportChart")}{" "}
                       {(report.charts?.length || 0) !== 1
                         ? t("chartsPlural")
                         : ""}

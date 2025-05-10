@@ -40,7 +40,6 @@ export const useBackup = () => {
   const {
     data: backups,
     isPending,
-    error,
     failureReason,
     refetch: refetchBackups,
   } = useQuery({
@@ -200,6 +199,7 @@ export const useBackup = () => {
       backupApi.downloadBackup(backupName);
       return { success: true };
     } catch (error) {
+      console.error(error);
       const errorMsg = "Failed to download backup";
       toast.error(errorMsg);
       return { success: false, error: errorMsg };

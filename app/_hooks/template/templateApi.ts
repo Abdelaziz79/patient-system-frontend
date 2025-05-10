@@ -4,14 +4,6 @@ import axios from "axios";
 const templatesUrl =
   process.env.NEXT_PUBLIC_BACK_URL + "/api/patient-templates";
 
-interface TemplatesResponse {
-  success: boolean;
-  data: PatientTemplate[];
-  total: number;
-  pages: number;
-  currentPage: number;
-}
-
 // API functions for template operations
 export const templateApi = {
   // Get all templates

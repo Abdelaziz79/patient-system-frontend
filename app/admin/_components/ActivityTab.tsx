@@ -49,36 +49,6 @@ const itemAnimation = {
   },
 };
 
-// Function to get initials from name
-const getInitials = (name: string) => {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .substring(0, 2);
-};
-
-// Function to get color based on name
-const getAvatarColor = (name: string) => {
-  const colors = [
-    "bg-green-500 text-white",
-    "bg-blue-500 text-white",
-    "bg-purple-500 text-white",
-    "bg-amber-500 text-white",
-    "bg-rose-500 text-white",
-    "bg-indigo-500 text-white",
-    "bg-cyan-500 text-white",
-  ];
-
-  // Simple hash function to get consistent color
-  const hashCode = name.split("").reduce((acc, char) => {
-    return char.charCodeAt(0) + ((acc << 5) - acc);
-  }, 0);
-
-  return colors[Math.abs(hashCode) % colors.length];
-};
-
 // Get role badge styles
 const getRoleBadgeStyle = (role: string) => {
   const styles = {

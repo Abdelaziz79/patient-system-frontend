@@ -1,7 +1,7 @@
-import { IUnreadCount } from "@/app/_hooks/systemNotification/systemNotificationApi";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { IUnreadCount } from "@/app/_hooks/systemNotification/systemNotificationApi";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, CheckCheck } from "lucide-react";
+import { CheckCheck } from "lucide-react";
 
 interface SystemNotificationFooterProps {
   unreadCount: IUnreadCount | undefined;

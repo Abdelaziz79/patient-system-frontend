@@ -79,11 +79,12 @@ export default function SearchResults({
     try {
       return format(parseISO(dateString), "MMM dd, yyyy");
     } catch (error) {
+      console.error(error);
       return "N/A";
     }
   };
 
-  const getStatusColor = (status: string, colorHex: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
@@ -174,8 +175,7 @@ export default function SearchResults({
                 <div>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                      patient.status.name,
-                      patient.status.color
+                      patient.status.name
                     )}`}
                   >
                     {patient.status.label}

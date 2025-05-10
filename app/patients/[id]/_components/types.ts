@@ -14,7 +14,7 @@ export interface PatientActionsProps {
 
 export interface PatientInfoCardProps {
   patient: IPatient;
-  formatDate: (date: string | Date) => string;
+  formatDate?: (date: string | Date) => string;
 }
 
 export interface PatientLoaderProps {

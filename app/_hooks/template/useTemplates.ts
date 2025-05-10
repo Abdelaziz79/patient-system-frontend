@@ -19,7 +19,6 @@ export const useTemplates = (initialFetch = true) => {
   const {
     data: templates,
     isPending,
-    error,
     failureReason,
     refetch,
   } = useQuery({
@@ -116,9 +115,7 @@ export const useTemplates = (initialFetch = true) => {
 
     // If not in cache, fetch it
     try {
-      console.log(`Fetching template with ID: ${id}`);
       const template = await templateApi.getTemplateById(id);
-      console.log("Received template data:", JSON.stringify(template, null, 2));
 
       // Ensure template has correct ID format
       const templateWithId = {
@@ -150,10 +147,6 @@ export const useTemplates = (initialFetch = true) => {
         }),
       };
 
-      console.log(
-        "Processed template:",
-        JSON.stringify(templateWithId, null, 2)
-      );
       queryClient.setQueryData(["templates", id], templateWithId);
       return templateWithId;
     } catch (error) {

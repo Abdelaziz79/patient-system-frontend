@@ -20,10 +20,8 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { useAuthContext } from "@/app/_providers/AuthProvider";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,7 +49,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 // Spinner component
@@ -71,46 +68,8 @@ const Spinner = ({
   return <Loader2 className={`animate-spin ${sizeMap[size]} ${className}`} />;
 };
 
-// Access Denied component
-const AccessDeniedCard = () => {
-  const { t, isRTL } = useLanguage();
-  const router = useRouter();
-
-  return (
-    <div
-      className="flex items-center justify-center min-h-[calc(100vh-200px)]"
-      dir={isRTL ? "rtl" : "ltr"}
-    >
-      <Card className="w-[450px] border-red-200 dark:border-red-900 shadow-lg">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
-            <CardTitle className="text-red-600 dark:text-red-400">
-              {t("accessDenied")}
-            </CardTitle>
-          </div>
-          <CardDescription className="text-base">
-            {t("noPermissionBackupPage")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            variant="outline"
-            className="mt-2 w-full"
-            onClick={() => router.push("/")}
-          >
-            {t("backToDashboard")}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
 const BackupsPage = () => {
   const { t, language, isRTL } = useLanguage();
-  const { user, isAuthenticated } = useAuthContext();
-  const router = useRouter();
 
   const [backupName, setBackupName] = useState("");
   const [backupDescription, setBackupDescription] = useState("");
@@ -126,8 +85,7 @@ const BackupsPage = () => {
   const {
     backups,
     isLoading,
-    hasAccess,
-    error,
+    error: backupError,
     createBackup,
     restoreBackup,
     deleteBackup,
@@ -226,29 +184,12 @@ const BackupsPage = () => {
         }),
       };
     } catch (error) {
+      console.error(error);
       return {
         formatted: dateString,
         relative: "",
       };
     }
-  };
-
-  // Simulate backup size for display (this would come from actual API in real implementation)
-  const getBackupSize = (backup: any) => {
-    // In a real implementation, the size would come from the API
-    // For now, use a more realistic placeholder size for backups
-    return "< 10 MB";
-  };
-
-  // Format bytes to human readable format
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   // Handle download (in a real implementation, this would trigger a download)
@@ -257,11 +198,7 @@ const BackupsPage = () => {
     downloadBackup(backupName);
   };
 
-  if (hasAccess === false) {
-    return <AccessDeniedCard />;
-  }
-
-  if (error) {
+  if (backupError) {
     return (
       <div
         className="container mx-auto py-6 max-w-7xl"
@@ -274,7 +211,7 @@ const BackupsPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{error}</p>
+            <p>{backupError}</p>
           </CardContent>
         </Card>
       </div>
@@ -457,7 +394,6 @@ const BackupsPage = () => {
               <div className="space-y-4">
                 {filteredAndSortedBackups.map((backup) => {
                   const dateInfo = formatDate(backup.date);
-                  const backupSize = getBackupSize(backup);
 
                   return (
                     <motion.div
@@ -474,9 +410,6 @@ const BackupsPage = () => {
                         <div>
                           <div className="flex items-center flex-wrap gap-2">
                             <h3 className="font-medium">{backup.name}</h3>
-                            <Badge variant="outline" className="text-xs">
-                              {backupSize}
-                            </Badge>
                           </div>
 
                           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-500 dark:text-gray-400">

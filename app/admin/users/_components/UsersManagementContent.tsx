@@ -13,7 +13,6 @@ interface UsersManagementContentProps {
   isMobileView: boolean;
   isFiltering: boolean;
   filtersExpanded: boolean;
-  setFiltersExpanded: (expanded: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   roleFilter: string;
@@ -40,7 +39,6 @@ interface UsersManagementContentProps {
   onBulkDeactivate: () => void;
   onBulkReactivate: () => void;
   onBulkResetPassword: () => void;
-  onBulkInvite: () => void;
   isRTL?: boolean;
 }
 
@@ -49,7 +47,6 @@ export function UsersManagementContent({
   isMobileView,
   isFiltering,
   filtersExpanded,
-  setFiltersExpanded,
   searchQuery,
   setSearchQuery,
   roleFilter,
@@ -76,7 +73,6 @@ export function UsersManagementContent({
   onBulkDeactivate,
   onBulkReactivate,
   onBulkResetPassword,
-  onBulkInvite,
   isRTL,
 }: UsersManagementContentProps) {
   return (
@@ -115,7 +111,6 @@ export function UsersManagementContent({
           onBulkDeactivate={onBulkDeactivate}
           onBulkReactivate={onBulkReactivate}
           onBulkResetPassword={onBulkResetPassword}
-          onBulkInvite={onBulkInvite}
           isRTL={isRTL}
         />
       </div>

@@ -1,6 +1,7 @@
 import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { useEvents } from "@/app/_hooks/event/useEvents";
 import { usePatient } from "@/app/_hooks/patient/usePatient";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
 import { IPatient } from "@/app/_types/Patient";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Brain, CalendarDays, Plus } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { AddEventDialog } from "./event-components/AddEventDialog";
@@ -34,6 +35,11 @@ export function PatientEventsSection({
   onEventUpdate,
 }: PatientEventsSectionProps) {
   const { t } = useLanguage();
+  const { user } = useAuthContext();
+  const canUseAIFeatures =
+    user?.role === "admin" ||
+    user?.role === "super_admin" ||
+    user?.role === "doctor";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [aiEventAnalysis, setAiEventAnalysis] = useState<string | null>(null);
   const [isAnalyzingEvents, setIsAnalyzingEvents] = useState(false);
@@ -66,44 +72,31 @@ export function PatientEventsSection({
     getEventInsights,
     getEventRecommendations,
     getEventCorrelation,
-    isLoading: isEventsLoading,
   } = useEvents();
+
+  // Memoize callback functions to prevent unnecessary re-renders
+  const handleDeleteEvent = useCallback(
+    (eventId: string) => deleteEvent(patient.id || "", eventId),
+    [deleteEvent, patient.id]
+  );
+
+  const handleRestoreEvent = useCallback(
+    (eventId: string) => restoreEvent(patient.id || "", eventId),
+    [restoreEvent, patient.id]
+  );
+
+  const handleAddEvent = useCallback(
+    (eventData: any) => addEvent(patient.id || "", eventData),
+    [addEvent, patient.id]
+  );
 
   // Get active events
   const activeEvents = patient.events
     ? patient.events.filter((event) => !event.isDeleted)
     : [];
 
-  // Handler for AI event analysis (legacy)
-  const handleAnalyzeEvents = async () => {
-    if (!patient?.id || activeEvents.length === 0) {
-      toast.error(t("noEventsToAnalyze"));
-      return;
-    }
-
-    try {
-      setIsAnalyzingEvents(true);
-      const result = await analyzeEvents({
-        patientId: patient.id,
-        eventIds: activeEvents.map((event) => event._id),
-        analysisType: "overview",
-      });
-
-      if (result.success && result.data) {
-        setAiEventAnalysis(result.data.analysis || t("noNotablePatternsFound"));
-      } else {
-        toast.error(result.error || t("failedToAnalyzeEvents"));
-      }
-    } catch (error) {
-      console.error("Error analyzing events:", error);
-      toast.error(t("errorDuringEventAnalysis"));
-    } finally {
-      setIsAnalyzingEvents(false);
-    }
-  };
-
   // Handler for getting event insights
-  const handleGetEventInsights = async () => {
+  const handleGetEventInsights = useCallback(async () => {
     if (!patient?.id || activeEvents.length === 0) {
       toast.error(t("noEventsToAnalyze"));
       return;
@@ -125,10 +118,10 @@ export function PatientEventsSection({
     } finally {
       setIsLoadingInsights(false);
     }
-  };
+  }, [patient?.id, activeEvents, getEventInsights, t]);
 
   // Handler for getting event recommendations
-  const handleGetEventRecommendations = async () => {
+  const handleGetEventRecommendations = useCallback(async () => {
     if (!patient?.id || activeEvents.length === 0) {
       toast.error(t("noEventsToAnalyze"));
       return;
@@ -152,10 +145,10 @@ export function PatientEventsSection({
     } finally {
       setIsLoadingRecommendations(false);
     }
-  };
+  }, [patient?.id, activeEvents, getEventRecommendations, t]);
 
   // Handler for getting event correlation
-  const handleGetEventCorrelation = async () => {
+  const handleGetEventCorrelation = useCallback(async () => {
     if (!patient?.id || activeEvents.length === 0) {
       toast.error(t("noEventsToAnalyze"));
       return;
@@ -177,7 +170,7 @@ export function PatientEventsSection({
     } finally {
       setIsLoadingCorrelation(false);
     }
-  };
+  }, [patient?.id, activeEvents, getEventCorrelation, t]);
 
   // Count all events for display
   const totalEvents = patient.events ? patient.events.length : 0;
@@ -196,43 +189,45 @@ export function PatientEventsSection({
             </CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-9 flex items-center gap-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
-                  disabled={activeEvents.length === 0}
-                >
-                  <Brain className="h-4 w-4" />
-                  <span>{t("aiTools")}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem
-                  onClick={handleGetEventInsights}
-                  disabled={isLoadingInsights || activeEvents.length === 0}
-                  className="cursor-pointer"
-                >
-                  {t("getEventInsights")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleGetEventRecommendations}
-                  disabled={
-                    isLoadingRecommendations || activeEvents.length === 0
-                  }
-                  className="cursor-pointer"
-                >
-                  {t("getEventRecommendations")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleGetEventCorrelation}
-                  disabled={isLoadingCorrelation || activeEvents.length === 0}
-                  className="cursor-pointer"
-                >
-                  {t("analyzeEventCorrelation")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {canUseAIFeatures && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-9 flex items-center gap-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
+                    disabled={activeEvents.length === 0}
+                  >
+                    <Brain className="h-4 w-4" />
+                    <span>{t("aiTools")}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onClick={handleGetEventInsights}
+                    disabled={isLoadingInsights || activeEvents.length === 0}
+                    className="cursor-pointer"
+                  >
+                    {t("getEventInsights")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleGetEventRecommendations}
+                    disabled={
+                      isLoadingRecommendations || activeEvents.length === 0
+                    }
+                    className="cursor-pointer"
+                  >
+                    {t("getEventRecommendations")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleGetEventCorrelation}
+                    disabled={isLoadingCorrelation || activeEvents.length === 0}
+                    className="cursor-pointer"
+                  >
+                    {t("analyzeEventCorrelation")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
             <Button
               className="h-9 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white"
@@ -245,26 +240,28 @@ export function PatientEventsSection({
       </CardHeader>
 
       <CardContent>
-        {/* AI Analysis Section */}
-        <AIAnalysisSection
-          activeAiTab={activeAiTab}
-          setActiveAiTab={setActiveAiTab}
-          insightsData={insightsData}
-          recommendationsData={recommendationsData}
-          correlationData={correlationData}
-          isLoadingInsights={isLoadingInsights}
-          isLoadingRecommendations={isLoadingRecommendations}
-          isLoadingCorrelation={isLoadingCorrelation}
-          isAnalyzingEvents={isAnalyzingEvents}
-          aiEventAnalysis={aiEventAnalysis}
-        />
+        {/* AI Analysis Section - Only show if user has permission */}
+        {canUseAIFeatures && (
+          <AIAnalysisSection
+            activeAiTab={activeAiTab}
+            setActiveAiTab={setActiveAiTab}
+            insightsData={insightsData}
+            recommendationsData={recommendationsData}
+            correlationData={correlationData}
+            isLoadingInsights={isLoadingInsights}
+            isLoadingRecommendations={isLoadingRecommendations}
+            isLoadingCorrelation={isLoadingCorrelation}
+            isAnalyzingEvents={isAnalyzingEvents}
+            aiEventAnalysis={aiEventAnalysis}
+          />
+        )}
 
         {/* Events List */}
         <EventsList
           patient={patient}
           activeEvents={activeEvents}
-          onDeleteEvent={(eventId) => deleteEvent(patient.id || "", eventId)}
-          onRestoreEvent={(eventId) => restoreEvent(patient.id || "", eventId)}
+          onDeleteEvent={handleDeleteEvent}
+          onRestoreEvent={handleRestoreEvent}
           isDeletingEvent={isDeletingEvent}
           isRestoringEvent={isRestoringEvent}
           onEventUpdate={onEventUpdate}
@@ -276,7 +273,7 @@ export function PatientEventsSection({
       <AddEventDialog
         isOpen={isDialogOpen}
         setIsOpen={setIsDialogOpen}
-        onAddEvent={(eventData) => addEvent(patient.id || "", eventData)}
+        onAddEvent={handleAddEvent}
         isAddingEvent={isAddingEvent}
         onEventUpdate={onEventUpdate}
       />

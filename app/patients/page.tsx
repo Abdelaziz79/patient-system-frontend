@@ -30,6 +30,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import SearchResults from "../_components/SearchResults";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function PatientsPage() {
   const router = useRouter();
   const { t, isRTL } = useLanguage();
@@ -38,7 +40,6 @@ export default function PatientsPage() {
     PatientDisplayItem[]
   >([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -48,19 +49,11 @@ export default function PatientsPage() {
 
   const { isMobileView } = useMobileView();
 
-  const {
-    patients,
-    isLoading,
-    total,
-    pages,
-    setPage,
-    setLimit,
-    performSearch,
-    refetch,
-  } = usePatient({
-    initialPage: currentPage,
-    initialLimit: itemsPerPage,
-  });
+  const { patients, isLoading, total, pages, setPage, performSearch, refetch } =
+    usePatient({
+      initialPage: currentPage,
+      initialLimit: ITEMS_PER_PAGE,
+    });
 
   // Cleanup on unmount
   useEffect(() => {
@@ -115,10 +108,6 @@ export default function PatientsPage() {
   useEffect(() => {
     setPage(currentPage);
   }, [currentPage, setPage]);
-
-  useEffect(() => {
-    setLimit(itemsPerPage);
-  }, [itemsPerPage, setLimit]);
 
   // Handle search input changes with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -302,10 +291,10 @@ export default function PatientsPage() {
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {t("showing")}{" "}
                       {filteredPatients.length > 0
-                        ? (currentPage - 1) * itemsPerPage + 1
+                        ? (currentPage - 1) * ITEMS_PER_PAGE + 1
                         : 0}{" "}
-                      - {Math.min(currentPage * itemsPerPage, total)} {t("of")}{" "}
-                      {total} {t("patientsLabel")}
+                      - {Math.min(currentPage * ITEMS_PER_PAGE, total)}{" "}
+                      {t("of")} {total} {t("patientsLabel")}
                     </div>
 
                     <div

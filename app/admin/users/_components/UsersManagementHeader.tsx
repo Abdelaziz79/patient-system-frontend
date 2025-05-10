@@ -1,13 +1,7 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { RefreshCw, UserPlusIcon } from "lucide-react";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RefreshCw, UserPlusIcon } from "lucide-react";
 
 interface UsersManagementHeaderProps {
   isFiltering: boolean;
@@ -17,7 +11,6 @@ interface UsersManagementHeaderProps {
   isRefreshing: boolean;
   onClearFilters: () => void;
   onCreateUser: () => void;
-  isRTL?: boolean;
 }
 
 export function UsersManagementHeader({
@@ -28,7 +21,6 @@ export function UsersManagementHeader({
   isRefreshing,
   onClearFilters,
   onCreateUser,
-  isRTL,
 }: UsersManagementHeaderProps) {
   const { t } = useLanguage();
 

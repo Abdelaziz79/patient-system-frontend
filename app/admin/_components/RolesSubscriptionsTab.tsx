@@ -1,5 +1,5 @@
-import RoleItem from "@/app/admin/_components/RoleItem";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import RoleItem from "@/app/admin/_components/RoleItem";
 import {
   Card,
   CardContent,
@@ -193,7 +193,6 @@ export default function RolesSubscriptionsTab({
                   <RoleDistributionBar
                     roleDistribution={roleDistribution}
                     userStats={userStats}
-                    totalRolesCounted={totalRolesCounted}
                     roleColors={roleColors}
                     getPercentage={getPercentage}
                     isRTL={isRTL}
@@ -248,7 +247,6 @@ export default function RolesSubscriptionsTab({
 interface RoleDistributionBarProps {
   roleDistribution: RoleDistribution;
   userStats: UserStats;
-  totalRolesCounted: number;
   roleColors: RoleColorMap;
   getPercentage: (roleCount: number) => number;
   isRTL: boolean;
@@ -263,7 +261,6 @@ interface SubscriptionCardProps {
 function RoleDistributionBar({
   roleDistribution,
   userStats,
-  totalRolesCounted,
   roleColors,
   getPercentage,
   isRTL,

@@ -1,7 +1,8 @@
-import { IPatient, IPatientStatusOption } from "@/app/_types/Patient";
-import { usePatient } from "@/app/_hooks/patient/usePatient";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { usePatient } from "@/app/_hooks/patient/usePatient";
+import { IPatient, IPatientStatusOption } from "@/app/_types/Patient";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,18 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import {
-  Loader2,
-  RefreshCcw,
   Activity,
   CalendarDays,
   Clock,
   History,
+  Loader2,
+  RefreshCcw,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { format } from "date-fns";
 
 interface PatientStatusSectionProps {
   patient: IPatient;
@@ -53,6 +53,7 @@ export function PatientStatusSection({
     try {
       return format(new Date(date), "PP");
     } catch (e) {
+      console.log("error", e);
       return t("invalidDate");
     }
   };
@@ -137,7 +138,7 @@ export function PatientStatusSection({
               {patient.status?.notes && (
                 <div className="mt-2 p-2 bg-white/80 dark:bg-slate-800/80 rounded-md border border-indigo-100/60 dark:border-slate-700/60">
                   <span className="text-sm text-gray-600 dark:text-gray-300 italic">
-                    "{patient.status.notes}"
+                    {patient.status.notes}
                   </span>
                 </div>
               )}
@@ -218,7 +219,7 @@ export function PatientStatusSection({
                   </div>
                   {history.notes && (
                     <span className="text-xs text-gray-600 dark:text-gray-400 truncate mt-1 italic">
-                      "{history.notes}"
+                      {history.notes}
                     </span>
                   )}
                 </div>

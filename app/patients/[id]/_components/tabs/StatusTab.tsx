@@ -22,6 +22,7 @@ export function StatusTab({ patient, formatDate }: PatientStatusTabProps) {
       if (!isValid(dateObj)) return t("invalidDate");
       return formatDate(dateObj);
     } catch (e) {
+      console.log(e);
       return t("invalidDate");
     }
   };

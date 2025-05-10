@@ -1,8 +1,10 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { IUpcomingAppointment } from "@/app/_hooks/appointment/appointmentApi";
 import { useAppointment } from "@/app/_hooks/appointment/useAppointment";
 import { useNotification } from "@/app/_hooks/notification/useNotification";
 import useMobileView from "@/app/_hooks/useMobileView";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,24 +12,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   Calendar,
+  CalendarDays,
   ChevronDown,
-  Clock,
   FilterIcon,
   Loader2,
-  SearchIcon,
   Plus,
-  CalendarDays,
+  SearchIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MobileAppointmentCard } from "./MobileAppointmentCard";
 import { AppointmentTable } from "./AppointmentTable";
+import { MobileAppointmentCard } from "./MobileAppointmentCard";
 
 export const AppointmentsView = () => {
   const router = useRouter();
@@ -44,7 +43,6 @@ export const AppointmentsView = () => {
     upcomingAppointments,
     isUpcomingAppointmentsLoading,
     upcomingAppointmentsError,
-    days,
     updateFilters,
   } = useAppointment({
     initialDays: filterDays,

@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { PieChartProps, getColor } from "./types";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Sector,
-} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useState } from "react";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Sector,
+  Tooltip,
+} from "recharts";
+import { PieChartProps, getColor } from "./types";
 
 // Active pie sector rendering with enhanced styling
-const renderActiveShape = (props: any) => {
+const RenderActiveShape = (props: any) => {
   const {
     cx,
     cy,
@@ -179,7 +179,7 @@ export const PieChartComponent = ({ data, title }: PieChartProps) => {
               <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                 <Pie
                   activeIndex={activeIndex}
-                  activeShape={renderActiveShape}
+                  activeShape={RenderActiveShape}
                   data={data}
                   cx="50%"
                   cy="45%"

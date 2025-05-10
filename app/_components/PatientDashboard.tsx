@@ -3,6 +3,7 @@
 import LoadingInsights from "@/app/_components/LoadingInsights";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { useAI } from "@/app/_hooks/AI/useAI";
+import { useAuth } from "@/app/_hooks/auth/useAuth";
 import { usePatient } from "@/app/_hooks/patient/usePatient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,25 +51,6 @@ interface MonthlyTrend {
   count: number;
 }
 
-interface Stats {
-  patientCounts: {
-    total: number;
-    active: number;
-    inactive: number;
-    recentlyAdded: number;
-  };
-  demographicStats: {
-    ageGroups: AgeGroup[];
-    genderDistribution: GenderDistribution[];
-  };
-  statusStats: StatusStat[];
-  visitsCount: number;
-  templateStats: TemplateStats[];
-  trends: {
-    monthly: MonthlyTrend[];
-  };
-}
-
 export default function PatientDashboardPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +59,10 @@ export default function PatientDashboardPage() {
     null
   );
   const { t, dir } = useLanguage();
+  // Get current user to check for admin roles
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+
   // Initialize the patient hook and fetch stats
   const { stats, isStatsLoading, refetchStats } = usePatient({
     initialFetch: false,
@@ -112,7 +98,6 @@ export default function PatientDashboardPage() {
     try {
       const result = await getDemographicsSummary();
       if (result.success) {
-        console.log(result);
         setDemographicsSummary(result.data.summary);
         toast.success("Demographics summary generated successfully");
       } else {
@@ -151,31 +136,35 @@ export default function PatientDashboardPage() {
           >
             {t("patientManagement")}
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 mt-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 border-green-200 dark:border-green-800"
-              onClick={handleGenerateDemographicsSummary}
-              disabled={isLoadingDemographics}
+          {isAdmin && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
-              {isLoadingDemographics
-                ? t("processing")
-                : t("aiDemographicsSummary")}
-            </Button>
-          </motion.div>
-          <LoadingInsights
-            isLoading={isLoadingDemographics}
-            isGenerating={false}
-            insights={demographicsSummary}
-            title={t("demographicsSummary")}
-            loadingText={t("generatingSummary")}
-            loadingSubtext={t("thisMayTakeAMoment")}
-          />
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 mt-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 border-green-200 dark:border-green-800"
+                onClick={handleGenerateDemographicsSummary}
+                disabled={isLoadingDemographics}
+              >
+                <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
+                {isLoadingDemographics
+                  ? t("processing")
+                  : t("aiDemographicsSummary")}
+              </Button>
+            </motion.div>
+          )}
+          {isAdmin && (
+            <LoadingInsights
+              isLoading={isLoadingDemographics}
+              isGenerating={false}
+              insights={demographicsSummary}
+              title={t("demographicsSummary")}
+              loadingText={t("generatingSummary")}
+              loadingSubtext={t("thisMayTakeAMoment")}
+            />
+          )}
         </div>
 
         {/* Summary Cards */}
@@ -289,22 +278,26 @@ export default function PatientDashboardPage() {
                     <ListIcon className="mx-2 h-5 w-5" />
                     <span>{t("viewPatientList")}</span>
                   </Button>
-                  <Button
-                    className="w-full justify-start bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-green-800 dark:text-green-300 transition-all duration-300 border-green-200 dark:border-green-800 shadow-sm hover:shadow-md"
-                    variant="outline"
-                    onClick={handleViewReports}
-                  >
-                    <TrendingUpIcon className="mx-2 h-5 w-5" />
-                    <span>{t("viewReports")}</span>
-                  </Button>
-                  <Button
-                    className="w-full justify-start bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-green-800 dark:text-green-300 transition-all duration-300 border-green-200 dark:border-green-800 shadow-sm hover:shadow-md"
-                    variant="outline"
-                    onClick={handleAddTemplate}
-                  >
-                    <FileTextIcon className="mx-2 h-5 w-5" />
-                    <span>{t("addTemplate")}</span>
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      className="w-full justify-start bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-green-800 dark:text-green-300 transition-all duration-300 border-green-200 dark:border-green-800 shadow-sm hover:shadow-md"
+                      variant="outline"
+                      onClick={handleViewReports}
+                    >
+                      <TrendingUpIcon className="mx-2 h-5 w-5" />
+                      <span>{t("viewReports")}</span>
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button
+                      className="w-full justify-start bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-green-800 dark:text-green-300 transition-all duration-300 border-green-200 dark:border-green-800 shadow-sm hover:shadow-md"
+                      variant="outline"
+                      onClick={handleAddTemplate}
+                    >
+                      <FileTextIcon className="mx-2 h-5 w-5" />
+                      <span>{t("addTemplate")}</span>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

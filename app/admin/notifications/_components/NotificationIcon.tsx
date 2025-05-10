@@ -1,11 +1,10 @@
 import { NotificationType } from "@/app/_hooks/systemNotification/systemNotificationApi";
 import {
-  AlertTriangleIcon,
   AlertCircleIcon,
-  MessageSquareIcon,
-  InfoIcon,
-  Bell,
+  AlertTriangleIcon,
   Calendar,
+  InfoIcon,
+  MessageSquareIcon,
 } from "lucide-react";
 
 interface NotificationIconProps {

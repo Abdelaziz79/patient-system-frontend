@@ -34,13 +34,13 @@ import {
   Calendar,
   CalendarCheck,
   Clipboard,
-  FileText,
   FilePlus,
+  FileText,
   FlaskConical,
   HeartPulse,
   Info,
-  Scissors,
   Loader2,
+  Scissors,
   Share,
   Stethoscope,
   UserMinus,
@@ -305,10 +305,10 @@ export function AddEventDialog({
       newSectionData[field.name] = newEvent.sectionData[field.name] || "";
     });
 
-    setNewEvent({
-      ...newEvent,
+    setNewEvent((prev) => ({
+      ...prev,
       sectionData: newSectionData,
-    });
+    }));
   }, [newEvent.eventType]);
 
   // Handler for updating section data

@@ -1,19 +1,19 @@
 "use client";
 
-import { HeatmapScatterProps, getColor } from "./types";
-import {
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import {
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { HeatmapScatterProps } from "./types";
 
 // Custom tooltip for better visual display
 const CustomTooltip = ({ active, payload }: any) => {

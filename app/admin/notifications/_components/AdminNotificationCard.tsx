@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
 import {
   ISystemNotification,
@@ -7,9 +5,11 @@ import {
 } from "@/app/_hooks/systemNotification/systemNotificationApi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Users, Bell, CheckCircle } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
+import { motion } from "framer-motion";
+import { Bell, CheckCircle, User, Users } from "lucide-react";
+import { useMemo } from "react";
 import { NotificationIcon } from "./NotificationIcon";
 
 interface AdminNotificationCardProps {
@@ -34,6 +34,7 @@ export const AdminNotificationCard = ({
       const date = parseISO(notification.createdAt);
       return format(date, "MMM dd, yyyy HH:mm", { locale: dateLocale });
     } catch (error) {
+      console.error("Error formatting createdAt:", error);
       return "";
     }
   }, [notification.createdAt, dateLocale]);
@@ -43,6 +44,7 @@ export const AdminNotificationCard = ({
       const date = parseISO(notification.expiresAt);
       return format(date, "MMM dd, yyyy", { locale: dateLocale });
     } catch (error) {
+      console.error("Error formatting expiresAt:", error);
       return "";
     }
   }, [notification.expiresAt, dateLocale]);
@@ -55,6 +57,7 @@ export const AdminNotificationCard = ({
         locale: dateLocale,
       });
     } catch (error) {
+      console.error("Error formatting timeAgo:", error);
       return "";
     }
   }, [notification.createdAt, dateLocale]);

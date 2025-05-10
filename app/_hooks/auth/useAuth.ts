@@ -19,7 +19,6 @@ export const useAuth = () => {
   const {
     data: user,
     isPending,
-    error,
     failureReason,
   } = useQuery({
     queryKey: ["auth", "me"],

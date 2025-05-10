@@ -27,7 +27,7 @@ interface ReportCardProps {
 }
 
 export default function ReportCard({ report }: ReportCardProps) {
-  const { t, dir, isRTL } = useLanguage();
+  const { t, dir } = useLanguage();
 
   // Map report types to their visual styling and icons
   const reportTypeConfigs = {

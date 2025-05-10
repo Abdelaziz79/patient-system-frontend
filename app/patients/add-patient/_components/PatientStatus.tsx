@@ -1,4 +1,3 @@
-import { PatientTemplate } from "@/app/_types/Template";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
@@ -50,7 +49,6 @@ const DEFAULT_STATUSES = [
 ];
 
 interface PatientStatusProps {
-  selectedTemplate: PatientTemplate;
   form?: UseFormReturn<any>;
   statusOptions?: Array<{
     name: string;
@@ -61,7 +59,6 @@ interface PatientStatusProps {
 }
 
 export const PatientStatus = ({
-  selectedTemplate,
   form,
   statusOptions = [],
 }: PatientStatusProps) => {

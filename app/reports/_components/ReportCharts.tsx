@@ -46,7 +46,6 @@ export default function ReportCharts({ reportData }: ReportChartsProps) {
   const { t, dir } = useLanguage();
 
   const chartTypes = Array.from(new Set(reportData.map((chart) => chart.type)));
-  console.log(chartTypes);
   const filteredCharts =
     activeTab === "all"
       ? reportData
@@ -192,7 +191,6 @@ function renderChartComponent(chart: ReportData, index: number, t: any) {
         return (
           <StatusSummaryComponent
             title={chart.title}
-            field={chart.field}
             statusDistribution={chart.statusDistribution}
             avgDaysInCurrentStatus={chart.avgDaysInCurrentStatus}
             statusTransitions={chart.statusTransitions}
@@ -204,7 +202,6 @@ function renderChartComponent(chart: ReportData, index: number, t: any) {
         return (
           <PatientSummaryComponent
             title={chart.title}
-            field={chart.field}
             total={chart.total}
             active={chart.active || 0}
             inactive={chart.inactive || 0}
@@ -219,7 +216,6 @@ function renderChartComponent(chart: ReportData, index: number, t: any) {
         return (
           <VisitSummaryComponent
             title={chart.title}
-            field={chart.field}
             totalVisits={chart.totalVisits}
             totalPatients={chart.totalPatients || 0}
             avgVisitsPerPatient={chart.avgVisitsPerPatient || 0}

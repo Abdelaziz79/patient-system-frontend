@@ -1,7 +1,7 @@
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Loader2, SaveIcon, ArrowLeft, ArrowRight } from "lucide-react";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { ArrowLeft, Loader2, SaveIcon } from "lucide-react";
 
 interface FormFooterProps {
   isSaving: boolean;

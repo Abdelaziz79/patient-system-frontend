@@ -59,6 +59,7 @@ export function AITemplateGenerator({ onGenerate }: AITemplateGeneratorProps) {
         toast.error(result.message || t("failedToGenerateTemplate"));
       }
     } catch (error) {
+      console.error(error);
       toast.dismiss("generate-template");
       toast.error(t("errorGeneratingTemplate"));
     }

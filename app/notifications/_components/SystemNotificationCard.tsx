@@ -1,15 +1,15 @@
-import { useEffect, useMemo } from "react";
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import {
   ISystemNotification,
   NotificationType,
 } from "@/app/_hooks/systemNotification/systemNotificationApi";
-import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
+import { useMemo } from "react";
 import { NotificationIcon } from "./NotificationIcon";
 
 interface SystemNotificationCardProps {
@@ -56,6 +56,7 @@ export const SystemNotificationCard = ({
         }),
       };
     } catch (error) {
+      console.error("Error formatting date:", error);
       return { full: "", relative: "" };
     }
   }, [notification.createdAt, dateLocale]);

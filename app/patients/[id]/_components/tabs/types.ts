@@ -5,7 +5,7 @@ export interface BasePatientTabProps {
   formatDate: (date: string | Date) => string;
 }
 
-export interface PatientInfoTabProps extends BasePatientTabProps {}
+export type PatientInfoTabProps = BasePatientTabProps;
 
 export interface PatientVisitsTabProps extends BasePatientTabProps {
   handleDeleteVisit: (visitId: string) => void;
@@ -14,6 +14,6 @@ export interface PatientVisitsTabProps extends BasePatientTabProps {
   setIsVisitDialogOpen: (value: boolean) => void;
 }
 
-export interface PatientStatusTabProps extends BasePatientTabProps {}
+export type PatientStatusTabProps = BasePatientTabProps;
 
-export interface PatientTreatmentTabProps extends BasePatientTabProps {}
+export type PatientTreatmentTabProps = BasePatientTabProps;

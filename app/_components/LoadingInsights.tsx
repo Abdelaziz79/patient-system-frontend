@@ -1,6 +1,7 @@
 // LoadingInsights.jsx - A reusable component for displaying loading states and insights
 import { Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const LoadingInsights = ({
   isLoading = false,
@@ -47,9 +48,32 @@ const LoadingInsights = ({
               {title}
             </h2>
           </div>
-          <div className="prose dark:prose-invert max-w-none prose-sm md:prose-base prose-headings:text-green-700 dark:prose-headings:text-green-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-lg prose-strong:text-green-700 dark:prose-strong:text-green-300 overflow-auto">
+          <div className="prose dark:prose-invert max-w-none prose-sm md:prose-base prose-headings:text-green-700 dark:prose-headings:text-green-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-lg prose-strong:text-green-700 dark:prose-strong:text-green-300 prose-table:border-collapse prose-table:w-full prose-thead:bg-gray-50 dark:prose-thead:bg-slate-700 prose-th:p-2 prose-th:text-left prose-th:font-semibold prose-td:p-2 prose-td:border-t prose-td:border-gray-200 dark:prose-td:border-gray-700 overflow-auto">
             {typeof insights === "string" ? (
-              <ReactMarkdown>{insights}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ ...props }) => (
+                    <div className="overflow-x-auto my-4">
+                      <table className="w-full border-collapse" {...props} />
+                    </div>
+                  ),
+                  th: ({ ...props }) => (
+                    <th
+                      className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-slate-700 p-2 text-left font-semibold"
+                      {...props}
+                    />
+                  ),
+                  td: ({ ...props }) => (
+                    <td
+                      className="border border-gray-200 dark:border-gray-800 p-2"
+                      {...props}
+                    />
+                  ),
+                }}
+              >
+                {insights}
+              </ReactMarkdown>
             ) : (
               insights
             )}

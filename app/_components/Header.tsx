@@ -93,7 +93,6 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
     systemNotifications,
     isSystemNotificationsLoading,
     unreadCount,
-    isUnreadCountLoading,
     refetchSystemNotifications,
     refetchUnreadCount,
     markAsRead,
@@ -110,6 +109,44 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
 
   // Debounce search input
   useEffect(() => {
+    const performSearchQuery = async (query: string) => {
+      if (query.trim().length === 0) return;
+
+      setIsSearching(true);
+      try {
+        const data = await performSearch({
+          query,
+        });
+
+        // Ensure results is always an array, handling various response formats
+        let resultsArray = [];
+
+        if (data) {
+          if (Array.isArray(data)) {
+            resultsArray = data;
+          } else if (typeof data === "object") {
+            // Check if data has a results property that's an array
+            if (data.results && Array.isArray(data.results)) {
+              resultsArray = data.results;
+            } else if (data.data && Array.isArray(data.data)) {
+              resultsArray = data.data;
+            } else {
+              // If it's an object but not in expected format, convert to array
+              console.warn("Search results in unexpected format", data);
+              resultsArray = [data];
+            }
+          }
+        }
+
+        setSearchResults(resultsArray);
+        setShowSearchResults(true);
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
     const timer = setTimeout(() => {
       if (searchValue.trim().length > 0) {
         performSearchQuery(searchValue);
@@ -120,46 +157,7 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
     }, 300); // 300ms delay
 
     return () => clearTimeout(timer);
-  }, [searchValue]);
-
-  const performSearchQuery = async (query: string) => {
-    if (query.trim().length === 0) return;
-
-    setIsSearching(true);
-    try {
-      const data = await performSearch({
-        query,
-      });
-
-      // Ensure results is always an array, handling various response formats
-      let resultsArray = [];
-
-      if (data) {
-        if (Array.isArray(data)) {
-          resultsArray = data;
-        } else if (typeof data === "object") {
-          // Check if data has a results property that's an array
-          if (data.results && Array.isArray(data.results)) {
-            resultsArray = data.results;
-          } else if (data.data && Array.isArray(data.data)) {
-            resultsArray = data.data;
-          } else {
-            // If it's an object but not in expected format, convert to array
-            console.warn("Search results in unexpected format", data);
-            resultsArray = [data];
-          }
-        }
-      }
-
-      setSearchResults(resultsArray);
-      setShowSearchResults(true);
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  }, [searchValue, performSearch]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
@@ -277,10 +275,6 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
   const goToSetting = () => {
     router.push("/settings");
     setIsDropdownOpen(false);
-  };
-
-  const goToLogin = () => {
-    router.push("/login");
   };
 
   if (!mounted) return null;

@@ -114,8 +114,8 @@ export function ComboboxCreatable({
                   className="w-full justify-start"
                   onClick={handleCreate}
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Create "
-                  {inputValue.trim()}"
+                  <PlusCircle className="mr-2 h-4 w-4" /> Create
+                  {inputValue.trim()}
                 </Button>
               ) : (
                 emptyStateMessage
@@ -152,8 +152,8 @@ export function ComboboxCreatable({
                       onSelect={handleCreate}
                       className="cursor-pointer"
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Create "
-                      {inputValue.trim()}"
+                      <PlusCircle className="mr-2 h-4 w-4" /> Create
+                      {inputValue.trim()}
                     </CommandItem>
                   </CommandGroup>
                 </>

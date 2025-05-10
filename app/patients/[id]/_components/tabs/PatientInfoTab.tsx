@@ -55,6 +55,7 @@ export function PatientInfoTab({ patient, formatDate }: PatientInfoTabProps) {
       if (!isValid(dateObj)) return t("invalidDate");
       return formatDate(dateObj);
     } catch (e) {
+      console.log(e);
       return t("invalidDate");
     }
   };

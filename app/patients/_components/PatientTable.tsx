@@ -49,7 +49,7 @@ export default function PatientTable({
   setSortDirection,
 }: Props) {
   const router = useRouter();
-  const { t, isRTL, dir } = useLanguage();
+  const { t, isRTL } = useLanguage();
 
   // Only render sort buttons if sort functionality is present
   const handleSort = (field: keyof PatientDisplayItem) => {

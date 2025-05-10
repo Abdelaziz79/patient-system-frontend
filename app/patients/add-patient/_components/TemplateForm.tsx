@@ -101,7 +101,7 @@ export const TemplateForm = ({
 
   // Update section validation status when form state changes
   useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
+    const subscription = form.watch(() => {
       if (selectedTemplate) {
         // Check all sections for validity
         const newSectionValidation: Record<string, boolean> = {};
@@ -390,7 +390,7 @@ export const TemplateForm = ({
           ))}
         </Tabs>
 
-        <PatientStatus selectedTemplate={selectedTemplate} form={form} />
+        <PatientStatus form={form} />
       </form>
     </Form>
   );

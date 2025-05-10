@@ -233,6 +233,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                         }
                         return feature;
                       } catch (e) {
+                        console.error(e);
                         return feature;
                       }
                     })();

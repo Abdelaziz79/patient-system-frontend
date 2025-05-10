@@ -3,7 +3,7 @@ import { IPatient } from "@/app/_types/Patient";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FilePlus, Flag } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { EventCard } from "./EventCard";
 
@@ -37,44 +37,50 @@ export function EventsList({
     : [];
 
   // Handler for deleting an event with confirmation
-  const handleDeleteEvent = async (eventId: string) => {
-    if (window.confirm(t("confirmDeleteEvent"))) {
+  const handleDeleteEvent = useCallback(
+    async (eventId: string) => {
+      if (window.confirm(t("confirmDeleteEvent"))) {
+        try {
+          const result = await onDeleteEvent(eventId);
+          if (result.success) {
+            toast.success(t("eventDeletedSuccess"));
+            // Refresh patient data
+            if (onEventUpdate) {
+              onEventUpdate();
+            }
+          } else {
+            toast.error(result.error || t("failedToDeleteEvent"));
+          }
+        } catch (error) {
+          console.error("Error deleting event:", error);
+          toast.error(t("errorDeletingEvent"));
+        }
+      }
+    },
+    [onDeleteEvent, onEventUpdate, t]
+  );
+
+  // Handler for restoring an event
+  const handleRestoreEvent = useCallback(
+    async (eventId: string) => {
       try {
-        const result = await onDeleteEvent(eventId);
+        const result = await onRestoreEvent(eventId);
         if (result.success) {
-          toast.success(t("eventDeletedSuccess"));
+          toast.success(t("eventRestoredSuccess"));
           // Refresh patient data
           if (onEventUpdate) {
             onEventUpdate();
           }
         } else {
-          toast.error(result.error || t("failedToDeleteEvent"));
+          toast.error(result.error || t("failedToRestoreEvent"));
         }
       } catch (error) {
-        console.error("Error deleting event:", error);
-        toast.error(t("errorDeletingEvent"));
+        console.error("Error restoring event:", error);
+        toast.error(t("errorRestoringEvent"));
       }
-    }
-  };
-
-  // Handler for restoring an event
-  const handleRestoreEvent = async (eventId: string) => {
-    try {
-      const result = await onRestoreEvent(eventId);
-      if (result.success) {
-        toast.success(t("eventRestoredSuccess"));
-        // Refresh patient data
-        if (onEventUpdate) {
-          onEventUpdate();
-        }
-      } else {
-        toast.error(result.error || t("failedToRestoreEvent"));
-      }
-    } catch (error) {
-      console.error("Error restoring event:", error);
-      toast.error(t("errorRestoringEvent"));
-    }
-  };
+    },
+    [onRestoreEvent, onEventUpdate, t]
+  );
 
   // If no events at all
   if (!patient?.events || patient.events.length === 0) {
@@ -123,7 +129,7 @@ export function EventsList({
           ) : (
             <div className="text-center p-6 bg-gray-50/60 dark:bg-slate-800/60 rounded-lg">
               <p className="text-gray-500 dark:text-gray-400">
-                No active events. Click "Add Event" to create one.
+                {t("noActiveEvents")}
               </p>
             </div>
           )}

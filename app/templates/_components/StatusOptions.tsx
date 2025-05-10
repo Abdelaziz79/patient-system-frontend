@@ -1,4 +1,3 @@
-import { PatientTemplate } from "@/app/_types/Template";
 import {
   Card,
   CardContent,
@@ -8,12 +7,7 @@ import {
 } from "@/components/ui/card";
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
 
-interface StatusOptionsProps {
-  template: PatientTemplate;
-  isViewMode: boolean;
-}
-
-export function StatusOptions({ template, isViewMode }: StatusOptionsProps) {
+export function StatusOptions() {
   return (
     <Card className="bg-gradient-to-b from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 border-green-100 dark:border-green-900 shadow-lg overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between bg-green-50 dark:bg-green-900/20 border-b border-green-100 dark:border-green-900 pb-4">

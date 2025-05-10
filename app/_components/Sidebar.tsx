@@ -140,14 +140,14 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             title: t("notifications"),
             group: "Clinical" as GroupName,
           },
-          {
-            href: "/reports",
-            icon: <FileText size={20} />,
-            title: t("reports"),
-            group: "Management" as GroupName,
-          },
           ...(isAdmin
             ? [
+                {
+                  href: "/reports",
+                  icon: <FileText size={20} />,
+                  title: t("reports"),
+                  group: "Management" as GroupName,
+                },
                 {
                   href: "/templates",
                   icon: <NotebookText size={20} />,

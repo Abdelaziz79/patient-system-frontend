@@ -6,7 +6,6 @@ import { useTheme } from "next-themes";
 
 interface VisitSummaryProps {
   title: string;
-  field: string;
   totalVisits: number;
   totalPatients: number;
   avgVisitsPerPatient: string | number;
@@ -17,7 +16,6 @@ interface VisitSummaryProps {
 
 export const VisitSummaryComponent = ({
   title,
-  field,
   totalVisits,
   totalPatients,
   avgVisitsPerPatient,
@@ -35,7 +33,6 @@ export const VisitSummaryComponent = ({
     : "from-blue-50/80 to-white/80";
   const borderColor = isDark ? "border-blue-950/30" : "border-blue-100/60";
   const tileBg = isDark ? "bg-blue-950/30" : "bg-blue-50/40";
-  const tileColor = isDark ? "text-blue-300" : "text-blue-700";
   const tileBorder = isDark ? "border-blue-900/30" : "border-blue-100/80";
   const barEmptyBg = isDark ? "bg-blue-900/20" : "bg-blue-100/30";
   const barFillBg = isDark ? "bg-blue-600" : "bg-blue-500";

@@ -6,7 +6,6 @@ import { useTheme } from "next-themes";
 
 interface StatusSummaryProps {
   title: string;
-  field: string;
   statusDistribution?: Array<{
     status?: string;
     name?: string;
@@ -19,7 +18,6 @@ interface StatusSummaryProps {
 
 export const StatusSummaryComponent = ({
   title,
-  field,
   statusDistribution,
   avgDaysInCurrentStatus,
   statusTransitions,
@@ -33,7 +31,6 @@ export const StatusSummaryComponent = ({
     ? "from-blue-950/40 to-slate-900/95"
     : "from-blue-50/80 to-white/80";
   const borderColor = isDark ? "border-blue-950/30" : "border-blue-100/60";
-  const tileBg = isDark ? "bg-blue-950/30" : "bg-blue-50/40";
   const tileColor = isDark ? "text-blue-300" : "text-blue-700";
   const tileBorder = isDark ? "border-blue-900/30" : "border-blue-100/80";
   const progressBg = isDark ? "bg-blue-900/30" : "bg-blue-100/50";

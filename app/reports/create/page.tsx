@@ -1,21 +1,28 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { useReport } from "@/app/_hooks/report/useReport"; // Adjust path as needed
 import {
+  ChartType,
+  FieldType,
+  FilterOperator,
+  IChartConfig,
   IReport,
   IReportFilter,
-  IChartConfig,
   ReportType,
-  FilterOperator,
-  FieldType,
-  ChartType,
   TimeInterval,
-  IReportField,
 } from "@/app/_hooks/report/reportApi"; // Adjust path as needed
+import { useReport } from "@/app/_hooks/report/useReport"; // Adjust path as needed
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ComboboxCreatable } from "@/components/ui/combobox-creatable"; // Adjust path
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select"; // Adjust path
 import {
   Select,
   SelectContent,
@@ -23,19 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { MultiSelect } from "@/components/ui/multi-select"; // Adjust path
-import { ComboboxCreatable } from "@/components/ui/combobox-creatable"; // Adjust path
-import { PlusCircle, Trash2, Loader2 } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 const reportTypeOptions: { value: ReportType; label: string }[] = [
   { value: "patient", label: "Patient Report" },
@@ -102,8 +101,6 @@ export default function CreateReportPage() {
     refetchCategories,
     hasAccess,
   } = useReport();
-  console.log("reportFields", reportFields);
-  console.log("reportCategories", reportCategories);
   const [reportData, setReportData] = useState<Partial<IReport>>({
     name: "",
     description: "",
@@ -509,7 +506,7 @@ export default function CreateReportPage() {
                   {filter.operator === "between" && (
                     <div>
                       <Label htmlFor={`filter-endValue-${index}`}>
-                        End Value (for 'between')
+                        End Value (for between)
                       </Label>
                       <Input
                         id={`filter-endValue-${index}`}
