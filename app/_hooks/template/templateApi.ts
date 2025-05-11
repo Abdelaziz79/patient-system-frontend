@@ -1,5 +1,6 @@
 import { PatientTemplate } from "@/app/_types/Template";
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 const templatesUrl =
   process.env.NEXT_PUBLIC_BACK_URL + "/api/patient-templates";
@@ -12,9 +13,7 @@ export const templateApi = {
       success: boolean;
       data: PatientTemplate[];
       count: number;
-    }>(templatesUrl, {
-      withCredentials: true,
-    });
+    }>(templatesUrl, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -27,9 +26,7 @@ export const templateApi = {
     const response = await axios.get<{
       success: boolean;
       data: PatientTemplate;
-    }>(`${templatesUrl}/${id}`, {
-      withCredentials: true,
-    });
+    }>(`${templatesUrl}/${id}`, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -44,9 +41,7 @@ export const templateApi = {
     const response = await axios.post<{
       success: boolean;
       data: PatientTemplate;
-    }>(templatesUrl, templateData, {
-      withCredentials: true,
-    });
+    }>(templatesUrl, templateData, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -59,13 +54,7 @@ export const templateApi = {
     const response = await axios.post<{
       success: boolean;
       data: PatientTemplate;
-    }>(
-      `${templatesUrl}/default`,
-      { name },
-      {
-        withCredentials: true,
-      }
-    );
+    }>(`${templatesUrl}/default`, { name }, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -84,9 +73,7 @@ export const templateApi = {
     const response = await axios.put<{
       success: boolean;
       data: PatientTemplate;
-    }>(`${templatesUrl}/${id}`, data, {
-      withCredentials: true,
-    });
+    }>(`${templatesUrl}/${id}`, data, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -98,9 +85,7 @@ export const templateApi = {
   deleteTemplate: async (id: string): Promise<void> => {
     const response = await axios.delete<{ success: boolean }>(
       `${templatesUrl}/${id}`,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
 
     if (!response.data.success) {

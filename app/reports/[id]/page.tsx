@@ -300,14 +300,15 @@ export default function ReportDetailsPage() {
 
   // Render summary metrics based on report type
   const renderSummaryMetrics = () => {
-    if (!generatedData?.data) return null;
+    if (!generatedData?.data || !Array.isArray(generatedData.data)) return null;
 
     const summaryChart = generatedData.data.find(
-      (chart) => chart.type === "summary"
+      (chart) => chart?.type === "summary"
     );
     if (!summaryChart) return null;
 
-    const reportType = generatedData.reportConfig.type.toLowerCase();
+    const reportType =
+      generatedData?.reportConfig?.type?.toLowerCase() || "default";
     const metricCardClass =
       "bg-gradient-to-br from-white/90 to-white/70 dark:from-slate-800/90 dark:to-slate-800/70 backdrop-blur-sm p-5 rounded-xl shadow hover:shadow-md transition-all duration-300 border border-blue-100/50 dark:border-blue-900/30 hover:border-blue-200 dark:hover:border-blue-800 relative overflow-hidden group";
 
@@ -315,19 +316,19 @@ export default function ReportDetailsPage() {
       patient: [
         {
           label: "Total Patients",
-          value: summaryChart.total || 0,
+          value: summaryChart?.total || 0,
           icon: User,
           color: "from-blue-500/10 to-blue-600/5",
         },
         {
           label: "Active Patients",
-          value: summaryChart.active || 0,
+          value: summaryChart?.active || 0,
           icon: User,
           color: "from-green-500/10 to-green-600/5",
         },
         {
           label: "Average Age",
-          value: summaryChart.avgAge || "Unknown",
+          value: summaryChart?.avgAge || "Unknown",
           icon: User,
           color: "from-amber-500/10 to-amber-600/5",
         },
@@ -335,19 +336,19 @@ export default function ReportDetailsPage() {
       comparative: [
         {
           label: "Total Patients",
-          value: summaryChart.totalPatients || 0,
+          value: summaryChart?.totalPatients || 0,
           icon: User,
           color: "from-blue-500/10 to-blue-600/5",
         },
         {
           label: "Comparison Groups",
-          value: summaryChart.segments?.length || 0,
+          value: summaryChart?.segments?.length || 0,
           icon: Layers,
           color: "from-purple-500/10 to-purple-600/5",
         },
         {
           label: "Fields Analyzed",
-          value: generatedData.reportConfig.includeFields.length,
+          value: generatedData?.reportConfig?.includeFields?.length || 0,
           icon: Layers,
           color: "from-indigo-500/10 to-indigo-600/5",
         },
@@ -355,19 +356,19 @@ export default function ReportDetailsPage() {
       status: [
         {
           label: "Status Groups",
-          value: summaryChart.statusDistribution?.length || 0,
+          value: summaryChart?.statusDistribution?.length || 0,
           icon: Layers,
           color: "from-green-500/10 to-green-600/5",
         },
         {
           label: "Avg Days in Status",
-          value: summaryChart.avgDaysInCurrentStatus || 0,
+          value: summaryChart?.avgDaysInCurrentStatus || 0,
           icon: Clock,
           color: "from-blue-500/10 to-blue-600/5",
         },
         {
           label: "Transitions",
-          value: summaryChart.statusTransitions?.length || 0,
+          value: summaryChart?.statusTransitions?.length || 0,
           icon: BarChart4,
           color: "from-amber-500/10 to-amber-600/5",
         },
@@ -375,19 +376,19 @@ export default function ReportDetailsPage() {
       visit: [
         {
           label: "Total Visits",
-          value: summaryChart.totalVisits || 0,
+          value: summaryChart?.totalVisits || 0,
           icon: Calendar,
           color: "from-amber-500/10 to-amber-600/5",
         },
         {
           label: "Total Patients",
-          value: summaryChart.totalPatients || 0,
+          value: summaryChart?.totalPatients || 0,
           icon: User,
           color: "from-blue-500/10 to-blue-600/5",
         },
         {
           label: "Avg Visits/Patient",
-          value: summaryChart.avgVisitsPerPatient || "0",
+          value: summaryChart?.avgVisitsPerPatient || "0",
           icon: BarChart3,
           color: "from-green-500/10 to-green-600/5",
         },
@@ -395,19 +396,19 @@ export default function ReportDetailsPage() {
       default: [
         {
           label: "Report Type",
-          value: generatedData.metadata.type,
+          value: generatedData?.metadata?.type || "Unknown",
           icon: FileText,
           color: "from-blue-500/10 to-blue-600/5",
         },
         {
           label: "Charts",
-          value: generatedData.metadata.chartCount,
+          value: generatedData?.metadata?.chartCount || 0,
           icon: PieChart,
           color: "from-purple-500/10 to-purple-600/5",
         },
         {
           label: "Filters",
-          value: generatedData.metadata.filterCount,
+          value: generatedData?.metadata?.filterCount || 0,
           icon: Filter,
           color: "from-green-500/10 to-green-600/5",
         },
@@ -821,7 +822,9 @@ export default function ReportDetailsPage() {
           </Card>
 
           {/* Report Visualizations */}
-          {generatedData && generatedData.data ? (
+          {generatedData &&
+          Array.isArray(generatedData.data) &&
+          generatedData.data.length > 0 ? (
             <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-blue-100/50 dark:border-blue-900/50 shadow-lg transition-all duration-300 overflow-hidden rounded-xl">
               <CardHeader className="bg-gradient-to-r from-blue-50/80 to-white/80 dark:from-blue-900/30 dark:to-slate-800/80 border-b border-blue-100/50 dark:border-blue-900/20">
                 <div className="flex items-center justify-between">

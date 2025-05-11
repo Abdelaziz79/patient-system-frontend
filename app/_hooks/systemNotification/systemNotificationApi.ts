@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 // Enum for notification types
 export enum NotificationType {
@@ -61,7 +62,7 @@ export const systemNotificationApi = {
     }
 
     const url = `${systemNotificationApi.baseUrl}?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -74,9 +75,7 @@ export const systemNotificationApi = {
   getUnreadCount: async () => {
     const response = await axios.get(
       `${systemNotificationApi.baseUrl}/unread-count`,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data as IUnreadCount;
@@ -89,7 +88,7 @@ export const systemNotificationApi = {
     const response = await axios.put(
       `${systemNotificationApi.baseUrl}/${notificationId}/mark-read`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -110,7 +109,7 @@ export const systemNotificationApi = {
     const response = await axios.post(
       `${systemNotificationApi.baseUrl}/send`,
       data,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -125,7 +124,7 @@ export const systemNotificationApi = {
     const response = await axios.post(
       `${systemNotificationApi.baseUrl}/check-subscriptions`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -142,7 +141,7 @@ export const systemNotificationApi = {
     const response = await axios.post(
       `${systemNotificationApi.baseUrl}/patient-event`,
       data,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -157,7 +156,7 @@ export const systemNotificationApi = {
     const response = await axios.post(
       `${systemNotificationApi.baseUrl}/check-upcoming-events`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;

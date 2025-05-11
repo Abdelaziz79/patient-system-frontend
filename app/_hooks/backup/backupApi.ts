@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 export interface Backup {
   name: string;
@@ -20,7 +21,7 @@ const backupUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/backups";
 export const backupApi = {
   // Get all backups
   getBackups: async (): Promise<Backup[]> => {
-    const res = await axios.get(`${backupUrl}`, { withCredentials: true });
+    const res = await axios.get(`${backupUrl}`, createAuthConfig());
     if (res.data.success) {
       return res.data.data;
     }
@@ -29,11 +30,7 @@ export const backupApi = {
 
   // Create a new backup
   createBackup: async (name?: string): Promise<CreateBackupResponse> => {
-    const res = await axios.post(
-      `${backupUrl}`,
-      { name },
-      { withCredentials: true }
-    );
+    const res = await axios.post(`${backupUrl}`, { name }, createAuthConfig());
 
     if (res.data.success) {
       return res.data.data;
@@ -46,7 +43,7 @@ export const backupApi = {
     const res = await axios.post(
       `${backupUrl}/${backupName}/restore`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (!res.data.success) {
@@ -56,9 +53,10 @@ export const backupApi = {
 
   // Delete a backup
   deleteBackup: async (backupName: string): Promise<void> => {
-    const res = await axios.delete(`${backupUrl}/${backupName}`, {
-      withCredentials: true,
-    });
+    const res = await axios.delete(
+      `${backupUrl}/${backupName}`,
+      createAuthConfig()
+    );
 
     if (!res.data.success) {
       throw new Error(res.data.message || "Failed to delete backup");
@@ -67,13 +65,19 @@ export const backupApi = {
 
   // Download a backup
   downloadBackup: async (backupName: string): Promise<void> => {
-    window.open(`${backupUrl}/${backupName}/download`, "_blank");
+    // For download, we need to add the token to the URL as a query parameter
+    const token = localStorage.getItem("authToken");
+    const url = token
+      ? `${backupUrl}/${backupName}/download?token=${token}`
+      : `${backupUrl}/${backupName}/download`;
+
+    window.open(url, "_blank");
   },
 
   // Check if user has access to backups (is super_admin)
   checkBackupAccess: async (): Promise<boolean> => {
     try {
-      await axios.get(`${backupUrl}`, { withCredentials: true });
+      await axios.get(`${backupUrl}`, createAuthConfig());
       return true;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 403) {

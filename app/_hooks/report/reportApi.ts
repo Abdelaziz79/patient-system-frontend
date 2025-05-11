@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 // Base URL for report endpoints
 const reportUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/reports";
@@ -174,7 +175,7 @@ export const reportApi = {
     if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
 
     const url = `${reportUrl}?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
 
     if (response.data.success) {
       return response.data.data;
@@ -184,9 +185,7 @@ export const reportApi = {
 
   // Get report by ID
   getReportById: async (id: string) => {
-    const response = await axios.get(`${reportUrl}/${id}`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${reportUrl}/${id}`, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -195,9 +194,11 @@ export const reportApi = {
 
   // Create a new report
   createReport: async (reportData: Partial<IReport>) => {
-    const response = await axios.post(reportUrl, reportData, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      reportUrl,
+      reportData,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -212,9 +213,11 @@ export const reportApi = {
     id: string;
     data: Partial<IReport>;
   }) => {
-    const response = await axios.put(`${reportUrl}/${id}`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${reportUrl}/${id}`,
+      data,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -223,9 +226,10 @@ export const reportApi = {
 
   // Delete a report
   deleteReport: async (id: string) => {
-    const response = await axios.delete(`${reportUrl}/${id}`, {
-      withCredentials: true,
-    });
+    const response = await axios.delete(
+      `${reportUrl}/${id}`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return true;
     }
@@ -234,9 +238,10 @@ export const reportApi = {
 
   // Generate a report from saved configuration
   generateReport: async (id: string) => {
-    const response = await axios.get(`${reportUrl}/${id}/generate`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${reportUrl}/${id}/generate`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -245,9 +250,7 @@ export const reportApi = {
 
   // Get available fields for reporting
   getReportFields: async () => {
-    const response = await axios.get(`${reportUrl}/fields`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${reportUrl}/fields`, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -264,9 +267,7 @@ export const reportApi = {
     const response = await axios.post(
       `${reportUrl}/generate-custom`,
       reportConfig,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -281,9 +282,7 @@ export const reportApi = {
     const response = await axios.post(
       `${reportUrl}/generate-custom`,
       reportConfig,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -294,7 +293,7 @@ export const reportApi = {
   // Check if user has access to the reports
   checkReportAccess: async (): Promise<boolean> => {
     try {
-      const response = await axios.get(reportUrl, { withCredentials: true });
+      const response = await axios.get(reportUrl, createAuthConfig());
       return response.data.success || false;
     } catch (error) {
       if (
@@ -309,9 +308,10 @@ export const reportApi = {
 
   // Get report categories
   getReportCategories: async () => {
-    const response = await axios.get(`${reportUrl}/categories`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${reportUrl}/categories`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -322,9 +322,10 @@ export const reportApi = {
 
   // Get report templates
   getReportTemplates: async () => {
-    const response = await axios.get(`${reportUrl}/templates`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${reportUrl}/templates`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -338,7 +339,7 @@ export const reportApi = {
     const response = await axios.post(
       `${reportUrl}/${id}/copy`,
       { name: newName },
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -351,7 +352,7 @@ export const reportApi = {
     const response = await axios.patch(
       `${reportUrl}/${id}/favorite`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -366,7 +367,7 @@ export const reportApi = {
     const response = await axios.patch(
       `${reportUrl}/${id}/template`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -378,9 +379,10 @@ export const reportApi = {
 
   // Get scheduled reports
   getScheduledReports: async () => {
-    const response = await axios.get(`${reportUrl}/scheduled`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${reportUrl}/scheduled`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -397,7 +399,7 @@ export const reportApi = {
     const response = await axios.patch(
       `${reportUrl}/${id}/schedule`,
       scheduleData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;

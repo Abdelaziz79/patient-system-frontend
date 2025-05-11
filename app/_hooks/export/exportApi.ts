@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 const baseUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/export";
 
@@ -43,7 +44,7 @@ export const exportApi = {
     }`;
 
     const response = await axios.get(url, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -63,7 +64,7 @@ export const exportApi = {
     const url = `${baseUrl}/patients/${patientId}?format=${format}`;
 
     const response = await axios.get(url, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -79,7 +80,7 @@ export const exportApi = {
     const url = `${baseUrl}/patients/${patientId}/pdf`;
 
     const response = await axios.get(url, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -106,7 +107,7 @@ export const exportApi = {
     }`;
 
     const response = await axios.get(url, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -126,7 +127,7 @@ export const exportApi = {
     const url = `${baseUrl}/users/${userId}?format=${format}`;
 
     const response = await axios.get(url, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -140,7 +141,7 @@ export const exportApi = {
   checkExportAccess: async (): Promise<boolean> => {
     try {
       await axios.get(`${baseUrl}/patients`, {
-        withCredentials: true,
+        ...createAuthConfig(),
         params: { format: "excel", limit: 1 },
       });
       return true;
@@ -162,7 +163,7 @@ export const exportApi = {
   checkAdminExportAccess: async (): Promise<boolean> => {
     try {
       await axios.get(`${baseUrl}/users`, {
-        withCredentials: true,
+        ...createAuthConfig(),
         params: { format: "excel", limit: 1 },
       });
       return true;

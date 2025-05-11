@@ -1,5 +1,6 @@
 import { User } from "@/app/_types/User";
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 export interface ProfileFormData {
   name: string;
@@ -18,9 +19,11 @@ const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 // API handlers
 export const profileApi = {
   updateProfile: async (data: ProfileFormData): Promise<User> => {
-    const response = await axios.put(`${usersUrl}/profile`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${usersUrl}/profile`,
+      data,
+      createAuthConfig()
+    );
 
     if (response.data.success) {
       return response.data.data;
@@ -29,9 +32,11 @@ export const profileApi = {
   },
 
   changePassword: async (data: PasswordChangeData): Promise<void> => {
-    const response = await axios.put(`${usersUrl}/password`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${usersUrl}/password`,
+      data,
+      createAuthConfig()
+    );
 
     if (!response.data.success) {
       throw new Error(response.data.message || "Failed to change password");

@@ -46,9 +46,15 @@ export default function LoginPage() {
     }
 
     const result = await login(email, password);
-
     if (result.success) {
-      router.push("/");
+      // Check if there's a stored redirect path
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+      if (redirectPath) {
+        sessionStorage.removeItem("redirectAfterLogin");
+        router.push(redirectPath);
+      } else {
+        router.push("/");
+      }
       toast.success(t("loginSuccess"));
     } else {
       // Show error toast and clear fields on failed login

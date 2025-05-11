@@ -1,8 +1,14 @@
-import { authApi } from "@/app/_hooks/auth/authApi";
+import {
+  authApi,
+  getAuthToken,
+  setAuthHeader,
+} from "@/app/_hooks/auth/authApi";
 import { User } from "@/app/_types/User";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { initializeApiAuth } from "../utils/initializeApiAuth";
 
 export interface AuthState {
   user: User | null;
@@ -14,6 +20,11 @@ export interface AuthState {
 export const useAuth = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // Initialize auth token from localStorage when component mounts
+  useEffect(() => {
+    initializeApiAuth();
+  }, []);
 
   // Query for user data - updated for v5
   const {

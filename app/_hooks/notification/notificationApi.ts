@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 // Updated types for notification data to match backend
 export interface INotification {
@@ -34,7 +35,7 @@ export const notificationApi = {
     }
 
     const url = `${notificationApi.baseUrl}?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -56,7 +57,7 @@ export const notificationApi = {
     const url = `${
       notificationApi.baseUrl
     }/user/${userId}?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -67,9 +68,10 @@ export const notificationApi = {
 
   // Get notification summary (counts) for current user
   getNotificationsSummary: async () => {
-    const response = await axios.get(`${notificationApi.baseUrl}/summary`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${notificationApi.baseUrl}/summary`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data as INotificationSummary;
     }

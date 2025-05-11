@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 import {
   IPatient,
   IStatus,
@@ -34,7 +35,7 @@ export const patientApi = {
     }
 
     const url = `${patientApi.baseUrl}?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data;
     }
@@ -43,9 +44,10 @@ export const patientApi = {
 
   // Get patient by ID
   getPatientById: async (id: string) => {
-    const response = await axios.get(`${patientApi.baseUrl}/${id}`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${patientApi.baseUrl}/${id}`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -54,9 +56,11 @@ export const patientApi = {
 
   // Create new patient
   createPatient: async (patientData: Partial<IPatient>) => {
-    const response = await axios.post(patientApi.baseUrl, patientData, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      patientApi.baseUrl,
+      patientData,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -71,9 +75,11 @@ export const patientApi = {
     id: string;
     data: Partial<IPatient>;
   }) => {
-    const response = await axios.put(`${patientApi.baseUrl}/${id}`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${patientApi.baseUrl}/${id}`,
+      data,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -82,9 +88,10 @@ export const patientApi = {
 
   // Delete patient (soft delete)
   deletePatient: async (id: string) => {
-    const response = await axios.delete(`${patientApi.baseUrl}/${id}`, {
-      withCredentials: true,
-    });
+    const response = await axios.delete(
+      `${patientApi.baseUrl}/${id}`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return true;
     }
@@ -102,7 +109,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${id}/status`,
       statusData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -121,7 +128,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${patientId}/status-update`,
       statusData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -140,7 +147,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/batch/status`,
       { patientIds, status },
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -152,7 +159,7 @@ export const patientApi = {
   getVisits: async (patientId: string) => {
     const response = await axios.get(
       `${patientApi.baseUrl}/${patientId}/visits`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -171,7 +178,7 @@ export const patientApi = {
     const response = await axios.post(
       `${patientApi.baseUrl}/${patientId}/visits`,
       visitData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -192,7 +199,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${patientId}/visits/${visitId}`,
       visitData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -210,7 +217,7 @@ export const patientApi = {
   }) => {
     const response = await axios.delete(
       `${patientApi.baseUrl}/${patientId}/visits/${visitId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return true;
@@ -229,7 +236,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${patientId}/visits/${visitId}/restore`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -249,7 +256,7 @@ export const patientApi = {
       `${
         patientApi.baseUrl
       }/${patientId}/visits/search?query=${encodeURIComponent(query)}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -268,7 +275,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${id}/activation`,
       { isActive },
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -280,9 +287,10 @@ export const patientApi = {
 
   // Get patient history
   getPatientHistory: async (id: string) => {
-    const response = await axios.get(`${patientApi.baseUrl}/${id}/history`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${patientApi.baseUrl}/${id}/history`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -294,7 +302,7 @@ export const patientApi = {
     const response = await axios.post(
       `${patientApi.baseUrl}/${id}/tags`,
       { tag },
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -305,8 +313,8 @@ export const patientApi = {
   // Remove tag from patient
   removePatientTag: async ({ id, tag }: { id: string; tag: string }) => {
     const response = await axios.delete(`${patientApi.baseUrl}/${id}/tags`, {
+      ...createAuthConfig(),
       data: { tag },
-      withCredentials: true,
     });
     if (response.data.success) {
       return response.data.data;
@@ -316,9 +324,10 @@ export const patientApi = {
 
   // Get patient statistics
   getPatientStats: async () => {
-    const response = await axios.get(`${patientApi.baseUrl}/stats`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${patientApi.baseUrl}/stats`,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -344,7 +353,7 @@ export const patientApi = {
 
     const response = await axios.get(
       `${patientApi.baseUrl}/search?${queryParams.toString()}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -355,7 +364,7 @@ export const patientApi = {
   // Export patient data to PDF
   exportPatientToPdf: async (id: string) => {
     const response = await axios.get(`${patientApi.baseUrl}/${id}/export/pdf`, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob", // Important for handling PDF binary data
     });
 
@@ -368,7 +377,7 @@ export const patientApi = {
   // Export patient data to CSV
   exportPatientToCsv: async (id: string) => {
     const response = await axios.get(`${patientApi.baseUrl}/${id}/export/csv`, {
-      withCredentials: true,
+      ...createAuthConfig(),
       responseType: "blob",
     });
 
@@ -391,7 +400,7 @@ export const patientApi = {
       `${patientApi.baseUrl}/${id}/report`,
       options || {},
       {
-        withCredentials: true,
+        ...createAuthConfig(),
         responseType: "blob",
       }
     );
@@ -414,7 +423,7 @@ export const patientApi = {
     const response = await axios.post(
       `${patientApi.baseUrl}/${id}/share`,
       emailData,
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (response.data.success) {
@@ -427,7 +436,7 @@ export const patientApi = {
   getPatientStatusOptions: async (patientId: string) => {
     const response = await axios.get(
       `${patientApi.baseUrl}/${patientId}/status-options`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -446,7 +455,7 @@ export const patientApi = {
     const response = await axios.post(
       `${patientApi.baseUrl}/${patientId}/status-options`,
       statusOption,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -464,7 +473,7 @@ export const patientApi = {
   }) => {
     const response = await axios.delete(
       `${patientApi.baseUrl}/${patientId}/status-options/${statusName}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -483,7 +492,7 @@ export const patientApi = {
     const response = await axios.post(
       `${patientApi.baseUrl}/${patientId}/events`,
       eventData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -512,7 +521,7 @@ export const patientApi = {
     const url = `${patientApi.baseUrl}/${patientId}/events${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -532,7 +541,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${patientId}/events/${eventId}`,
       eventData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -550,7 +559,7 @@ export const patientApi = {
   }) => {
     const response = await axios.delete(
       `${patientApi.baseUrl}/${patientId}/events/${eventId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return true;
@@ -569,7 +578,7 @@ export const patientApi = {
     const response = await axios.put(
       `${patientApi.baseUrl}/${patientId}/events/${eventId}/restore`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;

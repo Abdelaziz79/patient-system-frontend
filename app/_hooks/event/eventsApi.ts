@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 import { IEvent, IEventInput } from "@/app/_types/Patient";
 
 const baseUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api";
@@ -88,7 +89,7 @@ export const eventsApi = {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -106,7 +107,7 @@ export const eventsApi = {
     const response = await axios.post(
       `${baseUrl}/events/${patientId}`,
       eventData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -127,7 +128,7 @@ export const eventsApi = {
     const response = await axios.put(
       `${baseUrl}/events/${patientId}/${eventId}`,
       eventData,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -145,7 +146,7 @@ export const eventsApi = {
   }): Promise<boolean> => {
     const response = await axios.delete(
       `${baseUrl}/events/${patientId}/${eventId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return true;
@@ -164,7 +165,7 @@ export const eventsApi = {
     const response = await axios.patch(
       `${baseUrl}/events/${patientId}/${eventId}/restore`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -182,7 +183,7 @@ export const eventsApi = {
   }): Promise<IEvent> => {
     const response = await axios.get(
       `${baseUrl}/events/${patientId}/${eventId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -216,7 +217,7 @@ export const eventsApi = {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -227,9 +228,11 @@ export const eventsApi = {
   analyzeEvents: async (
     request: IEventAnalysisRequest
   ): Promise<IEventAnalysisResponse> => {
-    const response = await axios.post(`${baseUrl}/events/ai/analyze`, request, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${baseUrl}/events/ai/analyze`,
+      request,
+      createAuthConfig()
+    );
     if (response.data.success) {
       return response.data.data;
     }
@@ -242,7 +245,7 @@ export const eventsApi = {
   ): Promise<IEventInsightsResponse> => {
     const response = await axios.get(
       `${baseUrl}/events/ai/insights/${patientId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -264,7 +267,7 @@ export const eventsApi = {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -279,7 +282,7 @@ export const eventsApi = {
   ): Promise<IEventCorrelationResponse> => {
     const response = await axios.get(
       `${baseUrl}/events/ai/correlation/${patientId}`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -308,7 +311,7 @@ export const eventsApi = {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }
@@ -320,7 +323,7 @@ export const eventsApi = {
     const response = await axios.put(
       `${baseUrl}/events/${eventId}/mark-addressed`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return true;

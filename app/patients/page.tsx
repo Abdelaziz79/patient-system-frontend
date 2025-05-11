@@ -52,7 +52,6 @@ export default function PatientsPage() {
 
   const { patients, isLoading, total, pages, setPage, performSearch, refetch } =
     usePatient({
-      initialPage: currentPage,
       initialLimit: ITEMS_PER_PAGE,
     });
 
@@ -105,7 +104,7 @@ export default function PatientsPage() {
     setFilteredPatients(transformedPatients);
   }, [patients, t]);
 
-  // Update pagination settings when user changes page or items per page
+  // Update pagination settings when user changes page
   useEffect(() => {
     setPage(currentPage);
   }, [currentPage, setPage]);
@@ -218,7 +217,6 @@ export default function PatientsPage() {
       setCurrentPage((prev) => prev + 1);
     }
   };
-
   return (
     <div className="min-h-screen dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">

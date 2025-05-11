@@ -3,8 +3,13 @@
 import Header from "@/app/_components/Header";
 import Sidebar from "@/app/_components/Sidebar";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
+import { useAuthContext } from "@/app/_providers/AuthProvider";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Loading from "./Loading";
+
+// Define public routes that don't require authentication
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
 
 interface LayoutClientWrapperProps {
   children: React.ReactNode;
@@ -15,7 +20,25 @@ export default function LayoutClientWrapper({
 }: LayoutClientWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { isRTL, loading } = useLanguage();
+  const { isRTL, loading: languageLoading } = useLanguage();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuthContext();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Check authentication and redirect if necessary
+  useEffect(() => {
+    if (!authLoading) {
+      const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+        pathname.startsWith(route)
+      );
+
+      if (!isAuthenticated && !isPublicRoute) {
+        // Store the current path for redirect after login
+        sessionStorage.setItem("redirectAfterLogin", pathname);
+        router.push("/login");
+      }
+    }
+  }, [isAuthenticated, authLoading, pathname, router]);
 
   // Handle responsive behavior
   useEffect(() => {
@@ -41,7 +64,24 @@ export default function LayoutClientWrapper({
   }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  if (loading) return <Loading />;
+
+  // Show loading state when authentication or language is still loading
+  if (authLoading || languageLoading) return <Loading />;
+
+  // For public routes, render without sidebar/header
+  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+    return (
+      <div
+        dir={isRTL ? "rtl" : "ltr"}
+        className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-slate-900"
+      >
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto pt-2">{children}</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 // Types for appointment data
 export interface IFollowUpAppointment {
@@ -37,7 +38,7 @@ export const appointmentApi = {
   ): Promise<IFollowUpAppointment[]> => {
     const response = await axios.get(
       `${appointmentApi.baseUrl}/patient/${patientId}/followups`,
-      { withCredentials: true }
+      createAuthConfig()
     );
     if (response.data.success) {
       return response.data.data;
@@ -62,7 +63,7 @@ export const appointmentApi = {
     }
 
     const url = `${appointmentApi.baseUrl}/upcoming?${queryParams.toString()}`;
-    const response = await axios.get(url, { withCredentials: true });
+    const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
       return response.data.data;
     }

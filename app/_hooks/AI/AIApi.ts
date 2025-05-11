@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthConfig } from "../utils/authUtils";
 
 // Base URL for AI endpoints
 const aiUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/ai";
@@ -60,9 +61,7 @@ export const aiApi = {
   getPatientInsights: async (patientId: string): Promise<any> => {
     const response = await axios.get(
       `${aiUrl}/patients/${patientId}/insights`,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
 
     if (response.data.success) {
@@ -79,7 +78,7 @@ export const aiApi = {
     const response = await axios.post(
       `${aiUrl}/patients/${patientId}/treatment-suggestions`,
       data,
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (response.data.success) {
@@ -94,9 +93,11 @@ export const aiApi = {
   generateTemplate: async (
     data: TemplateGenerationInput
   ): Promise<Template> => {
-    const response = await axios.post(`${aiUrl}/generate-template`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${aiUrl}/generate-template`,
+      data,
+      createAuthConfig()
+    );
 
     if (response.data.success) {
       return response.data.data;
@@ -106,9 +107,10 @@ export const aiApi = {
 
   // Get demographics summary
   getDemographicsSummary: async (): Promise<any> => {
-    const response = await axios.get(`${aiUrl}/demographics-summary`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${aiUrl}/demographics-summary`,
+      createAuthConfig()
+    );
 
     if (response.data.success) {
       return response.data.data;
@@ -120,9 +122,11 @@ export const aiApi = {
 
   // Generate visit notes
   generateVisitNotes: async (data: VisitNotesInput): Promise<any> => {
-    const response = await axios.post(`${aiUrl}/visit-notes-assistant`, data, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${aiUrl}/visit-notes-assistant`,
+      data,
+      createAuthConfig()
+    );
 
     if (response.data.success) {
       return response.data.data;

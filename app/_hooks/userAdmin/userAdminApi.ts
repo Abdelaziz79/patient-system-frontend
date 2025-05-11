@@ -8,6 +8,7 @@ import {
 } from "@/app/_types/User";
 import axios from "axios";
 import { UserEvent } from "../auth/authApi";
+import { createAuthConfig } from "../utils/authUtils";
 
 const usersUrl = process.env.NEXT_PUBLIC_BACK_URL + "/api/users";
 
@@ -31,10 +32,12 @@ export const userAdminApi = {
     sort?: string;
     direction?: string;
   }): Promise<UsersResponse> => {
-    const response = await axios.get<UsersResponse>(usersUrl, {
-      params: { page, limit, sort, direction },
-      withCredentials: true,
-    });
+    const response = await axios.get<UsersResponse>(
+      usersUrl,
+      createAuthConfig({
+        params: { page, limit, sort, direction },
+      })
+    );
 
     if (response.data) {
       return response.data;
@@ -54,10 +57,9 @@ export const userAdminApi = {
   }): Promise<UsersResponse> => {
     const response = await axios.get<UsersResponse>(
       `${usersUrl}/by-admin/${adminId}`,
-      {
+      createAuthConfig({
         params: { page, limit },
-        withCredentials: true,
-      }
+      })
     );
 
     if (response.data) {
@@ -70,9 +72,7 @@ export const userAdminApi = {
   getUserById: async (userId: string): Promise<User> => {
     const response = await axios.get<{ data: User; success: boolean }>(
       `${usersUrl}/${userId}`,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
 
     if (response.data.success) {
@@ -88,10 +88,9 @@ export const userAdminApi = {
   ): Promise<{ data: UserEvent[] }> => {
     const response = await axios.get<{ success: boolean; data: UserEvent[] }>(
       `${usersUrl}/${userId}/events`,
-      {
+      createAuthConfig({
         params,
-        withCredentials: true,
-      }
+      })
     );
 
     if (response.data.success) {
@@ -104,9 +103,7 @@ export const userAdminApi = {
   getUserStats: async (): Promise<UserStats> => {
     const response = await axios.get<{ success: boolean; data: UserStats }>(
       `${usersUrl}/stats`,
-      {
-        withCredentials: true,
-      }
+      createAuthConfig()
     );
 
     if (response.data.success) {
@@ -117,9 +114,11 @@ export const userAdminApi = {
 
   // Create a new user
   createUser: async (userData: UserCreateData): Promise<User> => {
-    const response = await axios.post(`${usersUrl}/create`, userData, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${usersUrl}/create`,
+      userData,
+      createAuthConfig()
+    );
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -135,9 +134,11 @@ export const userAdminApi = {
     userId: string;
     userData: UserUpdateData;
   }): Promise<User> => {
-    const response = await axios.put(`${usersUrl}/${userId}`, userData, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${usersUrl}/${userId}`,
+      userData,
+      createAuthConfig()
+    );
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -156,7 +157,7 @@ export const userAdminApi = {
     const response = await axios.put(
       `${usersUrl}/${userId}/reset-password`,
       { newPassword },
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (!response.data.success) {
@@ -175,7 +176,7 @@ export const userAdminApi = {
     const response = await axios.put(
       `${usersUrl}/${userId}/subscription`,
       subscriptionData,
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (response.data.success && response.data.data) {
@@ -186,9 +187,10 @@ export const userAdminApi = {
 
   // Delete (soft delete) user
   deleteUser: async (userId: string): Promise<void> => {
-    const response = await axios.delete(`${usersUrl}/${userId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.delete(
+      `${usersUrl}/${userId}`,
+      createAuthConfig()
+    );
 
     if (!response.data.success) {
       throw new Error(response.data.message || "Failed to delete user");
@@ -200,7 +202,7 @@ export const userAdminApi = {
     const response = await axios.post(
       `${usersUrl}/${userId}/undelete`,
       {},
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (response.data.success && response.data.data) {
@@ -220,7 +222,7 @@ export const userAdminApi = {
     const response = await axios.put(
       `${usersUrl}/password`,
       { currentPassword, newPassword },
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (!response.data.success) {
@@ -235,9 +237,11 @@ export const userAdminApi = {
     specialization?: string;
     profileImage?: string;
   }): Promise<User> => {
-    const response = await axios.put(`${usersUrl}/profile`, profileData, {
-      withCredentials: true,
-    });
+    const response = await axios.put(
+      `${usersUrl}/profile`,
+      profileData,
+      createAuthConfig()
+    );
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -249,7 +253,7 @@ export const userAdminApi = {
   getCurrentUser: async (): Promise<User> => {
     const response = await axios.get<{ success: boolean; data: User }>(
       `${usersUrl}/me`,
-      { withCredentials: true }
+      createAuthConfig()
     );
 
     if (response.data.success) {
