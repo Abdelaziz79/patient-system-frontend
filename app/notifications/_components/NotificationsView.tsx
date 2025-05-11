@@ -152,38 +152,42 @@ export const NotificationsView = () => {
   }
 
   return (
-    <div className="container px-4 sm:px-6 mx-auto py-4 sm:py-6 max-w-6xl">
+    <div className="container px-2 sm:px-6 mx-auto py-2 sm:py-6 max-w-6xl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-blue-100 dark:border-blue-900 shadow-xl overflow-hidden rounded-xl">
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <CardHeader className="px-3 sm:px-6 pb-2">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4">
               <div>
-                <CardTitle className="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
-                  <Bell className={`h-5 w-5 ${isRTL ? "mx-1" : "mx-1"}`} />
+                <CardTitle className="text-lg sm:text-2xl font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                  <Bell
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                      isRTL ? "mx-1" : "mx-1"
+                    }`}
+                  />
                   {t("notifications")}
                   {totalUnreadCount > 0 && (
                     <Badge
                       variant="secondary"
                       className={`${
-                        isRTL ? "mx-2" : "mx-2"
-                      } bg-blue-600 text-white`}
+                        isRTL ? "mx-1 sm:mx-2" : "mx-1 sm:mx-2"
+                      } bg-blue-600 text-white text-xs sm:text-sm`}
                     >
                       {totalUnreadCount}
                     </Badge>
                   )}
                 </CardTitle>
-                <CardDescription className="text-blue-600 dark:text-blue-400 mt-1">
+                <CardDescription className="text-blue-600 dark:text-blue-400 mt-1 text-sm">
                   {t("manageNotifications")}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="p-4 sm:p-6 pt-2">
+          <CardContent className="p-2 sm:p-6 pt-2">
             <Tabs
               defaultValue="appointments"
               className="w-full"
@@ -191,29 +195,35 @@ export const NotificationsView = () => {
               onValueChange={setActiveTab}
               dir={isRTL ? "rtl" : "ltr"}
             >
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:justify-between sm:items-center border-b border-gray-200 dark:border-gray-700 pb-4">
-                <TabsList className="mb-2 sm:mb-0">
-                  <TabsTrigger value="appointments" className="px-3 sm:px-4">
+              <div className="flex flex-col xs:flex-row gap-2 xs:gap-0 xs:justify-between xs:items-center border-b border-gray-200 dark:border-gray-700 pb-2 sm:pb-4">
+                <TabsList className="mb-2 xs:mb-0 h-8 sm:h-10">
+                  <TabsTrigger
+                    value="appointments"
+                    className="px-2 sm:px-4 text-xs sm:text-sm"
+                  >
                     {t("appointments")}
                     {notificationSummary && notificationSummary.total > 0 && (
                       <Badge
                         variant="secondary"
                         className={`${
-                          isRTL ? "mx-2" : "mx-2"
-                        } bg-green-600 text-white`}
+                          isRTL ? "mx-1 sm:mx-2" : "mx-1 sm:mx-2"
+                        } bg-green-600 text-white text-xs`}
                       >
                         {notificationSummary.total}
                       </Badge>
                     )}
                   </TabsTrigger>
-                  <TabsTrigger value="system" className="px-3 sm:px-4">
+                  <TabsTrigger
+                    value="system"
+                    className="px-2 sm:px-4 text-xs sm:text-sm"
+                  >
                     {t("system")}
                     {unreadCount && unreadCount.unreadCount > 0 && (
                       <Badge
                         variant="secondary"
                         className={`${
-                          isRTL ? "mx-2" : "mx-2"
-                        } bg-blue-600 text-white`}
+                          isRTL ? "mx-1 sm:mx-2" : "mx-1 sm:mx-2"
+                        } bg-blue-600 text-white text-xs`}
                       >
                         {unreadCount.unreadCount}
                       </Badge>
@@ -223,14 +233,14 @@ export const NotificationsView = () => {
 
                 {/* Filters */}
                 <div className="flex items-center">
-                  <Filter className="h-4 w-4 text-gray-400 mx-2" />
+                  <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mx-1 sm:mx-2" />
                   {activeTab === "appointments" ? (
                     <Select
                       value={String(filterDays)}
                       onValueChange={(value) => setFilterDays(Number(value))}
                     >
                       <SelectTrigger
-                        className="w-full sm:w-[160px] h-8 text-sm"
+                        className="w-full xs:w-[140px] sm:w-[160px] h-7 sm:h-8 text-xs sm:text-sm"
                         dir={isRTL ? "rtl" : "ltr"}
                       >
                         <SelectValue placeholder={t("filterPeriod")} />
@@ -248,7 +258,7 @@ export const NotificationsView = () => {
                       onValueChange={setSystemFilterRead}
                     >
                       <SelectTrigger
-                        className="w-full sm:w-[160px] h-8 text-sm"
+                        className="w-full xs:w-[140px] sm:w-[160px] h-7 sm:h-8 text-xs sm:text-sm"
                         dir={isRTL ? "rtl" : "ltr"}
                       >
                         <SelectValue placeholder={t("filterStatus")} />
@@ -268,22 +278,22 @@ export const NotificationsView = () => {
               </div>
 
               {/* Appointment Notifications Tab */}
-              <TabsContent value="appointments" className="mt-4 sm:mt-6">
+              <TabsContent value="appointments" className="mt-2 sm:mt-6">
                 {isNotificationsLoading ? (
-                  <div className="flex items-center justify-center py-10">
-                    <Loader2 className="h-10 w-10 animate-spin text-green-500" />
+                  <div className="flex items-center justify-center py-6 sm:py-10">
+                    <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-green-500" />
                   </div>
                 ) : !notifications || notifications.length === 0 ? (
                   <EmptyState
                     icon={
-                      <Calendar className="h-16 w-16 text-gray-300 dark:text-gray-600" />
+                      <Calendar className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 dark:text-gray-600" />
                     }
                     title={t("noAppointmentsFound")}
                     description={t("noUpcomingAppointments")}
                   />
                 ) : (
-                  <ScrollArea className="h-[calc(100vh-360px)] sm:h-[calc(100vh-320px)] px-2 sm:px-4">
-                    <div className="space-y-3 sm:space-y-4 pb-4">
+                  <ScrollArea className="h-[calc(100vh-320px)] sm:h-[calc(100vh-320px)] px-1 sm:px-4">
+                    <div className="space-y-2 sm:space-y-4 pb-4">
                       {notifications.map(
                         (notification: INotification, index: number) => (
                           <AppointmentNotificationCard
@@ -310,15 +320,15 @@ export const NotificationsView = () => {
               </TabsContent>
 
               {/* System Notifications Tab */}
-              <TabsContent value="system" className="mt-4 sm:mt-6">
+              <TabsContent value="system" className="mt-2 sm:mt-6">
                 {isSystemNotificationsLoading ? (
-                  <div className="flex items-center justify-center py-10">
-                    <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+                  <div className="flex items-center justify-center py-6 sm:py-10">
+                    <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-blue-500" />
                   </div>
                 ) : !systemNotifications || systemNotifications.length === 0 ? (
                   <EmptyState
                     icon={
-                      <InfoIcon className="h-16 w-16 text-gray-300 dark:text-gray-600" />
+                      <InfoIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 dark:text-gray-600" />
                     }
                     title={t("noNotificationsFound")}
                     description={
@@ -330,8 +340,8 @@ export const NotificationsView = () => {
                     }
                   />
                 ) : (
-                  <ScrollArea className="h-[calc(100vh-360px)] sm:h-[calc(100vh-320px)] px-2 sm:px-4">
-                    <div className="space-y-3 sm:space-y-4 pb-4">
+                  <ScrollArea className="h-[calc(100vh-320px)] sm:h-[calc(100vh-320px)] px-1 sm:px-4">
+                    <div className="space-y-2 sm:space-y-4 pb-4">
                       {systemNotifications.map(
                         (notification: ISystemNotification, index: number) => (
                           <SystemNotificationCard

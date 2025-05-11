@@ -1,8 +1,8 @@
 import { useLanguage } from "@/app/_contexts/LanguageContext";
-import { format, parseISO } from "date-fns";
-import Link from "next/link";
-import { User, CalendarDays, Phone, Clock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format, parseISO } from "date-fns";
+import { CalendarDays, Clock, Phone, User } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 interface PatientData {
@@ -42,6 +42,7 @@ interface SearchResultsProps {
   onClose: () => void;
   isVisible: boolean;
   isLoading?: boolean;
+  searchQuery?: string;
 }
 
 export default function SearchResults({
@@ -49,6 +50,7 @@ export default function SearchResults({
   onClose,
   isVisible,
   isLoading = false,
+  searchQuery = "",
 }: SearchResultsProps) {
   const { t, isRTL } = useLanguage();
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -97,7 +99,9 @@ export default function SearchResults({
     }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   // Container to be used for both loading and results
   const containerClass = `absolute ${
@@ -118,8 +122,36 @@ export default function SearchResults({
     );
   }
 
-  // Return null if no results and not loading
-  if (safeResults.length === 0 && !isLoading) return null;
+  // Check if search query is too short
+  if (
+    searchQuery &&
+    searchQuery.trim().length > 0 &&
+    searchQuery.trim().length < 3
+  ) {
+    return (
+      <div ref={resultsRef} className={`${containerClass} p-6`}>
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          <p>
+            {t("noResultsFound")} -{" "}
+            {isRTL
+              ? "الرجاء إدخال 3 أحرف على الأقل للبحث"
+              : "Please enter at least 3 characters"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not loading and there are no results, show no results message
+  if (safeResults.length === 0) {
+    return (
+      <div ref={resultsRef} className={`${containerClass} p-6`}>
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          <p>{t("noResultsFound")}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -205,12 +237,6 @@ export default function SearchResults({
           </Link>
         ))}
       </ScrollArea>
-
-      {safeResults.length === 0 && (
-        <div className="py-6 text-center text-gray-500 dark:text-gray-400">
-          <p>{t("noResultsFound")}</p>
-        </div>
-      )}
     </div>
   );
 }

@@ -1219,6 +1219,7 @@ const en = {
   lastUpdate: "Last Update", // Meta info
   viewPatient: "View Patient", // Action
   noResultsFound: "No results found", // Generic search empty state
+  enterAtLeast3Characters: "Please enter at least 3 characters to search",
 
   // missed translations
   viewReports: "View Reports",
@@ -1287,6 +1288,7 @@ const en = {
   visitType: "Visit Type",
   medications: "Medications",
   noActiveEvents: "No Active Events",
+  completingTemplate: "Completing template",
 };
 
 export default en;

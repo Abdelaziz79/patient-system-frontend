@@ -52,36 +52,36 @@ export const MobileAppointmentCard = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="bg-white dark:bg-slate-800 rounded-xl shadow-md mb-4 overflow-hidden border border-green-100 dark:border-green-900 hover:shadow-lg transition-all duration-200"
+      className="bg-white dark:bg-slate-800 rounded-xl shadow-md mb-3 sm:mb-4 overflow-hidden border border-green-100 dark:border-green-900 hover:shadow-lg transition-all duration-200"
       dir={isRTL ? "rtl" : "ltr"}
       style={{ textAlign: isRTL ? "right" : "left" }}
     >
       {/* Header Section - Status Badge */}
-      <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-slate-700 dark:to-slate-700/80 px-4 py-2 border-b border-green-100 dark:border-green-800 flex justify-between items-center">
+      <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-slate-700 dark:to-slate-700/80 px-3 sm:px-4 py-1.5 sm:py-2 border-b border-green-100 dark:border-green-800 flex justify-between items-center">
         <Badge variant={badgeProps.variant} className={badgeProps.className}>
           {getDaysText(appointment.daysUntilFollowUp)}
         </Badge>
         <Badge
           variant="outline"
-          className="text-xs bg-white dark:bg-slate-700 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300"
+          className="text-[10px] sm:text-xs bg-white dark:bg-slate-700 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300"
         >
           {appointment.appointmentType}
         </Badge>
       </div>
 
       {/* Main Content */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Patient Info */}
-        <div className="flex items-center mb-4">
-          <div className="w-10 h-10 flex items-center justify-center bg-green-100 dark:bg-green-800 rounded-full">
-            <User className="h-5 w-5 text-green-600 dark:text-green-300" />
+        <div className="flex items-center mb-3 sm:mb-4">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-green-100 dark:bg-green-800 rounded-full">
+            <User className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-300" />
           </div>
-          <div className={`${isRTL ? "mx-3" : "mx-3"}`}>
-            <h3 className="font-medium text-base text-gray-800 dark:text-gray-200">
+          <div className={`${isRTL ? "mx-2 sm:mx-3" : "mx-2 sm:mx-3"}`}>
+            <h3 className="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-200">
               {appointment.patientName}
             </h3>
             {appointment.patientPhone !== "N/A" && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
                 {appointment.patientPhone}
               </p>
             )}
@@ -89,24 +89,24 @@ export const MobileAppointmentCard = ({
         </div>
 
         {/* Date and Time */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2.5 flex items-center">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-2 sm:mb-3">
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 sm:p-2.5 flex items-center">
             <Calendar
-              className={`h-4 w-4 ${
-                isRTL ? "mx-2" : "mx-2"
+              className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                isRTL ? "mx-1 sm:mx-2" : "mx-1 sm:mx-2"
               } text-green-600 dark:text-green-400 flex-shrink-0`}
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate">
               {format(parseISO(appointment.followUpDate), "MMM dd, yyyy")}
             </span>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2.5 flex items-center">
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 sm:p-2.5 flex items-center">
             <Clock
-              className={`h-4 w-4 ${
-                isRTL ? "mx-2" : "mx-2"
+              className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                isRTL ? "mx-1 sm:mx-2" : "mx-1 sm:mx-2"
               } text-green-600 dark:text-green-400 flex-shrink-0`}
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate">
               {format(parseISO(appointment.followUpDate), "hh:mm a")}
             </span>
           </div>
@@ -115,8 +115,8 @@ export const MobileAppointmentCard = ({
         {/* Appointment Title/Description */}
         {appointment.title &&
           appointment.title !== appointment.appointmentType && (
-            <div className="mb-3 px-2.5 py-2 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-100 dark:border-slate-700">
-              <span className="text-sm text-gray-600 dark:text-gray-300">
+            <div className="mb-2 sm:mb-3 px-2 sm:px-2.5 py-1.5 sm:py-2 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-100 dark:border-slate-700">
+              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                 {appointment.title}
               </span>
             </div>
@@ -128,10 +128,10 @@ export const MobileAppointmentCard = ({
         <Button
           variant="ghost"
           size="sm"
-          className="w-full rounded-none h-11 flex items-center justify-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors gap-2 font-medium"
+          className="w-full rounded-none h-9 sm:h-11 flex items-center justify-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors gap-1 sm:gap-2 font-medium text-xs sm:text-sm"
           onClick={() => onViewDetails(appointment.id, appointment.patientId)}
         >
-          <Eye className="h-4 w-4" />
+          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>{t("viewDetails")}</span>
         </Button>
       </div>

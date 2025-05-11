@@ -376,9 +376,9 @@ const ar: EnglishTranslations = {
 
   // --- لوحة التحكم / عناصر واجهة المستخدم العامة للتطبيق ---
   patientDashboard: "لوحة تحكم المريض",
-  aiDemographicsSummary: "ملخص التركيبة السكانية بالذكاء الاصطناعي",
-  demographicsSummary: "ملخص التركيبة السكانية",
-  generatingSummary: "جارٍ إنشاء ملخص التركيبة السكانية...",
+  aiDemographicsSummary: "ملخص لوحة التحكم بالذكاء الاصطناعي",
+  demographicsSummary: "ملخص لوحة التحكم",
+  generatingSummary: "جارٍ إنشاء ملخص لوحة التحكم...",
   thisMayTakeAMoment: "قد يستغرق هذا بعض الوقت",
   totalPatients: "إجمالي المرضى",
   totalVisits: "إجمالي الزيارات",
@@ -1247,6 +1247,8 @@ const ar: EnglishTranslations = {
   visitType: "نوع الزيارة",
   medications: "الأدوية",
   noActiveEvents: "لايوجد احداث نشطة",
+  enterAtLeast3Characters: "يرجى إدخال 3 أحرف على الأقل للبحث",
+  completingTemplate: "إكمال قالب",
 };
 
 export default ar;

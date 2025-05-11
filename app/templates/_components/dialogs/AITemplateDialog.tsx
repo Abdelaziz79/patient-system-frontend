@@ -30,9 +30,9 @@ export function AITemplateDialog({
       open={controlled ? open : undefined}
       onOpenChange={controlled ? onOpenChange : undefined}
     >
-      <DialogContent className="sm:max-w-[500px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-green-100 dark:border-green-900">
+      <DialogContent className="max-w-[95%] sm:max-w-[500px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-green-100 dark:border-green-900 p-3 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-green-800 dark:from-green-400 dark:to-green-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-green-800 dark:from-green-400 dark:to-green-600 bg-clip-text text-transparent">
             {t("generateTemplateWithAI")}
           </DialogTitle>
         </DialogHeader>

@@ -176,36 +176,38 @@ export function PatientEventsSection({
   const totalEvents = patient.events ? patient.events.length : 0;
 
   return (
-    <Card className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-indigo-100 dark:border-slate-800 shadow-xl transition-all duration-200 mb-6">
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <Card className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-indigo-100 dark:border-slate-800 shadow-xl transition-all duration-200 mb-3 sm:mb-6">
+      <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6">
+        <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2">
           <div>
-            <CardTitle className="text-xl text-indigo-800 dark:text-slate-300 flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-indigo-600 dark:text-slate-400" />
+            <CardTitle className="text-lg sm:text-xl text-indigo-800 dark:text-slate-300 flex items-center gap-1 sm:gap-2">
+              <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 dark:text-slate-400" />
               {t("patientEvents")}
             </CardTitle>
-            <CardDescription className="text-indigo-600 dark:text-slate-400">
+            <CardDescription className="text-xs sm:text-sm text-indigo-600 dark:text-slate-400">
               {totalEvents} Total Events ({activeEvents.length} Active)
             </CardDescription>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {canUseAIFeatures && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-9 flex items-center gap-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
+                    size="sm"
+                    className="h-8 sm:h-9 flex items-center gap-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-xs sm:text-sm"
                     disabled={activeEvents.length === 0}
                   >
-                    <Brain className="h-4 w-4" />
-                    <span>{t("aiTools")}</span>
+                    <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">{t("aiTools")}</span>
+                    <span className="xs:hidden">AI</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-48 sm:w-56">
                   <DropdownMenuItem
                     onClick={handleGetEventInsights}
                     disabled={isLoadingInsights || activeEvents.length === 0}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-xs sm:text-sm"
                   >
                     {t("getEventInsights")}
                   </DropdownMenuItem>
@@ -214,14 +216,14 @@ export function PatientEventsSection({
                     disabled={
                       isLoadingRecommendations || activeEvents.length === 0
                     }
-                    className="cursor-pointer"
+                    className="cursor-pointer text-xs sm:text-sm"
                   >
                     {t("getEventRecommendations")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleGetEventCorrelation}
                     disabled={isLoadingCorrelation || activeEvents.length === 0}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-xs sm:text-sm"
                   >
                     {t("analyzeEventCorrelation")}
                   </DropdownMenuItem>
@@ -230,16 +232,19 @@ export function PatientEventsSection({
             )}
 
             <Button
-              className="h-9 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white"
+              size="sm"
+              className="h-8 sm:h-9 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white text-xs sm:text-sm"
               onClick={() => setIsDialogOpen(true)}
             >
-              <Plus className="h-4 w-4 mx-1" /> {t("addEvent")}
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mx-1" />
+              <span className="hidden xs:inline">{t("addEvent")}</span>
+              <span className="xs:hidden">{t("add")}</span>
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="px-3 sm:px-6 py-2 sm:py-4">
         {/* AI Analysis Section - Only show if user has permission */}
         {canUseAIFeatures && (
           <AIAnalysisSection
@@ -267,16 +272,16 @@ export function PatientEventsSection({
           onEventUpdate={onEventUpdate}
           setIsDialogOpen={setIsDialogOpen}
         />
-      </CardContent>
 
-      {/* Add Event Dialog */}
-      <AddEventDialog
-        isOpen={isDialogOpen}
-        setIsOpen={setIsDialogOpen}
-        onAddEvent={handleAddEvent}
-        isAddingEvent={isAddingEvent}
-        onEventUpdate={onEventUpdate}
-      />
+        {/* Add Event Dialog */}
+        <AddEventDialog
+          isOpen={isDialogOpen}
+          setIsOpen={setIsDialogOpen}
+          onAddEvent={handleAddEvent}
+          isAddingEvent={isAddingEvent}
+          onEventUpdate={onEventUpdate}
+        />
+      </CardContent>
     </Card>
   );
 }

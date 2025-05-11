@@ -245,23 +245,23 @@ export function AddEventDialog({
   // Get icon for event type
   const getEventTypeIcon = (type: EventType) => {
     const iconMap: Record<EventType, React.ReactNode> = {
-      general: <Calendar className="h-5 w-5" />,
-      medication: <FileText className="h-5 w-5" />,
-      procedure: <Clipboard className="h-5 w-5" />,
-      lab_result: <FlaskConical className="h-5 w-5" />,
-      diagnosis: <Stethoscope className="h-5 w-5" />,
-      referral: <Share className="h-5 w-5" />,
-      appointment: <CalendarCheck className="h-5 w-5" />,
-      therapy: <Award className="h-5 w-5" />,
-      surgery: <Scissors className="h-5 w-5" />,
-      lab: <FlaskConical className="h-5 w-5" />,
-      consultation: <HeartPulse className="h-5 w-5" />,
-      admission: <UserPlus className="h-5 w-5" />,
-      discharge: <UserMinus className="h-5 w-5" />,
-      other: <Info className="h-5 w-5" />,
+      general: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />,
+      medication: <FileText className="h-4 w-4 sm:h-5 sm:w-5" />,
+      procedure: <Clipboard className="h-4 w-4 sm:h-5 sm:w-5" />,
+      lab_result: <FlaskConical className="h-4 w-4 sm:h-5 sm:w-5" />,
+      diagnosis: <Stethoscope className="h-4 w-4 sm:h-5 sm:w-5" />,
+      referral: <Share className="h-4 w-4 sm:h-5 sm:w-5" />,
+      appointment: <CalendarCheck className="h-4 w-4 sm:h-5 sm:w-5" />,
+      therapy: <Award className="h-4 w-4 sm:h-5 sm:w-5" />,
+      surgery: <Scissors className="h-4 w-4 sm:h-5 sm:w-5" />,
+      lab: <FlaskConical className="h-4 w-4 sm:h-5 sm:w-5" />,
+      consultation: <HeartPulse className="h-4 w-4 sm:h-5 sm:w-5" />,
+      admission: <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />,
+      discharge: <UserMinus className="h-4 w-4 sm:h-5 sm:w-5" />,
+      other: <Info className="h-4 w-4 sm:h-5 sm:w-5" />,
     };
 
-    return iconMap[type] || <Calendar className="h-5 w-5" />;
+    return iconMap[type] || <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />;
   };
 
   // Get color for event type
@@ -382,12 +382,12 @@ export function AddEventDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
         dir={dir}
-        className="sm:max-w-[700px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg"
+        className="max-w-[95%] sm:max-w-[700px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg p-3 sm:p-6 max-h-[90vh] overflow-y-auto"
       >
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+        <DialogHeader className="space-y-1 sm:space-y-2 sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
+          <DialogTitle className="flex items-center gap-1 sm:gap-2 text-lg sm:text-xl">
             <div
-              className="p-2 rounded-full"
+              className="p-1.5 sm:p-2 rounded-full"
               style={{
                 backgroundColor: `${eventTypeColor.light}20`,
                 color: eventTypeColor.light,
@@ -396,11 +396,11 @@ export function AddEventDialog({
             >
               {getEventTypeIcon(newEvent.eventType)}
             </div>
-            <span className="text-gray-800 dark:text-gray-100">
+            <span className="text-gray-800 dark:text-gray-100 text-base sm:text-xl">
               {t("addPatientEvent")}
             </span>
             <Badge
-              className="mx-auto"
+              className="ml-auto text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
               style={{
                 backgroundColor: importanceColor.light,
                 color: "#fff",
@@ -410,7 +410,7 @@ export function AddEventDialog({
             </Badge>
           </DialogTitle>
           <DialogDescription
-            className={`flex text-gray-600 dark:text-gray-300 ${
+            className={`flex text-xs sm:text-sm text-gray-600 dark:text-gray-300 ${
               dir === "rtl" ? "items-end" : ""
             }`}
           >
@@ -418,362 +418,389 @@ export function AddEventDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs
-          defaultValue="basic"
-          value={newEvent.activeTab}
-          onValueChange={(value) =>
-            setNewEvent({ ...newEvent, activeTab: value })
-          }
-          dir={dir as "ltr" | "rtl"}
-        >
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="basic" className="rounded-l-md">
-              {t("basicInfo")}
-            </TabsTrigger>
-            <TabsTrigger value="details" className="rounded-r-md">
-              {t("eventDetails")}
-            </TabsTrigger>
-          </TabsList>
+        <div className="mt-2 sm:mt-4">
+          <Tabs
+            defaultValue="basic"
+            value={newEvent.activeTab}
+            onValueChange={(value) =>
+              setNewEvent({ ...newEvent, activeTab: value })
+            }
+            dir={dir as "ltr" | "rtl"}
+          >
+            <TabsList className="grid grid-cols-2 mb-3 sm:mb-4 sticky top-14 z-10 bg-white dark:bg-gray-900">
+              <TabsTrigger
+                value="basic"
+                className="rounded-l-md text-xs sm:text-sm py-1 sm:py-1.5"
+              >
+                {t("basicInfo")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="details"
+                className="rounded-r-md text-xs sm:text-sm py-1 sm:py-1.5"
+              >
+                {t("eventDetails")}
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Basic Info Tab */}
-          <TabsContent value="basic" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="title"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  {t("title")} <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  value={newEvent.title}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, title: e.target.value })
-                  }
-                  className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                  placeholder={t("eventTitlePlaceholder")}
-                  required
-                />
+            {/* Basic Info Tab */}
+            <TabsContent value="basic" className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1 sm:space-y-2">
+                  <Label
+                    htmlFor="title"
+                    className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("title")} <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="title"
+                    value={newEvent.title}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, title: e.target.value })
+                    }
+                    className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-base"
+                    placeholder={t("eventTitlePlaceholder")}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1 sm:space-y-2">
+                  <Label
+                    htmlFor="date"
+                    className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("dateAndTime")}
+                  </Label>
+                  <Input
+                    id="date"
+                    type="datetime-local"
+                    value={
+                      newEvent.date instanceof Date
+                        ? new Date(
+                            newEvent.date.getTime() -
+                              newEvent.date.getTimezoneOffset() * 60000
+                          )
+                            .toISOString()
+                            .slice(0, 16)
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setNewEvent({
+                        ...newEvent,
+                        date: new Date(e.target.value),
+                      })
+                    }
+                    className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-base"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="date"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  {t("dateAndTime")}
-                </Label>
-                <Input
-                  id="date"
-                  type="datetime-local"
-                  value={
-                    newEvent.date instanceof Date
-                      ? new Date(
-                          newEvent.date.getTime() -
-                            newEvent.date.getTimezoneOffset() * 60000
-                        )
-                          .toISOString()
-                          .slice(0, 16)
-                      : ""
-                  }
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, date: new Date(e.target.value) })
-                  }
-                  className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="eventType"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  {t("eventType")}
-                </Label>
-                <Select
-                  value={newEvent.eventType}
-                  onValueChange={(value) =>
-                    setNewEvent({ ...newEvent, eventType: value as EventType })
-                  }
-                >
-                  <SelectTrigger className="w-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800">
-                    <SelectValue placeholder={t("selectEventType")} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-                      {(Object.keys(eventTypeFields) as EventType[]).map(
-                        (type) => (
-                          <SelectItem
-                            key={type}
-                            value={type}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="p-1 rounded-full"
-                                style={{
-                                  backgroundColor: `${
-                                    getEventTypeColor(type).light
-                                  }20`,
-                                  color: getEventTypeColor(type).light,
-                                }}
-                              >
-                                {getEventTypeIcon(type)}
-                              </div>
-                              <span>{t(type as any)}</span>
-                            </div>
-                          </SelectItem>
-                        )
-                      )}
-                    </div>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="importance"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  {t("importance")}
-                </Label>
-                <RadioGroup
-                  value={newEvent.importance}
-                  onValueChange={(value) =>
-                    setNewEvent({
-                      ...newEvent,
-                      importance: value as ImportanceLevel,
-                    })
-                  }
-                  dir={dir as "ltr" | "rtl"}
-                  className="flex flex-wrap gap-2"
-                >
-                  <div className="flex items-center gap-x-2">
-                    <RadioGroupItem
-                      value="low"
-                      id="low"
-                      className="text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <Label htmlFor="low" className="text-sm cursor-pointer">
-                      <Badge
-                        variant="outline"
-                        className="border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                      >
-                        {t("low")}
-                      </Badge>
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-x-2">
-                    <RadioGroupItem
-                      value="medium"
-                      id="medium"
-                      className="text-amber-600 focus:ring-amber-500"
-                    />
-                    <Label htmlFor="medium" className="text-sm cursor-pointer">
-                      <Badge
-                        variant="outline"
-                        className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                      >
-                        {t("medium")}
-                      </Badge>
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-x-2">
-                    <RadioGroupItem
-                      value="high"
-                      id="high"
-                      className="text-red-600 focus:ring-red-500"
-                    />
-                    <Label htmlFor="high" className="text-sm cursor-pointer">
-                      <Badge
-                        variant="outline"
-                        className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                      >
-                        {t("high")}
-                      </Badge>
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-x-2">
-                    <RadioGroupItem
-                      value="critical"
-                      id="critical"
-                      className="text-red-800 focus:ring-red-700"
-                    />
-                    <Label
-                      htmlFor="critical"
-                      className="text-sm cursor-pointer"
-                    >
-                      <Badge
-                        variant="outline"
-                        className="border-red-300 dark:border-red-900 bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-300"
-                      >
-                        {t("critical" as any)}
-                      </Badge>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-
-            <Button
-              onClick={() => setNewEvent({ ...newEvent, activeTab: "details" })}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-500"
-            >
-              {t("nextStep" as any)}
-            </Button>
-          </TabsContent>
-
-          {/* Details Tab */}
-          <TabsContent value="details" className="space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="grid grid-cols-1 gap-4">
-                {currentEventFields.map((field) => (
-                  <div key={field.name} className="space-y-2">
-                    <Label
-                      htmlFor={field.name}
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize"
-                    >
-                      {t(field.name.replace("_", " ") as any)}
-                    </Label>
-
-                    {field.type === "textarea" && (
-                      <Textarea
-                        id={field.name}
-                        value={newEvent.sectionData[field.name] || ""}
-                        onChange={(e) =>
-                          handleSectionDataChange(field.name, e.target.value)
-                        }
-                        className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                        placeholder={t(`${field.name}Placeholder` as any)}
-                        rows={3}
-                      />
-                    )}
-
-                    {field.type === "text" && (
-                      <Input
-                        id={field.name}
-                        value={newEvent.sectionData[field.name] || ""}
-                        onChange={(e) =>
-                          handleSectionDataChange(field.name, e.target.value)
-                        }
-                        className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                        placeholder={t(`${field.name}Placeholder` as any)}
-                      />
-                    )}
-
-                    {field.type === "date" && (
-                      <Input
-                        id={field.name}
-                        type="date"
-                        value={newEvent.sectionData[field.name] || ""}
-                        onChange={(e) =>
-                          handleSectionDataChange(field.name, e.target.value)
-                        }
-                        className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                      />
-                    )}
-
-                    {field.type === "number" && (
-                      <Input
-                        id={field.name}
-                        type="number"
-                        value={newEvent.sectionData[field.name] || ""}
-                        onChange={(e) =>
-                          handleSectionDataChange(field.name, e.target.value)
-                        }
-                        className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800"
-                      />
-                    )}
-
-                    {field.type === "select" && field.options && (
-                      <Select
-                        value={newEvent.sectionData[field.name] || ""}
-                        onValueChange={(value) =>
-                          handleSectionDataChange(field.name, value)
-                        }
-                      >
-                        <SelectTrigger className="w-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800">
-                          <SelectValue
-                            placeholder={t(
-                              `select${
-                                field.name.charAt(0).toUpperCase() +
-                                field.name.slice(1)
-                              }` as any
-                            )}
-                          />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                          {field.options.map((option) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1 sm:space-y-2">
+                  <Label
+                    htmlFor="eventType"
+                    className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("eventType")}
+                  </Label>
+                  <Select
+                    value={newEvent.eventType}
+                    onValueChange={(value) =>
+                      setNewEvent({
+                        ...newEvent,
+                        eventType: value as EventType,
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder={t("selectEventType")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-xs sm:text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                        {(Object.keys(eventTypeFields) as EventType[]).map(
+                          (type) => (
                             <SelectItem
-                              key={option}
-                              value={option}
+                              key={type}
+                              value={type}
                               className="cursor-pointer"
                             >
-                              {t(option as any)}
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <div
+                                  className="p-0.5 sm:p-1 rounded-full"
+                                  style={{
+                                    backgroundColor: `${
+                                      getEventTypeColor(type).light
+                                    }20`,
+                                    color: getEventTypeColor(type).light,
+                                  }}
+                                >
+                                  {getEventTypeIcon(type)}
+                                </div>
+                                <span>{t(type as any)}</span>
+                              </div>
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-                ))}
+                          )
+                        )}
+                      </div>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1 sm:space-y-2">
+                  <Label
+                    htmlFor="importance"
+                    className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("importance")}
+                  </Label>
+                  <RadioGroup
+                    value={newEvent.importance}
+                    onValueChange={(value) =>
+                      setNewEvent({
+                        ...newEvent,
+                        importance: value as ImportanceLevel,
+                      })
+                    }
+                    dir={dir as "ltr" | "rtl"}
+                    className="flex flex-wrap gap-1 sm:gap-2"
+                  >
+                    <div className="flex items-center gap-x-1 sm:gap-x-2">
+                      <RadioGroupItem
+                        value="low"
+                        id="low"
+                        className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <Label
+                        htmlFor="low"
+                        className="text-xs sm:text-sm cursor-pointer"
+                      >
+                        <Badge
+                          variant="outline"
+                          className="border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
+                        >
+                          {t("low")}
+                        </Badge>
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-x-1 sm:gap-x-2">
+                      <RadioGroupItem
+                        value="medium"
+                        id="medium"
+                        className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600 focus:ring-amber-500"
+                      />
+                      <Label
+                        htmlFor="medium"
+                        className="text-xs sm:text-sm cursor-pointer"
+                      >
+                        <Badge
+                          variant="outline"
+                          className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
+                        >
+                          {t("medium")}
+                        </Badge>
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-x-1 sm:gap-x-2">
+                      <RadioGroupItem
+                        value="high"
+                        id="high"
+                        className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 focus:ring-red-500"
+                      />
+                      <Label
+                        htmlFor="high"
+                        className="text-xs sm:text-sm cursor-pointer"
+                      >
+                        <Badge
+                          variant="outline"
+                          className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
+                        >
+                          {t("high")}
+                        </Badge>
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-x-1 sm:gap-x-2">
+                      <RadioGroupItem
+                        value="critical"
+                        id="critical"
+                        className="h-3 w-3 sm:h-4 sm:w-4 text-red-800 focus:ring-red-700"
+                      />
+                      <Label
+                        htmlFor="critical"
+                        className="text-xs sm:text-sm cursor-pointer"
+                      >
+                        <Badge
+                          variant="outline"
+                          className="border-red-300 dark:border-red-900 bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-300 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
+                        >
+                          {t("critical" as any)}
+                        </Badge>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
               </div>
-            </div>
-
-            <div className="flex gap-x-2">
-              <Button
-                onClick={() => setNewEvent({ ...newEvent, activeTab: "basic" })}
-                variant="outline"
-                className="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600"
-              >
-                {t("back")}
-              </Button>
 
               <Button
-                onClick={handleAddEvent}
-                disabled={isAddingEvent || !newEvent.title}
-                className="w-1/2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
+                onClick={() =>
+                  setNewEvent({ ...newEvent, activeTab: "details" })
+                }
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-500 h-8 sm:h-10 text-xs sm:text-sm mt-2 sm:mt-4"
               >
-                {isAddingEvent ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mx-2 animate-spin" />
-                    {t("adding")}
-                  </>
-                ) : (
-                  <>
-                    <FilePlus className="h-4 w-4 mx-2" />
-                    {t("addEvent")}
-                  </>
-                )}
+                {t("nextStep" as any)}
               </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
 
-        <DialogFooter className="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            {/* Details Tab */}
+            <TabsContent value="details" className="space-y-3 sm:space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                  {currentEventFields.map((field) => (
+                    <div key={field.name} className="space-y-1 sm:space-y-2">
+                      <Label
+                        htmlFor={field.name}
+                        className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 capitalize"
+                      >
+                        {t(field.name.replace("_", " ") as any)}
+                      </Label>
+
+                      {field.type === "textarea" && (
+                        <Textarea
+                          id={field.name}
+                          value={newEvent.sectionData[field.name] || ""}
+                          onChange={(e) =>
+                            handleSectionDataChange(field.name, e.target.value)
+                          }
+                          className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 text-xs sm:text-sm"
+                          placeholder={t(`${field.name}Placeholder` as any)}
+                          rows={2}
+                        />
+                      )}
+
+                      {field.type === "text" && (
+                        <Input
+                          id={field.name}
+                          value={newEvent.sectionData[field.name] || ""}
+                          onChange={(e) =>
+                            handleSectionDataChange(field.name, e.target.value)
+                          }
+                          className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-sm"
+                          placeholder={t(`${field.name}Placeholder` as any)}
+                        />
+                      )}
+
+                      {field.type === "date" && (
+                        <Input
+                          id={field.name}
+                          type="date"
+                          value={newEvent.sectionData[field.name] || ""}
+                          onChange={(e) =>
+                            handleSectionDataChange(field.name, e.target.value)
+                          }
+                          className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-sm"
+                        />
+                      )}
+
+                      {field.type === "number" && (
+                        <Input
+                          id={field.name}
+                          type="number"
+                          value={newEvent.sectionData[field.name] || ""}
+                          onChange={(e) =>
+                            handleSectionDataChange(field.name, e.target.value)
+                          }
+                          className="border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-sm"
+                        />
+                      )}
+
+                      {field.type === "select" && field.options && (
+                        <Select
+                          value={newEvent.sectionData[field.name] || ""}
+                          onValueChange={(value) =>
+                            handleSectionDataChange(field.name, value)
+                          }
+                        >
+                          <SelectTrigger className="w-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 h-8 sm:h-10 text-xs sm:text-sm">
+                            <SelectValue
+                              placeholder={t(
+                                `select${
+                                  field.name.charAt(0).toUpperCase() +
+                                  field.name.slice(1)
+                                }` as any
+                              )}
+                            />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-xs sm:text-sm">
+                            {field.options.map((option) => (
+                              <SelectItem
+                                key={option}
+                                value={option}
+                                className="cursor-pointer"
+                              >
+                                {t(option as any)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-x-2">
+                <Button
+                  onClick={() =>
+                    setNewEvent({ ...newEvent, activeTab: "basic" })
+                  }
+                  variant="outline"
+                  className="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 h-8 sm:h-10 text-xs sm:text-sm"
+                >
+                  {t("back")}
+                </Button>
+
+                <Button
+                  onClick={handleAddEvent}
+                  disabled={isAddingEvent || !newEvent.title}
+                  className="w-1/2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white h-8 sm:h-10 text-xs sm:text-sm"
+                >
+                  {isAddingEvent ? (
+                    <>
+                      <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mx-1 sm:mx-2 animate-spin" />
+                      {t("adding")}
+                    </>
+                  ) : (
+                    <>
+                      <FilePlus className="h-3 w-3 sm:h-4 sm:w-4 mx-1 sm:mx-2" />
+                      {t("addEvent")}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <DialogFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4 mt-3 sm:mt-4 gap-2 sm:gap-0 sticky bottom-0 bg-white dark:bg-gray-900 z-10">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   onClick={() => setIsOpen(false)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 text-xs sm:text-sm h-7 sm:h-9"
                 >
                   {t("cancel")}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="text-xs sm:text-sm">
                 <p>{t("cancelEventCreation")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
-          <div className="flex items-center gap-x-2">
-            <AlertCircle className="h-4 w-4 text-amber-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-x-1 sm:gap-x-2">
+            <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
+            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {t("requiredFieldsNotice")}
             </span>
           </div>

@@ -75,11 +75,11 @@ export default function ReportCharts({ reportData }: ReportChartsProps) {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <div className="bg-white/70 dark:bg-slate-800/70 p-4 rounded-xl shadow-sm border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm">
-          <TabsList className="grid grid-cols-2 md:flex md:flex-wrap gap-1 p-1 bg-blue-50/80 dark:bg-slate-800/90 rounded-lg">
+        <div className="bg-white/70 dark:bg-slate-800/70 p-4 rounded-xl shadow-sm border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm overflow-x-auto">
+          <TabsList className="flex flex-nowrap md:flex-wrap gap-1 p-1 min-w-max bg-blue-50/80 dark:bg-slate-800/90 rounded-lg">
             <TabsTrigger
               value="all"
-              className="flex items-center gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 rounded-lg shadow-sm"
+              className="flex items-center gap-1.5 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 rounded-lg shadow-sm"
             >
               {(() => {
                 const Icon = chartTypeIcons["all"];
@@ -94,7 +94,7 @@ export default function ReportCharts({ reportData }: ReportChartsProps) {
                 <TabsTrigger
                   key={type}
                   value={type}
-                  className="flex items-center gap-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 rounded-lg shadow-sm"
+                  className="flex items-center gap-1.5 whitespace-nowrap data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 rounded-lg shadow-sm"
                 >
                   <Icon className="h-3.5 w-3.5" />
                   <span className="capitalize">

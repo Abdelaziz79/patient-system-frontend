@@ -268,7 +268,6 @@ export default function AddPatientPage() {
       createdBy: user?.id, // Replace with actual user ID from auth context
       tags: [], // Initialize with empty tags array
     };
-    console.log("patientData", patientData);
     const result = await createPatient(patientData);
 
     if (result.success) {
@@ -707,12 +706,13 @@ export default function AddPatientPage() {
                 </CardTitle>
                 <CardDescription className="text-blue-100 mt-1 opacity-90">
                   {currentStep === "template"
-                    ? "Select a template to begin patient registration"
+                    ? t("selectPatientTemplate") || "Select Patient Template"
                     : currentStep === "personal"
-                    ? "Enter the patient's personal information"
+                    ? t("enterPatientInformation") ||
+                      "Enter Patient Information"
                     : selectedTemplate
-                    ? `Completing template: ${selectedTemplate.name}`
-                    : "Complete the patient registration form"}
+                    ? `${t("completingTemplate")} ${selectedTemplate.name}`
+                    : t("completePatientDetails") || "Complete Patient Details"}
                 </CardDescription>
               </div>
               <motion.div

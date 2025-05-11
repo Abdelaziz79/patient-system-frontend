@@ -115,7 +115,7 @@ export function AdminActionsCard({
                 ? t("deactivateUserConfirmation")
                 : t("reactivateUserConfirmation")}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               <Button
                 onClick={onCloseDeleteConfirm}
                 variant="outline"

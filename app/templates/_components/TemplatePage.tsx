@@ -107,7 +107,7 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -115,42 +115,40 @@ export default function TemplatesPage() {
         className="relative"
       >
         {/* Background decorative elements */}
-        <div className="absolute top-20 -left-20 w-64 h-64 bg-green-400 rounded-full filter blur-3xl opacity-10 dark:opacity-5 -z-10"></div>
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-400 rounded-full filter blur-3xl opacity-10 dark:opacity-5 -z-10"></div>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-10 gap-4 sm:gap-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-green-500 to-blue-600 dark:from-green-400 dark:to-blue-500 bg-clip-text text-transparent mb-3">
+            <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-green-500 to-blue-600 dark:from-green-400 dark:to-blue-500 bg-clip-text text-transparent mb-2 sm:mb-3">
               {t("templates")}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
               {t("manageTemplates")}
             </p>
           </motion.div>
           <motion.div
-            className="flex gap-3"
+            className="flex flex-wrap gap-2 sm:gap-3"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Button
-              className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 dark:from-green-600 dark:to-green-800 dark:hover:from-green-500 dark:hover:to-green-700 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-6 py-2.5 rounded-lg flex items-center"
+              className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 dark:from-green-600 dark:to-green-800 dark:hover:from-green-500 dark:hover:to-green-700 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg flex items-center text-sm sm:text-base"
               onClick={handleCreateTemplate}
             >
-              <PlusIcon className="mx-2 h-4 w-4" />
+              <PlusIcon className="mx-1 sm:mx-2 h-4 w-4" />
               <span>{t("createTemplate")}</span>
               <ChevronRightIcon className="mx-1 h-4 w-4 opacity-70" />
             </Button>
             <Button
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-500 dark:hover:to-purple-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-6 py-2.5 rounded-lg flex items-center"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-500 dark:hover:to-purple-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg flex items-center text-sm sm:text-base"
               onClick={() => setShowAIDialog(true)}
             >
-              <BrainCircuitIcon className="mx-2 h-4 w-4" />
+              <BrainCircuitIcon className="mx-1 sm:mx-2 h-4 w-4" />
               <span>{t("aiGenerate")}</span>
               <motion.div
                 animate={{
@@ -162,7 +160,7 @@ export default function TemplatesPage() {
                   repeatDelay: 1,
                   ease: "easeInOut",
                 }}
-                className="mx-2"
+                className="mx-1 sm:mx-2"
               >
                 <div className="h-2 w-2 bg-white rounded-full"></div>
               </motion.div>
@@ -172,21 +170,21 @@ export default function TemplatesPage() {
 
         {/* Search */}
         <motion.div
-          className="mb-8"
+          className="mb-6 sm:mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <div className="relative rounded-xl overflow-hidden shadow-md transition-all duration-300 focus-within:shadow-lg dark:shadow-gray-900/30">
-            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <SearchIcon className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 sm:h-5 w-4 sm:w-5" />
             <Input
               placeholder={t("searchTemplates")}
-              className="px-12 py-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 dark:focus:border-green-400 dark:focus:ring-green-400 rounded-xl text-base"
+              className="px-10 sm:px-12 py-5 sm:py-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 dark:focus:border-green-400 dark:focus:ring-green-400 rounded-xl text-sm sm:text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <motion.div
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 h-8 w-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-30 dark:opacity-20"
+              className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 h-6 sm:h-8 w-6 sm:w-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-30 dark:opacity-20"
               animate={{
                 scale: [1, 1.2, 1],
               }}
@@ -201,17 +199,17 @@ export default function TemplatesPage() {
 
         {/* Templates grid */}
         <motion.div
-          className="rounded-xl border border-gray-100/80 dark:border-gray-800/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-xl p-6"
+          className="rounded-xl border border-gray-100/80 dark:border-gray-800/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-xl p-3 sm:p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-600 dark:from-green-400 dark:to-blue-500 bg-clip-text text-transparent">
+          <div className="mb-4 sm:mb-6 flex items-center justify-between">
+            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-600 dark:from-green-400 dark:to-blue-500 bg-clip-text text-transparent">
               {t("availableTemplates")}
             </h2>
-            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-              <UserIcon className="h-4 w-4 mx-1.5 text-blue-500 dark:text-blue-400" />
+            <div className="flex items-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <UserIcon className="h-3 sm:h-4 w-3 sm:w-4 mx-1 sm:mx-1.5 text-blue-500 dark:text-blue-400" />
               <span>
                 {templates.length}{" "}
                 {templates.length === 1 ? t("template") : t("templates")}
@@ -220,14 +218,14 @@ export default function TemplatesPage() {
           </div>
 
           {apiLoading ? (
-            <div className="text-center py-16">
+            <div className="text-center py-10 sm:py-16">
               <motion.div
                 className="flex flex-col items-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="relative w-16 h-16 mb-6">
+                <div className="relative w-12 sm:w-16 h-12 sm:h-16 mb-4 sm:mb-6">
                   <motion.div
                     className="absolute inset-0 rounded-full border-t-2 border-b-2 border-green-500"
                     animate={{ rotate: 360 }}
@@ -247,38 +245,38 @@ export default function TemplatesPage() {
                     }}
                   />
                 </div>
-                <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg font-medium">
                   {t("loadingTemplates")}
                 </p>
-                <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+                <p className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm mt-2">
                   {t("preparingYourContent")}
                 </p>
               </motion.div>
             </div>
           ) : templates.length === 0 ? (
             <motion.div
-              className="col-span-full flex flex-col items-center justify-center py-16"
+              className="col-span-full flex flex-col items-center justify-center py-10 sm:py-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                <PlusIcon className="h-10 w-10 text-gray-400 dark:text-gray-500" />
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                <PlusIcon className="h-8 sm:h-10 w-8 sm:w-10 text-gray-400 dark:text-gray-500" />
               </div>
-              <p className="text-gray-500 dark:text-gray-400 text-lg font-medium mb-6">
+              <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg font-medium mb-4 sm:mb-6">
                 {t("noTemplatesFound")}
               </p>
               <Button
                 onClick={handleCreateTemplate}
-                className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 dark:from-green-600 dark:to-green-800 dark:hover:from-green-500 dark:hover:to-green-700 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-6 py-2.5 rounded-lg"
+                className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 dark:from-green-600 dark:to-green-800 dark:hover:from-green-500 dark:hover:to-green-700 text-white transition-all duration-300 shadow-lg hover:shadow-xl px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base"
               >
-                <PlusIcon className="mx-2 h-4 w-4" />
+                <PlusIcon className="mx-1 sm:mx-2 h-4 w-4" />
                 {t("createTemplate")}
               </Button>
             </motion.div>
           ) : (
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
               variants={containerVariants}
               initial="hidden"
               animate="visible"

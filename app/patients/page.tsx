@@ -25,9 +25,10 @@ import {
   Loader2,
   SearchIcon,
   UserPlusIcon,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SearchResults from "../_components/SearchResults";
 
 const ITEMS_PER_PAGE = 10;
@@ -109,11 +110,78 @@ export default function PatientsPage() {
     setPage(currentPage);
   }, [currentPage, setPage]);
 
-  // Handle search input changes with debounce
+  // Memoize the search function to prevent recreating it on every render
+  const executeSearch = useCallback(
+    async (query: string) => {
+      if (!isComponentMounted.current || query.trim().length === 0) return;
+
+      // Only search if query is at least 3 characters long
+      if (query.trim().length < 3) {
+        setSearchResults([]);
+        setShowSearchResults(true); // Show "minimum length" message
+        setIsSearching(false);
+        return;
+      }
+
+      setIsSearching(true);
+      setShowSearchResults(true); // Show loading spinner immediately
+
+      // Add a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (isComponentMounted.current) {
+          setIsSearching(false);
+          setSearchResults([]);
+        }
+      }, 8000); // 8 seconds timeout
+
+      try {
+        // Use the performSearch function from usePatient hook
+        const results = await performSearch({ query });
+
+        if (!isComponentMounted.current) {
+          clearTimeout(timeoutId);
+          return;
+        }
+
+        // Process search results
+        let searchData = [];
+
+        if (results) {
+          if (Array.isArray(results)) {
+            searchData = results;
+          } else if (results.data && Array.isArray(results.data)) {
+            searchData = results.data;
+          } else if (typeof results === "object") {
+            searchData = [results];
+          }
+        }
+
+        // Only update state if component is still mounted
+        if (isComponentMounted.current) {
+          setSearchResults(searchData);
+          setShowSearchResults(searchData.length > 0);
+          setIsSearching(false);
+        }
+      } catch (error) {
+        if (isComponentMounted.current) {
+          console.error("Search error:", error);
+          setSearchResults([]);
+          setShowSearchResults(false);
+          setIsSearching(false);
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    },
+    [performSearch]
+  );
+
+  // Handle search input changes with improved debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
 
+    // Clear any existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -125,50 +193,10 @@ export default function PatientsPage() {
       return;
     }
 
+    // Set new timeout with increased delay
     searchTimeoutRef.current = setTimeout(() => {
       executeSearch(query);
-    }, 300);
-  };
-
-  // Separate function to perform search
-  const executeSearch = async (query: string) => {
-    if (!isComponentMounted.current) return;
-
-    setIsSearching(true);
-    try {
-      const results = await performSearch({ query });
-
-      if (!isComponentMounted.current) return;
-
-      // Process search results
-      let searchData = [];
-
-      if (results) {
-        if (Array.isArray(results)) {
-          searchData = results;
-        } else if (results.data && Array.isArray(results.data)) {
-          searchData = results.data;
-        } else if (typeof results === "object") {
-          searchData = [results];
-        }
-      }
-
-      // Only update state if component is still mounted
-      if (isComponentMounted.current) {
-        setSearchResults(searchData);
-        setShowSearchResults(searchData.length > 0);
-      }
-    } catch (error) {
-      console.error("Search error:", error);
-      if (isComponentMounted.current) {
-        setSearchResults([]);
-        setShowSearchResults(false);
-      }
-    } finally {
-      if (isComponentMounted.current) {
-        setIsSearching(false);
-      }
-    }
+    }, 500); // Increased to 500ms to reduce frequency of API calls
   };
 
   const closeSearchResults = () => {
@@ -231,11 +259,32 @@ export default function PatientsPage() {
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onFocus={() => {
-                      if (searchResults.length > 0) {
+                      if (
+                        searchQuery.trim().length > 0 &&
+                        searchResults.length > 0
+                      ) {
                         setShowSearchResults(true);
                       }
                     }}
                   />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSearchResults([]);
+                        setShowSearchResults(false);
+                        refetch();
+                        if (searchInputRef.current) {
+                          searchInputRef.current.focus();
+                        }
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
 
                   {/* Search Results Dropdown */}
                   <SearchResults
@@ -243,6 +292,7 @@ export default function PatientsPage() {
                     onClose={closeSearchResults}
                     isVisible={showSearchResults}
                     isLoading={isSearching}
+                    searchQuery={searchQuery}
                   />
                 </div>
               </div>

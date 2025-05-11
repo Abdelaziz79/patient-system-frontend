@@ -238,7 +238,6 @@ export default function ReportDetailsPage() {
     try {
       setIsLoadingReportData(true);
       const result = await generateReport(reportId);
-      console.log(result);
 
       if (result.success) {
         setGeneratedData(result.data);

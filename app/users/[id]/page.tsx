@@ -225,33 +225,33 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" dir={dir}>
+    <div className="p-2 sm:p-4 md:p-6 max-w-6xl mx-auto" dir={dir}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-8">
           <ProfileHeader />
           <Button
             onClick={handleBackToList}
             variant="outline"
             size="sm"
-            className="bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-colors"
+            className="w-full sm:w-auto bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-colors"
           >
             <ArrowLeft className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />
             {t("backToUsers")}
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {/* Profile Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="md:col-span-1">
             <ProfileSidebar user={user} />
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="md:col-span-2 lg:col-span-3 space-y-4 md:space-y-6">
             <AccountInfoCard user={user} />
             <ActivityTimelineCard user={user} />
             <AdminActionsCard
