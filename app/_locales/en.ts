@@ -1289,6 +1289,8 @@ const en = {
   medications: "Medications",
   noActiveEvents: "No Active Events",
   completingTemplate: "Completing template",
+  invalidEmailFormat: "Invalid email format",
+  loginError: "Login failed. Please check your credentials and try again.",
 };
 
 export default en;

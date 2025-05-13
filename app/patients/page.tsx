@@ -6,9 +6,7 @@ import useMobileView from "@/app/_hooks/useMobileView";
 import { IPatient } from "@/app/_types/Patient";
 import { calculateAge } from "@/app/_utils/utils";
 import MobilePatientCard from "@/app/patients/_components/MobilePatientCard";
-import PatientTable, {
-  PatientDisplayItem,
-} from "@/app/patients/_components/PatientTable";
+import PatientTable from "@/app/patients/_components/PatientTable";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,13 +31,17 @@ import SearchResults from "../_components/SearchResults";
 
 const ITEMS_PER_PAGE = 10;
 
+// Make a DateConverter utility function at the top of the file
+const getDateString = (date: Date | string | undefined): string => {
+  if (!date) return "";
+  if (typeof date === "string") return date;
+  return date.toISOString();
+};
+
 export default function PatientsPage() {
   const router = useRouter();
   const { t, isRTL } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredPatients, setFilteredPatients] = useState<
-    PatientDisplayItem[]
-  >([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -47,6 +49,8 @@ export default function PatientsPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isComponentMounted = useRef(true);
+  const prevPageRef = useRef(1);
+  const didMountRef = useRef(false);
 
   const { isMobileView } = useMobileView();
 
@@ -65,48 +69,19 @@ export default function PatientsPage() {
     };
   }, []);
 
-  // Transform patients data to display format
-  useEffect(() => {
-    if (!patients) return;
-
-    const transformedPatients = patients.map((patient: IPatient) => {
-      const fullName = patient.personalInfo
-        ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
-        : t("unknown");
-
-      let ageValue = t("notAvailable");
-      if (patient.personalInfo?.dateOfBirth) {
-        try {
-          ageValue = calculateAge(String(patient.personalInfo.dateOfBirth));
-        } catch (error) {
-          console.error("Error calculating age:", error);
-        }
-      }
-
-      return {
-        id: patient.id || "",
-        name: fullName,
-        phone: patient.personalInfo?.contactNumber || t("notAvailable"),
-        createdAt: patient.createdAt,
-        age: ageValue,
-        gender: patient.personalInfo?.gender || t("notAvailable"),
-        templateName: patient.templateId?.name || t("default"),
-        createdByName: patient.createdBy?.name || t("notAvailable"),
-        fileNumber: patient.personalInfo?.medicalRecordNumber || "",
-        statusColor: patient.status?.color,
-        statusLabel: patient.status?.label,
-        tags: patient.tags,
-        adminId: patient.adminId,
-        isActive: patient.isActive,
-      };
-    });
-
-    setFilteredPatients(transformedPatients);
-  }, [patients, t]);
-
   // Update pagination settings when user changes page
   useEffect(() => {
-    setPage(currentPage);
+    // Skip the initial render
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    // Set page only when explicitly changed by user
+    if (currentPage !== prevPageRef.current) {
+      prevPageRef.current = currentPage;
+      setPage(currentPage);
+    }
   }, [currentPage, setPage]);
 
   // Memoize the search function to prevent recreating it on every render
@@ -217,6 +192,7 @@ export default function PatientsPage() {
       setCurrentPage((prev) => prev + 1);
     }
   };
+
   return (
     <div className="min-h-screen dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
@@ -304,11 +280,41 @@ export default function PatientsPage() {
                   {/* Mobile View - Card Layout */}
                   {isMobileView ? (
                     <div className="space-y-1">
-                      {filteredPatients.length > 0 ? (
-                        filteredPatients.map((patient, index) => (
+                      {patients && patients.length > 0 ? (
+                        patients.map((patient: IPatient, index: number) => (
                           <MobilePatientCard
                             key={patient.id}
-                            patient={patient}
+                            patient={{
+                              id: patient.id || "",
+                              name: patient.personalInfo
+                                ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
+                                : t("unknown"),
+                              phone:
+                                patient.personalInfo?.contactNumber ||
+                                t("notAvailable"),
+                              createdAt: getDateString(patient.createdAt),
+                              age: patient.personalInfo?.dateOfBirth
+                                ? calculateAge(
+                                    getDateString(
+                                      patient.personalInfo.dateOfBirth
+                                    )
+                                  )
+                                : t("notAvailable"),
+                              gender:
+                                patient.personalInfo?.gender ||
+                                t("notAvailable"),
+                              templateName:
+                                patient.templateId?.name || t("default"),
+                              createdByName:
+                                patient.createdBy?.name || t("notAvailable"),
+                              fileNumber:
+                                patient.personalInfo?.medicalRecordNumber || "",
+                              statusColor: patient.status?.color,
+                              statusLabel: patient.status?.label,
+                              tags: patient.tags,
+                              adminId: patient.adminId,
+                              isActive: patient.isActive,
+                            }}
                             index={index}
                           />
                         ))
@@ -331,14 +337,56 @@ export default function PatientsPage() {
                     </div>
                   ) : (
                     /* Desktop View - Table Layout */
-                    <PatientTable filteredPatients={filteredPatients} />
+                    <PatientTable
+                      filteredPatients={
+                        patients?.map((patient: IPatient) => {
+                          const fullName = patient.personalInfo
+                            ? `${patient.personalInfo.firstName} ${patient.personalInfo.lastName}`
+                            : t("unknown");
+
+                          let ageValue = t("notAvailable");
+                          if (patient.personalInfo?.dateOfBirth) {
+                            try {
+                              ageValue = calculateAge(
+                                getDateString(patient.personalInfo.dateOfBirth)
+                              );
+                            } catch (error) {
+                              console.error("Error calculating age:", error);
+                            }
+                          }
+
+                          return {
+                            id: patient.id || "",
+                            name: fullName,
+                            phone:
+                              patient.personalInfo?.contactNumber ||
+                              t("notAvailable"),
+                            createdAt: getDateString(patient.createdAt),
+                            age: ageValue,
+                            gender:
+                              patient.personalInfo?.gender || t("notAvailable"),
+                            templateName:
+                              patient.templateId?.name || t("default"),
+                            createdByName:
+                              patient.createdBy?.name || t("notAvailable"),
+                            fileNumber:
+                              patient.personalInfo?.medicalRecordNumber || "",
+                            statusColor: patient.status?.color,
+                            statusLabel: patient.status?.label,
+                            tags: patient.tags,
+                            adminId: patient.adminId,
+                            isActive: patient.isActive,
+                          };
+                        }) || []
+                      }
+                    />
                   )}
 
                   {/* Pagination */}
                   <div className="mt-4 flex items-center justify-between">
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {t("showing")}{" "}
-                      {filteredPatients.length > 0
+                      {patients && patients.length > 0
                         ? (currentPage - 1) * ITEMS_PER_PAGE + 1
                         : 0}{" "}
                       - {Math.min(currentPage * ITEMS_PER_PAGE, total)}{" "}

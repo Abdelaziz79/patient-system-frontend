@@ -11,8 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { motion } from "framer-motion";
-import { EyeIcon, EyeOffIcon, KeyIcon, UserIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  KeyIcon,
+  UserIcon,
+  AlertCircle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -24,6 +30,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login, isLoading, isAuthenticated } = useAuthContext();
   const router = useRouter();
@@ -35,8 +45,33 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, router]);
 
+  const validateForm = () => {
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!email.trim()) {
+      newErrors.email = t("emailRequired");
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = t("invalidEmailFormat");
+    }
+
+    if (!password.trim()) {
+      newErrors.password = t("passwordRequired");
+    } else if (password.length < 6) {
+      newErrors.password = t("passwordMinLength");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
 
     // Save email in localStorage if rememberMe is checked
     if (rememberMe) {
@@ -45,24 +80,39 @@ export default function LoginPage() {
       localStorage.removeItem("rememberedEmail");
     }
 
-    const result = await login(email, password);
-    if (result.success) {
-      // Check if there's a stored redirect path
-      const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-      if (redirectPath) {
-        sessionStorage.removeItem("redirectAfterLogin");
-        router.push(redirectPath);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        // Check if there's a stored redirect path
+        const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+        if (redirectPath) {
+          sessionStorage.removeItem("redirectAfterLogin");
+          router.push(redirectPath);
+        } else {
+          router.push("/");
+        }
+        toast.success(t("loginSuccess"), {
+          icon: "🎉",
+          duration: 2000,
+        });
       } else {
-        router.push("/");
+        // Show error toast and clear fields on failed login
+        if (result.error) {
+          toast.error(t("invalidCredentials"), {
+            icon: "❌",
+            duration: 3000,
+          });
+        }
+        setEmail("");
+        setPassword("");
       }
-      toast.success(t("loginSuccess"));
-    } else {
-      // Show error toast and clear fields on failed login
-      if (result.error) {
-        toast.error(t("invalidCredentials"));
-      }
-      setEmail("");
-      setPassword("");
+    } catch (error) {
+      toast.error(t("loginError"), {
+        icon: "❌",
+        duration: 3000,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,14 +164,42 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     placeholder={t("enterYourEmail")}
-                    className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    className={`px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white ${
+                      errors.email ? "border-red-500 dark:border-red-500" : ""
+                    }`}
                     required
                     value={email}
                     type="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) {
+                        setErrors({ ...errors, email: undefined });
+                      }
+                    }}
                   />
                   <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
+                  <AnimatePresence>
+                    {errors.email && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      >
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+                {errors.email && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 mt-1"
+                  >
+                    {errors.email}
+                  </motion.p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="block dark:text-gray-200">
@@ -132,10 +210,19 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder={t("enterYourPassword")}
-                    className="px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    className={`px-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white ${
+                      errors.password
+                        ? "border-red-500 dark:border-red-500"
+                        : ""
+                    }`}
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (errors.password) {
+                        setErrors({ ...errors, password: undefined });
+                      }
+                    }}
                   />
                   <KeyIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <button
@@ -149,7 +236,28 @@ export default function LoginPage() {
                       <EyeIcon className="h-4 w-4" />
                     )}
                   </button>
+                  <AnimatePresence>
+                    {errors.password && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-10 top-1/2 transform -translate-y-1/2"
+                      >
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+                {errors.password && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 mt-1"
+                  >
+                    {errors.password}
+                  </motion.p>
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -178,9 +286,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white transition-all duration-200 font-bold"
-                disabled={isLoading}
+                disabled={isLoading || isSubmitting}
               >
-                {isLoading ? (
+                {isLoading || isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <motion.div
                       animate={{ rotate: 360 }}

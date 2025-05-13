@@ -105,7 +105,7 @@ export default function SearchBar({
 
         if (isComponentMounted.current) {
           setSearchResults(resultsArray);
-          setShowSearchResults(resultsArray.length > 0);
+          setShowSearchResults(true); // Always show results container
           setIsSearching(false);
         }
       } catch (error: any) {
@@ -141,7 +141,7 @@ export default function SearchBar({
     // Set new timeout
     searchTimeoutRef.current = setTimeout(() => {
       performSearchQuery(query);
-    }, 500); // Increased to 500ms to reduce frequency of API calls
+    }, 400); // Slightly reduced to improve responsiveness
   };
 
   const closeSearchResults = () => {
@@ -167,7 +167,7 @@ export default function SearchBar({
           onChange={handleSearch}
           value={searchValue}
           onFocus={() => {
-            if (searchValue.trim().length > 0 && searchResults.length > 0) {
+            if (searchValue.trim().length > 0) {
               setShowSearchResults(true);
             }
           }}

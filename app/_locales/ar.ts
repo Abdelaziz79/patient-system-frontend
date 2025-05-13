@@ -1249,6 +1249,9 @@ const ar: EnglishTranslations = {
   noActiveEvents: "لايوجد احداث نشطة",
   enterAtLeast3Characters: "يرجى إدخال 3 أحرف على الأقل للبحث",
   completingTemplate: "إكمال قالب",
+  invalidEmailFormat: "صيغة بريد إلكتروني غير صالحة",
+  loginError:
+    "فشل تسجيل الدخول. يرجى التحقق من بيانات الدخول والمحاولة مرة أخرى.",
 };
 
 export default ar;

@@ -6,7 +6,7 @@ import { useThemeMode } from "@/app/_hooks/useThemeMode";
 import { useAuthContext } from "@/app/_providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AuthButtons from "./header/AuthButtons";
 import HeaderLogo from "./header/HeaderLogo";
 import NotificationDropdown from "./header/NotificationDropdown";
@@ -28,9 +28,10 @@ function MobileSearchButton({
       size="icon"
       onClick={() => {
         setIsSearchExpanded(true);
-        // Focus is now handled in the SearchBar component with useEffect
+        // Focus is handled in the SearchBar component with useEffect
       }}
       className="h-8 w-8 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+      aria-label="Open search"
     >
       <Search className="h-4 w-4 md:h-5 md:w-5" />
     </Button>
@@ -51,32 +52,7 @@ export default function Header({ isOpen, toggleSidebar }: HeaderProps) {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle click outside to close expanded search on mobile
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      // Skip if search isn't expanded
-      if (!isSearchExpanded) return;
-
-      // Check if the click is outside the search bar
-      if (
-        searchInputRef.current &&
-        !searchInputRef.current.contains(event.target as Node) &&
-        // Make sure we're not clicking on the search button itself
-        !(event.target as Element)
-          .closest("button")
-          ?.querySelector(".lucide-search")
-      ) {
-        setIsSearchExpanded(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMobile, isSearchExpanded]);
+  // No longer tracking click-outside - removed the useEffect
 
   if (!mounted) return null;
 
