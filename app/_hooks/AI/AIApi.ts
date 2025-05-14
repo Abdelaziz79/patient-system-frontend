@@ -58,9 +58,12 @@ export interface TemplateGenerationInput {
 // API functions
 export const aiApi = {
   // Get patient insights
-  getPatientInsights: async (patientId: string): Promise<any> => {
+  getPatientInsights: async (
+    patientId: string,
+    language: string = "english"
+  ): Promise<any> => {
     const response = await axios.get(
-      `${aiUrl}/patients/${patientId}/insights`,
+      `${aiUrl}/patients/${patientId}/insights?language=${language}`,
       createAuthConfig()
     );
 
@@ -73,10 +76,11 @@ export const aiApi = {
   // Get treatment suggestions
   getTreatmentSuggestions: async (
     patientId: string,
-    data: TreatmentSuggestionsInput
+    data: TreatmentSuggestionsInput,
+    language: string = "english"
   ): Promise<any> => {
     const response = await axios.post(
-      `${aiUrl}/patients/${patientId}/treatment-suggestions`,
+      `${aiUrl}/patients/${patientId}/treatment-suggestions?language=${language}`,
       data,
       createAuthConfig()
     );
@@ -91,10 +95,11 @@ export const aiApi = {
 
   // Generate template for condition
   generateTemplate: async (
-    data: TemplateGenerationInput
+    data: TemplateGenerationInput,
+    language: string = "english"
   ): Promise<Template> => {
     const response = await axios.post(
-      `${aiUrl}/generate-template`,
+      `${aiUrl}/generate-template?language=${language}`,
       data,
       createAuthConfig()
     );
@@ -106,9 +111,11 @@ export const aiApi = {
   },
 
   // Get demographics summary
-  getDemographicsSummary: async (): Promise<any> => {
+  getDemographicsSummary: async (
+    language: string = "english"
+  ): Promise<any> => {
     const response = await axios.get(
-      `${aiUrl}/demographics-summary`,
+      `${aiUrl}/demographics-summary?language=${language}`,
       createAuthConfig()
     );
 
@@ -121,9 +128,12 @@ export const aiApi = {
   },
 
   // Generate visit notes
-  generateVisitNotes: async (data: VisitNotesInput): Promise<any> => {
+  generateVisitNotes: async (
+    data: VisitNotesInput,
+    language: string = "english"
+  ): Promise<any> => {
     const response = await axios.post(
-      `${aiUrl}/visit-notes-assistant`,
+      `${aiUrl}/visit-notes-assistant?language=${language}`,
       data,
       createAuthConfig()
     );

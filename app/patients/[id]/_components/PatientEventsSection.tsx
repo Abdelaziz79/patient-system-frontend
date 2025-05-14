@@ -34,7 +34,7 @@ export function PatientEventsSection({
   patient,
   onEventUpdate,
 }: PatientEventsSectionProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuthContext();
   const canUseAIFeatures =
     user?.role === "admin" ||
@@ -104,7 +104,10 @@ export function PatientEventsSection({
 
     try {
       setIsLoadingInsights(true);
-      const result = await getEventInsights(patient.id);
+      const result = await getEventInsights(
+        patient.id,
+        language === "ar" ? "arabic" : "english"
+      );
 
       if (result.success && result.data) {
         setInsightsData(result.data.insights || t("noInsightsFound"));
@@ -129,7 +132,11 @@ export function PatientEventsSection({
 
     try {
       setIsLoadingRecommendations(true);
-      const result = await getEventRecommendations(patient.id);
+      const result = await getEventRecommendations(
+        patient.id,
+        undefined,
+        language === "ar" ? "arabic" : "english"
+      );
 
       if (result.success && result.data) {
         setRecommendationsData(
@@ -156,7 +163,10 @@ export function PatientEventsSection({
 
     try {
       setIsLoadingCorrelation(true);
-      const result = await getEventCorrelation(patient.id);
+      const result = await getEventCorrelation(
+        patient.id,
+        language === "ar" ? "arabic" : "english"
+      );
 
       if (result.success && result.data) {
         setCorrelationData(result.data.correlation || t("noCorrelationFound"));

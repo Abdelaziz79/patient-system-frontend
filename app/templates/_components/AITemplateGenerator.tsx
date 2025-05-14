@@ -17,7 +17,7 @@ interface AITemplateGeneratorProps {
 
 export function AITemplateGenerator({ onGenerate }: AITemplateGeneratorProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { generateTemplate, isLoadingTemplate } = useAI();
   const [condition, setCondition] = useState("");
   const [specialRequirements, setSpecialRequirements] = useState("");
@@ -36,7 +36,10 @@ export function AITemplateGenerator({ onGenerate }: AITemplateGeneratorProps) {
     toast.loading(t("generatingTemplate"), { id: "generate-template" });
 
     try {
-      const result = await generateTemplate(templateInput);
+      const result = await generateTemplate(
+        templateInput,
+        language === "ar" ? "arabic" : "english"
+      );
 
       toast.dismiss("generate-template");
 

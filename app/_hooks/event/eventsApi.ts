@@ -241,10 +241,11 @@ export const eventsApi = {
 
   // Get AI-generated event insights
   getEventInsights: async (
-    patientId: string
+    patientId: string,
+    language: string = "english"
   ): Promise<IEventInsightsResponse> => {
     const response = await axios.get(
-      `${baseUrl}/events/ai/insights/${patientId}`,
+      `${baseUrl}/events/ai/insights/${patientId}?language=${language}`,
       createAuthConfig()
     );
     if (response.data.success) {
@@ -256,16 +257,16 @@ export const eventsApi = {
   // Get AI-generated event recommendations
   getEventRecommendations: async (
     patientId: string,
-    eventType?: string
+    eventType?: string,
+    language: string = "english"
   ): Promise<IEventRecommendationsResponse> => {
     const queryParams = new URLSearchParams();
     if (eventType) {
       queryParams.append("eventType", eventType);
     }
+    queryParams.append("language", language);
 
-    const url = `${baseUrl}/events/ai/recommendations/${patientId}${
-      queryParams.toString() ? `?${queryParams.toString()}` : ""
-    }`;
+    const url = `${baseUrl}/events/ai/recommendations/${patientId}?${queryParams.toString()}`;
 
     const response = await axios.get(url, createAuthConfig());
     if (response.data.success) {
@@ -278,10 +279,11 @@ export const eventsApi = {
 
   // Get AI-generated event correlation analysis
   getEventCorrelation: async (
-    patientId: string
+    patientId: string,
+    language: string = "english"
   ): Promise<IEventCorrelationResponse> => {
     const response = await axios.get(
-      `${baseUrl}/events/ai/correlation/${patientId}`,
+      `${baseUrl}/events/ai/correlation/${patientId}?language=${language}`,
       createAuthConfig()
     );
     if (response.data.success) {

@@ -144,7 +144,7 @@ export const AppointmentsView = () => {
                   className="flex flex-wrap items-center gap-2 w-full sm:w-auto"
                 >
                   {!isNotificationSummaryLoading && notificationSummary && (
-                    <div className="flex items-center gap-2 mr-1 sm:mx-3">
+                    <div className="flex items-center gap-2 mx-1 sm:mx-3">
                       <Badge
                         variant="destructive"
                         className="text-xs font-medium py-0.5 sm:py-1"

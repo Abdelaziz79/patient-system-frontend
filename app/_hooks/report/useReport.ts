@@ -424,7 +424,7 @@ export const useReport = (options: UseReportOptions = {}) => {
   // AI report functions
   const generatePatientAIReport = async (
     patientId: string,
-    options?: { save?: boolean; name?: string }
+    options?: { save?: boolean; name?: string; language?: string }
   ) => {
     if (!patientId) {
       return { success: false, error: "Patient ID is required" };
@@ -447,7 +447,11 @@ export const useReport = (options: UseReportOptions = {}) => {
 
   const generateGroupAnalysis = async (
     patientIds: string[],
-    options?: IAIGroupAnalysisOptions & { save?: boolean; name?: string }
+    options?: IAIGroupAnalysisOptions & {
+      save?: boolean;
+      name?: string;
+      language?: string;
+    }
   ) => {
     if (!patientIds || patientIds.length < 2) {
       return {
@@ -476,6 +480,7 @@ export const useReport = (options: UseReportOptions = {}) => {
     options?: IAITreatmentRecommendationsOptions & {
       save?: boolean;
       name?: string;
+      language?: string;
     }
   ) => {
     if (!patientId) {
@@ -504,7 +509,11 @@ export const useReport = (options: UseReportOptions = {}) => {
 
   const generateProgressAnalysis = async (
     patientId: string,
-    options?: IAIProgressAnalysisOptions & { save?: boolean; name?: string }
+    options?: IAIProgressAnalysisOptions & {
+      save?: boolean;
+      name?: string;
+      language?: string;
+    }
   ) => {
     if (!patientId) {
       return { success: false, error: "Patient ID is required" };

@@ -34,7 +34,7 @@ export function PatientActions({
   handleEditPatient,
   handlePrintPatient,
 }: PatientActionsProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { getPatientInsights, isLoadingInsights } = useAI();
   const { exportPatient, exportPatientToPDF, patientExportLoading } =
     useExport();
@@ -54,7 +54,10 @@ export function PatientActions({
   const handleGenerateInsights = async () => {
     try {
       setIsGeneratingInsights(true);
-      const result = await getPatientInsights(patient?.id || "");
+      const result = await getPatientInsights(
+        patient?.id || "",
+        language === "ar" ? "arabic" : "english"
+      );
       if (result.success) {
         setInsights(result.data.insights);
         toast.success(t("insightsGeneratedSuccess"));
@@ -79,7 +82,9 @@ export function PatientActions({
 
     try {
       setIsGeneratingReport(true);
-      const result = await generatePatientAIReport(patient.id);
+      const result = await generatePatientAIReport(patient.id, {
+        language: language === "ar" ? "arabic" : "english",
+      });
 
       if (result.success) {
         setAiReport(result.data?.aiAnalysis || t("noAnalysisAvailable"));

@@ -171,7 +171,7 @@ export default function Reports() {
                   className="w-full flex justify-between items-center"
                 >
                   <div className="flex items-center">
-                    <Filter className="h-4 w-4 mr-2" />
+                    <Filter className="h-4 w-4 mx-2" />
                     <span>
                       {activeTab === "all" && t("allReports")}
                       {activeTab === "patient" && t("patientReports")}

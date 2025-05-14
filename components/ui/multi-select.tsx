@@ -74,7 +74,7 @@ export function MultiSelect({
               {option.label}
               <button
                 type="button"
-                className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="mx-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleRemove(option.value);
@@ -97,7 +97,7 @@ export function MultiSelect({
             onBlur={() => setOpen(false)}
             onFocus={() => setOpen(true)}
             placeholder={placeholder}
-            className="ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+            className="mx-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
           />
         </div>
       </div>

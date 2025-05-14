@@ -1229,6 +1229,177 @@ export const usePatient = (
       : "An error occurred"
     : null;
 
+  // Note mutations
+  const addNoteMutation = useMutation({
+    mutationFn: patientApi.addNote,
+    onSuccess: (newNote, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["patientNotes", variables.patientId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["patient", variables.patientId],
+      });
+    },
+  });
+
+  const updateNoteMutation = useMutation({
+    mutationFn: patientApi.updateNote,
+    onSuccess: (updatedNote, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["patientNotes", variables.patientId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["patient", variables.patientId],
+      });
+    },
+  });
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: patientApi.deleteNote,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["patientNotes", variables.patientId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["patient", variables.patientId],
+      });
+    },
+  });
+
+  const restoreNoteMutation = useMutation({
+    mutationFn: patientApi.restoreNote,
+    onSuccess: (restoredNote, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["patientNotes", variables.patientId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["patient", variables.patientId],
+      });
+    },
+  });
+
+  // Get patient notes
+  const getPatientNotes = async (
+    patientId: string,
+    params?: {
+      query?: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+    }
+  ) => {
+    const notes = await patientApi.getNotes(patientId, params);
+    queryClient.setQueryData(
+      [
+        "patientNotes",
+        patientId,
+        params?.category,
+        params?.priority,
+        params?.isPinned,
+        params?.query,
+      ],
+      notes
+    );
+    return notes;
+  };
+
+  // Add note function with error handling
+  const addNote = async (
+    patientId: string,
+    noteData: {
+      name: string;
+      content: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+      attachments?: Array<{ name?: string; url: string; type?: string }>;
+    }
+  ) => {
+    try {
+      const result = await addNoteMutation.mutateAsync({
+        patientId,
+        noteData,
+      });
+      return { success: true, data: result };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to add note";
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Update note function with error handling
+  const updateNote = async (
+    patientId: string,
+    noteId: string,
+    noteData: {
+      name?: string;
+      content?: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+      attachments?: Array<{ name?: string; url: string; type?: string }>;
+    }
+  ) => {
+    try {
+      const result = await updateNoteMutation.mutateAsync({
+        patientId,
+        noteId,
+        noteData,
+      });
+      return { success: true, data: result };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to update note";
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Delete note function with error handling
+  const deleteNote = async (patientId: string, noteId: string) => {
+    try {
+      await deleteNoteMutation.mutateAsync({ patientId, noteId });
+      return { success: true };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to delete note";
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Restore note function with error handling
+  const restoreNote = async (patientId: string, noteId: string) => {
+    try {
+      const result = await restoreNoteMutation.mutateAsync({
+        patientId,
+        noteId,
+      });
+      return { success: true, data: result };
+    } catch (error) {
+      const errorMsg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to restore note";
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Search notes
+  const searchNotes = async (patientId: string, query: string) => {
+    try {
+      return await patientApi.searchNotes({ patientId, query });
+    } catch (error) {
+      console.error("Error searching notes:", error);
+      throw error;
+    }
+  };
+
   // Return value
   return {
     // Data
@@ -1338,5 +1509,25 @@ export const usePatient = (
     generateMedicalReport,
     sharePatientViaEmail,
     printPatientDetails,
+
+    // Notes methods
+    addNote,
+    updateNote,
+    deleteNote,
+    restoreNote,
+    searchNotes,
+    getPatientNotes,
+
+    // Notes mutation states
+    isAddingNote: addNoteMutation.isPending,
+    isUpdatingNote: updateNoteMutation.isPending,
+    isDeletingNote: deleteNoteMutation.isPending,
+    isRestoringNote: restoreNoteMutation.isPending,
+
+    // Raw note mutations
+    addNoteMutation,
+    updateNoteMutation,
+    deleteNoteMutation,
+    restoreNoteMutation,
   };
 };

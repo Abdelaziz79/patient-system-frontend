@@ -15,7 +15,7 @@ interface TreatmentSuggestionsProps {
 }
 
 export function TreatmentSuggestions({ patientId }: TreatmentSuggestionsProps) {
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { getTreatmentSuggestions, isLoadingTreatment } = useAI();
 
   const [treatmentSuggestions, setTreatmentSuggestions] = useState<
@@ -46,7 +46,11 @@ export function TreatmentSuggestions({ patientId }: TreatmentSuggestionsProps) {
 
     try {
       setIsGenerating(true);
-      const result = await getTreatmentSuggestions(patientId, formData);
+      const result = await getTreatmentSuggestions(
+        patientId,
+        formData,
+        language === "ar" ? "arabic" : "english"
+      );
 
       if (result.success) {
         setTreatmentSuggestions(result.data.suggestions);

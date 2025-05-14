@@ -239,7 +239,7 @@ export default function UserProfilePage() {
             size="sm"
             className="w-full sm:w-auto bg-green-50 hover:bg-green-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-green-800 dark:text-green-300 transition-colors"
           >
-            <ArrowLeft className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />
+            <ArrowLeft className={`h-4 w-4 ${isRTL ? "mx-2" : "mx-2"}`} />
             {t("backToUsers")}
           </Button>
         </div>

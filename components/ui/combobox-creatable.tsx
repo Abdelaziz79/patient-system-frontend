@@ -91,7 +91,7 @@ export function ComboboxCreatable({
           disabled={disabled}
         >
           {currentOption ? currentOption.label : value || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="mx-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -114,7 +114,7 @@ export function ComboboxCreatable({
                   className="w-full justify-start"
                   onClick={handleCreate}
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Create
+                  <PlusCircle className="mx-2 h-4 w-4" /> Create
                   {inputValue.trim()}
                 </Button>
               ) : (
@@ -130,7 +130,7 @@ export function ComboboxCreatable({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mx-2 h-4 w-4",
                       value?.toLowerCase() === option.value.toLowerCase()
                         ? "opacity-100"
                         : "opacity-0"
@@ -152,7 +152,7 @@ export function ComboboxCreatable({
                       onSelect={handleCreate}
                       className="cursor-pointer"
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Create
+                      <PlusCircle className="mx-2 h-4 w-4" /> Create
                       {inputValue.trim()}
                     </CommandItem>
                   </CommandGroup>

@@ -585,4 +585,147 @@ export const patientApi = {
     }
     throw new Error(response.data.message || "Failed to restore event");
   },
+
+  // Notes API methods
+
+  // Add a note
+  addNote: async ({
+    patientId,
+    noteData,
+  }: {
+    patientId: string;
+    noteData: {
+      name: string;
+      content: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+      attachments?: Array<{ name?: string; url: string; type?: string }>;
+    };
+  }) => {
+    const response = await axios.post(
+      `${patientApi.baseUrl}/${patientId}/notes`,
+      noteData,
+      createAuthConfig()
+    );
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to add note");
+  },
+
+  // Get notes for a patient
+  getNotes: async (
+    patientId: string,
+    params?: {
+      query?: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+    }
+  ) => {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, String(value));
+        }
+      });
+    }
+
+    const url = `${patientApi.baseUrl}/${patientId}/notes${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+
+    const response = await axios.get(url, createAuthConfig());
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to fetch notes");
+  },
+
+  // Search notes
+  searchNotes: async ({
+    patientId,
+    query,
+  }: {
+    patientId: string;
+    query: string;
+  }) => {
+    const response = await axios.get(
+      `${
+        patientApi.baseUrl
+      }/${patientId}/notes/search?query=${encodeURIComponent(query)}`,
+      createAuthConfig()
+    );
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to search notes");
+  },
+
+  // Update a note
+  updateNote: async ({
+    patientId,
+    noteId,
+    noteData,
+  }: {
+    patientId: string;
+    noteId: string;
+    noteData: {
+      name?: string;
+      content?: string;
+      category?: string;
+      priority?: string;
+      isPinned?: boolean;
+      attachments?: Array<{ name?: string; url: string; type?: string }>;
+    };
+  }) => {
+    const response = await axios.put(
+      `${patientApi.baseUrl}/${patientId}/notes/${noteId}`,
+      noteData,
+      createAuthConfig()
+    );
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to update note");
+  },
+
+  // Delete a note (soft delete)
+  deleteNote: async ({
+    patientId,
+    noteId,
+  }: {
+    patientId: string;
+    noteId: string;
+  }) => {
+    const response = await axios.delete(
+      `${patientApi.baseUrl}/${patientId}/notes/${noteId}`,
+      createAuthConfig()
+    );
+    if (response.data.success) {
+      return true;
+    }
+    throw new Error(response.data.message || "Failed to delete note");
+  },
+
+  // Restore a note
+  restoreNote: async ({
+    patientId,
+    noteId,
+  }: {
+    patientId: string;
+    noteId: string;
+  }) => {
+    const response = await axios.put(
+      `${patientApi.baseUrl}/${patientId}/notes/${noteId}/restore`,
+      {},
+      createAuthConfig()
+    );
+    if (response.data.success) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || "Failed to restore note");
+  },
 };

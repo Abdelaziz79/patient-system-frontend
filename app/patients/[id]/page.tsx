@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { VisitNotesInput } from "@/app/_hooks/AI/AIApi";
 import { useAI } from "@/app/_hooks/AI/useAI";
 import { usePatient } from "@/app/_hooks/patient/usePatient";
@@ -15,17 +16,17 @@ import {
   PatientEventsSection,
   PatientInfoCard,
   PatientLoader,
+  PatientNotesSection,
   PatientStatusSection,
   PatientTabs,
   TagsSection,
   VisitDialog,
 } from "./_components";
-
 function PatientPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-
+  const { language } = useLanguage();
   const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
   const [newVisit, setNewVisit] = useState<{
     title: string;
@@ -89,7 +90,10 @@ function PatientPage() {
         patientId: id,
       };
 
-      const result = await generateVisitNotes(notesInput);
+      const result = await generateVisitNotes(
+        notesInput,
+        language === "ar" ? "arabic" : "english"
+      );
 
       if (result.success && result.data) {
         // Update the notes field in the new visit form
@@ -249,6 +253,12 @@ function PatientPage() {
         <PatientEventsSection
           patient={patient}
           onEventUpdate={refreshPatientData}
+        />
+
+        {/* Patient Notes Section */}
+        <PatientNotesSection
+          patient={patient}
+          onNotesUpdate={refreshPatientData}
         />
 
         {/* Patient Tabs */}

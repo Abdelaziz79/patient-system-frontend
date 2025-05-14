@@ -118,28 +118,47 @@ export interface IStatusUpdate {
   color?: string;
 }
 
+// Create or update the IPatient interface to include notes
+export interface INote {
+  _id?: string;
+  id?: string;
+  name: string;
+  content: string;
+  category?: "general" | "clinical" | "administrative" | "follow_up" | "other";
+  priority?: "low" | "medium" | "high";
+  isPinned?: boolean;
+  attachments?: Array<{
+    name?: string;
+    url: string;
+    type?: string;
+  }>;
+  createdBy?: any;
+  updatedBy?: any;
+  deletedAt?: Date;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 // Define Patient interface with instance methods
 export interface IPatient {
-  id?: string;
-  templateId: {
-    name: string;
-  };
+  id: string;
+  templateId?: any;
   adminId?: string;
-  sectionData: any;
   personalInfo: IPersonalInfo;
+  sectionData?: Record<string, any>;
   status: IStatus;
-  statusHistory: IStatusHistory[];
-  statusOptions: IPatientStatusOption[];
+  statusHistory?: IStatusHistory[];
+  statusOptions?: IPatientStatusOption[];
   isActive: boolean;
-  visits: IVisit[];
-  events: IEvent[];
-  createdBy: {
-    name: string;
-  };
-  lastUpdatedBy?: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  tags: string[];
+  visits?: IVisit[];
+  events?: IEvent[];
+  notes?: INote[];
+  createdBy?: any;
+  lastUpdatedBy?: any;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  tags?: string[];
 
   // Instance methods
   addVisit(visitData: IVisitInput): Promise<IPatient>;

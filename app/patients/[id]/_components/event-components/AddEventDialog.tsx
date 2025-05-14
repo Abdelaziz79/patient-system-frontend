@@ -400,7 +400,7 @@ export function AddEventDialog({
               {t("addPatientEvent")}
             </span>
             <Badge
-              className="ml-auto text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
+              className="mx-auto text-xs sm:text-sm px-1.5 sm:px-2 py-0.5"
               style={{
                 backgroundColor: importanceColor.light,
                 color: "#fff",

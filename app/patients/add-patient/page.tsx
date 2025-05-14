@@ -62,7 +62,7 @@ export default function AddPatientPage() {
   const [activeTab, setActiveTab] = useState("");
   const [currentStep, setCurrentStep] = useState<
     "template" | "personal" | "details"
-  >("template");
+  >("personal");
   const [selectedTemplate, setSelectedTemplate] =
     useState<PatientTemplate | null>(null);
   const [formProgress, setFormProgress] = useState(0);
@@ -186,7 +186,7 @@ export default function AddPatientPage() {
     }
 
     setPersonalInfoValid(true);
-    setCurrentStep("details");
+    setCurrentStep("template");
     return true;
   };
 
@@ -293,9 +293,9 @@ export default function AddPatientPage() {
   // Back button handler
   const handleBack = () => {
     if (currentStep === "details") {
-      setCurrentStep("personal");
-    } else if (currentStep === "personal") {
       setCurrentStep("template");
+    } else if (currentStep === "template") {
+      setCurrentStep("personal");
     }
   };
 
@@ -313,7 +313,7 @@ export default function AddPatientPage() {
             <TemplateSelection
               selectedTemplate={selectedTemplate}
               setSelectedTemplate={setSelectedTemplate}
-              onNext={() => setCurrentStep("personal")}
+              onNext={() => setCurrentStep("details")}
             />
           </motion.div>
         );
@@ -669,10 +669,10 @@ export default function AddPatientPage() {
   // Calculate the title based on current step
   const getStepTitle = () => {
     switch (currentStep) {
-      case "template":
-        return t("selectPatientTemplate") || "Select Patient Template";
       case "personal":
         return t("enterPatientInformation") || "Enter Patient Information";
+      case "template":
+        return t("selectPatientTemplate") || "Select Patient Template";
       case "details":
         if (selectedTemplate) {
           // For template with a name, just concat the strings
@@ -705,11 +705,11 @@ export default function AddPatientPage() {
                   {getStepTitle()}
                 </CardTitle>
                 <CardDescription className="text-blue-100 mt-1 opacity-90">
-                  {currentStep === "template"
-                    ? t("selectPatientTemplate") || "Select Patient Template"
-                    : currentStep === "personal"
+                  {currentStep === "personal"
                     ? t("enterPatientInformation") ||
                       "Enter Patient Information"
+                    : currentStep === "template"
+                    ? t("selectPatientTemplate") || "Select Patient Template"
                     : selectedTemplate
                     ? `${t("completingTemplate")} ${selectedTemplate.name}`
                     : t("completePatientDetails") || "Complete Patient Details"}

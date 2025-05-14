@@ -291,7 +291,7 @@ export default function ReportDetailsPage() {
         <div
           className={`px-3 py-1.5 rounded-full text-xs font-medium ${config.badge} shadow-sm flex items-center`}
         >
-          <IconComponent className="h-3.5 w-3.5 mr-1.5" />
+          <IconComponent className="h-3.5 w-3.5 mx-1.5" />
           {config.displayName}
         </div>
       </div>
@@ -463,7 +463,7 @@ export default function ReportDetailsPage() {
         <div className="container max-w-6xl backdrop-blur-sm p-6 rounded-xl">
           <div className="flex items-center mb-8 pb-6 border-b border-blue-100/30 dark:border-blue-900/20">
             <div className="flex items-center">
-              <Skeleton className="h-10 w-10 rounded-lg mr-4" />
+              <Skeleton className="h-10 w-10 rounded-lg mx-4" />
               <Skeleton className="h-9 w-64" />
             </div>
           </div>
@@ -499,7 +499,7 @@ export default function ReportDetailsPage() {
             onClick={() => router.push("/reports")}
             className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 dark:from-blue-700 dark:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white transition-all duration-300 shadow hover:shadow-xl rounded-lg"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mx-2 h-4 w-4" />
             {t("backToReports")}
           </Button>
         </motion.div>
@@ -531,7 +531,7 @@ export default function ReportDetailsPage() {
                 onClick={handleGoBack}
                 className="hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-300"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mx-2" />
                 {t("back")}
               </Button>
 
@@ -554,12 +554,12 @@ export default function ReportDetailsPage() {
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mx-2 h-4 w-4 animate-spin" />
                     {t("generating")}
                   </>
                 ) : (
                   <>
-                    <FileText className="mr-2 h-4 w-4" />
+                    <FileText className="mx-2 h-4 w-4" />
                     {report.lastGeneratedAt
                       ? t("regenerate")
                       : t("generateReport")}
@@ -631,12 +631,12 @@ export default function ReportDetailsPage() {
                       >
                         {isGenerating ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="mx-2 h-4 w-4 animate-spin" />
                             {t("generating")}
                           </>
                         ) : (
                           <>
-                            <FileText className="mr-2 h-4 w-4" />
+                            <FileText className="mx-2 h-4 w-4" />
                             {t("generateNow")}
                           </>
                         )}
@@ -661,12 +661,12 @@ export default function ReportDetailsPage() {
                   >
                     {isGenerating ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mx-2 h-4 w-4 animate-spin" />
                         {t("generating")}
                       </>
                     ) : (
                       <>
-                        <FileText className="mr-2 h-4 w-4" />
+                        <FileText className="mx-2 h-4 w-4" />
                         {t("generateNow")}
                       </>
                     )}
@@ -864,12 +864,12 @@ export default function ReportDetailsPage() {
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mx-2 h-4 w-4 animate-spin" />
                       {t("generating")}
                     </>
                   ) : (
                     <>
-                      <FileText className="mr-2 h-4 w-4" />
+                      <FileText className="mx-2 h-4 w-4" />
                       {t("generateReport")}
                     </>
                   )}

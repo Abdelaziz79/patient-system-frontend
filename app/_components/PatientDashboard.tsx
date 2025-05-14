@@ -58,7 +58,7 @@ export default function PatientDashboardPage() {
   const [demographicsSummary, setDemographicsSummary] = useState<string | null>(
     null
   );
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   // Get current user to check for admin roles
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
@@ -96,7 +96,9 @@ export default function PatientDashboardPage() {
 
   const handleGenerateDemographicsSummary = async () => {
     try {
-      const result = await getDemographicsSummary();
+      const result = await getDemographicsSummary(
+        language === "ar" ? "arabic" : "english"
+      );
       if (result.success) {
         setDemographicsSummary(result.data.summary);
         toast.success("Demographics summary generated successfully");

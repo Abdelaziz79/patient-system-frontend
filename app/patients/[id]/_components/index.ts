@@ -1,22 +1,23 @@
-export * from "./PatientTabs";
 export * from "./FooterActions";
-export * from "./PatientLoader";
+export * from "./note-components";
 export * from "./PatientActions";
-export * from "./PatientInfoCard";
-export * from "./PatientStatusSection";
-export * from "./TagsSection";
 export * from "./PatientEventsSection";
+export * from "./PatientInfoCard";
+export * from "./PatientLoader";
+export * from "./PatientStatusSection";
+export * from "./PatientTabs";
+export * from "./TagsSection";
 export * from "./TreatmentSuggestions";
 
 export type {
-  PatientPageProps,
+  FooterActionsProps,
   PatientActionsProps,
   PatientInfoCardProps,
   PatientLoaderProps,
-  PatientTabsProps,
-  FooterActionsProps,
-  TagsSectionProps,
+  PatientPageProps,
   PatientStatusSectionProps,
+  PatientTabsProps,
+  TagsSectionProps,
   VisitListItemProps,
 } from "./types";
 

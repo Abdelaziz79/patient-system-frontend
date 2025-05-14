@@ -182,7 +182,7 @@ export default function SearchResults({
             <div className="p-3">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center">
-                  <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mr-3">
+                  <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mx-3">
                     <User className="h-5 w-5" />
                   </div>
                   <div>
@@ -191,11 +191,11 @@ export default function SearchResults({
                       {patient.personalInfo.lastName}
                     </h4>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                      <CalendarDays className="h-3.5 w-3.5 mr-1" />
-                      <span className="mr-2">
+                      <CalendarDays className="h-3.5 w-3.5 mx-1" />
+                      <span className="mx-2">
                         {formatDate(patient.personalInfo.dateOfBirth)}
                       </span>
-                      <span className="mr-2">•</span>
+                      <span className="mx-2">•</span>
                       {patient.personalInfo.gender && (
                         <span className="capitalize">
                           {t(patient.personalInfo.gender as "male" | "female")}
@@ -217,14 +217,14 @@ export default function SearchResults({
 
               {patient.personalInfo.contactNumber && (
                 <div className="mt-2 flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <Phone className="h-3.5 w-3.5 mr-1" />
+                  <Phone className="h-3.5 w-3.5 mx-1" />
                   <span>{patient.personalInfo.contactNumber}</span>
                 </div>
               )}
 
               <div className="mt-2 flex justify-between">
                 <div className="text-xs text-gray-500 dark:text-gray-500 flex items-center">
-                  <Clock className="h-3.5 w-3.5 mr-1" />
+                  <Clock className="h-3.5 w-3.5 mx-1" />
                   <span>
                     {t("lastUpdate")}: {formatDate(patient.status.date)}
                   </span>

@@ -1,7 +1,7 @@
 import LoadingInsights from "@/app/_components/LoadingInsights";
 import { useLanguage } from "@/app/_contexts/LanguageContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, TrendingUp, Activity } from "lucide-react";
+import { Activity, Brain, TrendingUp } from "lucide-react";
 
 interface AIAnalysisSectionProps {
   activeAiTab: string;
@@ -28,7 +28,7 @@ export function AIAnalysisSection({
   isAnalyzingEvents,
   aiEventAnalysis,
 }: AIAnalysisSectionProps) {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   // If there's no AI data and no loading states, don't render anything
   if (
@@ -54,7 +54,12 @@ export function AIAnalysisSection({
     isLoadingCorrelation
   ) {
     return (
-      <Tabs value={activeAiTab} onValueChange={setActiveAiTab} className="mb-6">
+      <Tabs
+        value={activeAiTab}
+        onValueChange={setActiveAiTab}
+        className="mb-6"
+        dir={dir as "ltr" | "rtl"}
+      >
         <TabsList className="grid grid-cols-3 mb-2">
           <TabsTrigger value="insights" className="flex items-center gap-1">
             <Brain className="h-4 w-4" />

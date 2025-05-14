@@ -341,11 +341,14 @@ export const useEvents = (options: UseEventsOptions = {}) => {
   };
 
   // Function for getting event insights with error handling
-  const getEventInsights = async (patientId: string) => {
+  const getEventInsights = async (
+    patientId: string,
+    language: string = "english"
+  ) => {
     try {
       setIsLoading(true);
       const loadingToast = toast.loading("Getting event insights...");
-      const result = await eventsApi.getEventInsights(patientId);
+      const result = await eventsApi.getEventInsights(patientId, language);
       toast.dismiss(loadingToast);
       toast.success("Event insights retrieved");
       return { success: true, data: result };
@@ -364,14 +367,16 @@ export const useEvents = (options: UseEventsOptions = {}) => {
   // Function for getting event recommendations with error handling
   const getEventRecommendations = async (
     patientId: string,
-    eventType?: string
+    eventType?: string,
+    language: string = "english"
   ) => {
     try {
       setIsLoading(true);
       const loadingToast = toast.loading("Getting event recommendations...");
       const result = await eventsApi.getEventRecommendations(
         patientId,
-        eventType
+        eventType,
+        language
       );
       toast.dismiss(loadingToast);
       toast.success("Event recommendations retrieved");
@@ -389,11 +394,14 @@ export const useEvents = (options: UseEventsOptions = {}) => {
   };
 
   // Function for getting event correlation analysis with error handling
-  const getEventCorrelation = async (patientId: string) => {
+  const getEventCorrelation = async (
+    patientId: string,
+    language: string = "english"
+  ) => {
     try {
       setIsLoading(true);
       const loadingToast = toast.loading("Analyzing event correlations...");
-      const result = await eventsApi.getEventCorrelation(patientId);
+      const result = await eventsApi.getEventCorrelation(patientId, language);
       toast.dismiss(loadingToast);
       toast.success("Event correlation analysis complete");
       return { success: true, data: result };

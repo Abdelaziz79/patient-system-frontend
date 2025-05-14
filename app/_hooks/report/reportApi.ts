@@ -414,7 +414,7 @@ export const reportApi = {
   // Generate AI analysis for a single patient
   generatePatientAIReport: async (
     patientId: string,
-    options?: { save?: boolean; name?: string }
+    options?: { save?: boolean; name?: string; language?: string }
   ) => {
     let url = `${reportUrl}/ai/patient/${patientId}`;
 
@@ -422,9 +422,13 @@ export const reportApi = {
       const queryParams = new URLSearchParams();
       if (options.save) queryParams.append("save", "true");
       if (options.name) queryParams.append("name", options.name);
+      if (options.language) queryParams.append("language", options.language);
+      else queryParams.append("language", "english"); // Default language
       if (queryParams.toString()) {
         url += `?${queryParams.toString()}`;
       }
+    } else {
+      url += `?language=english`; // Default language when no options
     }
 
     const response = await axios.get(url, {
@@ -441,17 +445,22 @@ export const reportApi = {
   // Generate comparative analysis of multiple patients
   generateGroupAnalysis: async (
     patientIds: string[],
-    options?: IAIGroupAnalysisOptions & { save?: boolean; name?: string }
+    options?: IAIGroupAnalysisOptions & {
+      save?: boolean;
+      name?: string;
+      language?: string;
+    }
   ) => {
     let url = `${reportUrl}/ai/group-analysis`;
+    const queryParams = new URLSearchParams();
 
-    if (options?.save || options?.name) {
-      const queryParams = new URLSearchParams();
-      if (options.save) queryParams.append("save", "true");
-      if (options.name) queryParams.append("name", options.name);
-      if (queryParams.toString()) {
-        url += `?${queryParams.toString()}`;
-      }
+    if (options?.save) queryParams.append("save", "true");
+    if (options?.name) queryParams.append("name", options.name);
+    if (options?.language) queryParams.append("language", options.language);
+    else queryParams.append("language", "english"); // Default language
+
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
     }
 
     const requestData = {
@@ -478,17 +487,19 @@ export const reportApi = {
     options?: IAITreatmentRecommendationsOptions & {
       save?: boolean;
       name?: string;
+      language?: string;
     }
   ) => {
     let url = `${reportUrl}/ai/treatment-recommendations/${patientId}`;
+    const queryParams = new URLSearchParams();
 
-    if (options?.save || options?.name) {
-      const queryParams = new URLSearchParams();
-      if (options.save) queryParams.append("save", "true");
-      if (options.name) queryParams.append("name", options.name);
-      if (queryParams.toString()) {
-        url += `?${queryParams.toString()}`;
-      }
+    if (options?.save) queryParams.append("save", "true");
+    if (options?.name) queryParams.append("name", options.name);
+    if (options?.language) queryParams.append("language", options.language);
+    else queryParams.append("language", "english"); // Default language
+
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
     }
 
     const requestData = {
@@ -510,17 +521,22 @@ export const reportApi = {
   // Generate progress analysis report
   generateProgressAnalysis: async (
     patientId: string,
-    options?: IAIProgressAnalysisOptions & { save?: boolean; name?: string }
+    options?: IAIProgressAnalysisOptions & {
+      save?: boolean;
+      name?: string;
+      language?: string;
+    }
   ) => {
     let url = `${reportUrl}/ai/progress-analysis/${patientId}`;
+    const queryParams = new URLSearchParams();
 
-    if (options?.save || options?.name) {
-      const queryParams = new URLSearchParams();
-      if (options.save) queryParams.append("save", "true");
-      if (options.name) queryParams.append("name", options.name);
-      if (queryParams.toString()) {
-        url += `?${queryParams.toString()}`;
-      }
+    if (options?.save) queryParams.append("save", "true");
+    if (options?.name) queryParams.append("name", options.name);
+    if (options?.language) queryParams.append("language", options.language);
+    else queryParams.append("language", "english"); // Default language
+
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
     }
 
     const requestData = {

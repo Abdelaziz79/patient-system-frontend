@@ -298,7 +298,7 @@ export default function CreateReportPage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="ml-2">Loading configuration...</p>
+        <p className="mx-2">Loading configuration...</p>
       </div>
     );
   }
@@ -529,13 +529,13 @@ export default function CreateReportPage() {
                     onClick={() => removeFilter(index)}
                     className="mt-2"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" /> Remove Filter
+                    <Trash2 className="h-4 w-4 mx-2" /> Remove Filter
                   </Button>
                 </div>
               )
             )}
             <Button type="button" variant="outline" onClick={addFilter}>
-              <PlusCircle className="h-4 w-4 mr-2" /> Add Filter
+              <PlusCircle className="h-4 w-4 mx-2" /> Add Filter
             </Button>
           </CardContent>
         </Card>
@@ -668,19 +668,19 @@ export default function CreateReportPage() {
                   onClick={() => removeChart(index)}
                   className="mt-2"
                 >
-                  <Trash2 className="h-4 w-4 mr-2" /> Remove Chart
+                  <Trash2 className="h-4 w-4 mx-2" /> Remove Chart
                 </Button>
               </div>
             ))}
             <Button type="button" variant="outline" onClick={addChart}>
-              <PlusCircle className="h-4 w-4 mr-2" /> Add Chart
+              <PlusCircle className="h-4 w-4 mx-2" /> Add Chart
             </Button>
           </CardContent>
         </Card>
 
         <CardFooter className="flex justify-end pt-6">
           <Button type="submit" disabled={isCreating}>
-            {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isCreating && <Loader2 className="mx-2 h-4 w-4 animate-spin" />}
             Create Report
           </Button>
         </CardFooter>

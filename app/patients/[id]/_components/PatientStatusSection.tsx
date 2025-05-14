@@ -62,7 +62,7 @@ export function PatientStatusSection({
     setSelectedStatus(statusName);
 
     // Find the status option
-    const statusOption = patient.statusOptions.find(
+    const statusOption = (patient.statusOptions || []).find(
       (option) => option.name === statusName
     );
 

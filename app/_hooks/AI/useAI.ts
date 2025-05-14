@@ -14,7 +14,13 @@ export const useAI = () => {
 
   // Patient insights mutation
   const insightsMutation = useMutation({
-    mutationFn: aiApi.getPatientInsights,
+    mutationFn: ({
+      patientId,
+      language,
+    }: {
+      patientId: string;
+      language?: string;
+    }) => aiApi.getPatientInsights(patientId, language),
     onError: (error: Error) => {
       setError(error.message);
     },
@@ -25,10 +31,12 @@ export const useAI = () => {
     mutationFn: ({
       patientId,
       data,
+      language,
     }: {
       patientId: string;
       data: TreatmentSuggestionsInput;
-    }) => aiApi.getTreatmentSuggestions(patientId, data),
+      language?: string;
+    }) => aiApi.getTreatmentSuggestions(patientId, data, language),
     onError: (error: Error) => {
       setError(error.message);
     },
@@ -36,7 +44,13 @@ export const useAI = () => {
 
   // Template generation mutation
   const templateMutation = useMutation({
-    mutationFn: aiApi.generateTemplate,
+    mutationFn: ({
+      data,
+      language,
+    }: {
+      data: TemplateGenerationInput;
+      language?: string;
+    }) => aiApi.generateTemplate(data, language),
     onError: (error: Error) => {
       setError(error.message);
     },
@@ -44,7 +58,8 @@ export const useAI = () => {
 
   // Demographics summary mutation
   const demographicsMutation = useMutation({
-    mutationFn: aiApi.getDemographicsSummary,
+    mutationFn: ({ language }: { language?: string } = {}) =>
+      aiApi.getDemographicsSummary(language),
     onError: (error: Error) => {
       setError(error.message);
     },
@@ -52,7 +67,13 @@ export const useAI = () => {
 
   // Visit notes mutation
   const visitNotesMutation = useMutation({
-    mutationFn: aiApi.generateVisitNotes,
+    mutationFn: ({
+      data,
+      language,
+    }: {
+      data: VisitNotesInput;
+      language?: string;
+    }) => aiApi.generateVisitNotes(data, language),
     onError: (error: Error) => {
       setError(error.message);
     },
@@ -60,10 +81,11 @@ export const useAI = () => {
 
   // Get patient insights
   const getPatientInsights = async (
-    patientId: string
+    patientId: string,
+    language: string = "english"
   ): Promise<{ success: boolean; data?: any; message: string }> => {
     try {
-      const data = await insightsMutation.mutateAsync(patientId);
+      const data = await insightsMutation.mutateAsync({ patientId, language });
       return {
         success: true,
         data,
@@ -82,10 +104,15 @@ export const useAI = () => {
   // Get treatment suggestions
   const getTreatmentSuggestions = async (
     patientId: string,
-    data: TreatmentSuggestionsInput
+    data: TreatmentSuggestionsInput,
+    language: string = "english"
   ): Promise<{ success: boolean; data?: any; message: string }> => {
     try {
-      const result = await treatmentMutation.mutateAsync({ patientId, data });
+      const result = await treatmentMutation.mutateAsync({
+        patientId,
+        data,
+        language,
+      });
       return {
         success: true,
         data: result,
@@ -103,10 +130,11 @@ export const useAI = () => {
 
   // Generate template for condition
   const generateTemplate = async (
-    data: TemplateGenerationInput
+    data: TemplateGenerationInput,
+    language: string = "english"
   ): Promise<{ success: boolean; data?: Template; message: string }> => {
     try {
-      const template = await templateMutation.mutateAsync(data);
+      const template = await templateMutation.mutateAsync({ data, language });
       return {
         success: true,
         data: template,
@@ -123,13 +151,15 @@ export const useAI = () => {
   };
 
   // Get demographics summary
-  const getDemographicsSummary = async (): Promise<{
+  const getDemographicsSummary = async (
+    language: string = "english"
+  ): Promise<{
     success: boolean;
     data?: any;
     message: string;
   }> => {
     try {
-      const data = await demographicsMutation.mutateAsync();
+      const data = await demographicsMutation.mutateAsync({ language });
       return {
         success: true,
         data,
@@ -147,10 +177,11 @@ export const useAI = () => {
 
   // Generate visit notes
   const generateVisitNotes = async (
-    data: VisitNotesInput
+    data: VisitNotesInput,
+    language: string = "english"
   ): Promise<{ success: boolean; data?: any; message: string }> => {
     try {
-      const result = await visitNotesMutation.mutateAsync(data);
+      const result = await visitNotesMutation.mutateAsync({ data, language });
       return {
         success: true,
         data: result,
