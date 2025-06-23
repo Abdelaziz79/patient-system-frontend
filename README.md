@@ -1,36 +1,192 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Patient Management System - Frontend
 
-## Getting Started
+This repository contains the source code for the frontend of the Patient Management System, a modern, feature-rich web application designed to help healthcare professionals manage patient information, appointments, and medical data with efficiency and ease.
 
-First, run the development server:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/abdelmoumen-soukehal/patient-sys/main/assets/dashboard.png" alt="Patient System Dashboard" />
+</p>
+
+## Table of Contents
+
+- [✨ Key Features](#-key-features)
+- [🚀 Architecture & Tech Stack](#-architecture--tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [🏁 Getting Started](#-getting-started)
+- [📜 Available Scripts](#-available-scripts)
+- [🤝 Contributing](#-contributing)
+
+---
+
+## ✨ Key Features
+
+This application provides a comprehensive suite of tools for healthcare management:
+
+- **👤 Patient Management**:
+
+  - Complete CRUD (Create, Read, Update, Delete) functionality for patient records.
+  - A detailed patient view that includes personal information, a timeline of medical events, clinical notes, and treatment history.
+  - Advanced search and filtering capabilities to quickly find patients.
+
+- **🤖 AI-Powered Assistance**:
+
+  - **AI Analysis**: An integrated AI module analyzes patient events and notes to provide insights and summaries.
+  - **Treatment Suggestions**: The system offers AI-based treatment suggestions based on the available patient data.
+  - **AI Template Generation**: Automatically generate patient data forms and templates based on a simple prompt.
+
+- **🗓️ Appointment Scheduling**:
+
+  - An intuitive interface for scheduling, viewing, and managing patient appointments.
+  - Multiple views, including a comprehensive table and mobile-friendly cards.
+
+- **📝 Dynamic Template Engine**:
+
+  - A powerful built-in template builder allows administrators to create and customize dynamic forms for patient data collection.
+  - Define sections, fields of various types (text, date, dropdown), and status options to tailor forms to specific needs.
+
+- **📊 Reporting & Analytics**:
+
+  - A dedicated reporting module to visualize key healthcare metrics.
+  - Generate insightful charts, including bar, line, pie, and heatmaps, to analyze patient demographics, appointment statistics, and more.
+
+- **🔐 Admin & User Management**:
+
+  - **Role-Based Access Control**: Secure user authentication with distinct roles (e.g., Admin, Clinician).
+  - **Admin Dashboard**: A central dashboard for administrators to monitor system activity, manage users, and configure system settings.
+  - **System-wide Notifications**: Admins can broadcast notifications to all users.
+  - **Data Backups**: Functionality for creating and managing system data backups.
+
+- **⚙️ User Profile & Settings**:
+  - Users can manage their personal profile information and change their passwords.
+  - Personalize the application experience with theme (light/dark mode) and language settings.
+
+---
+
+## 🚀 Architecture & Tech Stack
+
+The application is built using a modern, scalable, and maintainable architecture.
+
+### Architecture Overview
+
+The frontend follows a component-based architecture with a clear separation of concerns. Data flow is primarily managed by TanStack Query, which communicates with the backend API through a dedicated abstraction layer.
+
+```mermaid
+graph TD;
+    subgraph "Browser (Next.js Frontend)"
+        A[User Interaction] --> B{React Components};
+        B --> C["Custom Hooks <br/> (e.g., usePatient, useAppointment)"];
+        subgraph "State & Cache (TanStack Query)"
+            C <--> D{Queries & Mutations};
+        end
+        D --> E["API Abstraction Layer <br/> (e.g., patientApi.ts)"];
+    end
+
+    E --> F((Backend API));
+    F --> E;
+
+style B fill:#f9f,stroke:#333,stroke-width:2px
+style C fill:#ccf,stroke:#333,stroke-width:2px
+style D fill:#cfc,stroke:#333,stroke-width:2px
+style E fill:#ffc,stroke:#333,stroke-width:2px
+```
+
+### Core Technologies
+
+- **Framework**: **[Next.js](https://nextjs.org/)** is used for its powerful features like Server-Side Rendering (SSR), the App Router, and optimized performance, providing a robust foundation for a scalable web application.
+- **Language**: **[TypeScript](https://www.typescriptlang.org/)** ensures type safety, which improves code quality, developer experience, and long-term maintainability.
+- **Styling**: **[Tailwind CSS](https://tailwindcss.com/)** enables rapid UI development with a utility-first approach, coupled with **[Shadcn/UI](https://ui.shadcn.com/)** for a set of pre-built, accessible, and themeable components.
+- **Data Fetching & State Management**: **[TanStack Query (React Query)](https://tanstack.com/query)** handles all server state management, including data fetching, caching, and synchronization, dramatically simplifying asynchronous logic.
+- **Forms**: **[React Hook Form](https://react-hook-form.com/)** and **[Zod](https://zod.dev/)** work together to create performant, flexible, and type-safe forms with robust validation schemas.
+- **HTTP Client**: **[Axios](https://axios-http.com/)** is used for making promise-based HTTP requests to the backend API.
+- **Charting**: **[Recharts](https://recharts.org/)** provides a rich library of composable chart components for data visualization.
+
+---
+
+## 📂 Project Structure
+
+The project follows the standard Next.js App Router structure, promoting a clean and organized codebase.
+
+```
+/app
+├── (routes)                  # Application routes (e.g., admin, patients, appointments)
+│   ├── admin/                # Admin-only pages and components
+│   ├── appointments/         # Appointment management pages
+│   ├── patients/             # Patient management, including creation, details, and editing
+│   │   ├── [id]/             # Dynamic route for a single patient's detail view
+│   │   └── add-patient/      # Page for creating a new patient
+│   └── ...
+├── _components/              # Shared, reusable components used across multiple pages
+├── _contexts/                # Global React contexts (e.g., LanguageContext)
+├── _hooks/                   # Custom hooks for business logic and data fetching
+│   ├── patient/
+│   │   ├── patientApi.ts     # API request functions for patients
+│   │   └── usePatient.ts     # TanStack Query hooks related to patients
+│   └── ...
+├── _lib/                     # General utility functions
+├── _locales/                 # Internationalization (i18n) translation files
+├── _providers/               # Global context providers (e.g., AuthProvider, ReactQueryProvider)
+└── _types/                   # TypeScript type definitions and interfaces
+/components/ui                # Core UI components from Shadcn/UI
+/public                       # Static assets like images and icons
+```
+
+---
+
+## 🏁 Getting Started
+
+Follow these instructions to set up the project on your local machine.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 20 or later recommended)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repository-url>
+    ```
+2.  **Navigate to the project directory:**
+    ```bash
+    cd frontend
+    ```
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+### Environment Variables
+
+Create a `.env.local` file in the root of the project. This file will hold your environment-specific variables.
+
+```env
+# URL of the backend API
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Add any other required environment variables
+```
+
+### Running the Development Server
+
+Start the Next.js development server (with Turbopack for high-performance):
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Available Scripts
 
-## Learn More
+- `npm run dev`: Starts the development server.
+- `npm run build`: Creates a production-ready build of the application.
+- `npm run start`: Starts the production server.
+- `npm run lint`: Lints the codebase using ESLint to identify and fix issues.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request. For major changes, please open an issue first to discuss what you would like to change.
