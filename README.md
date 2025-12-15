@@ -1,192 +1,277 @@
-# Patient Management System - Frontend
+# 🏥 Patient Management System (PMS)
 
-<p align="center">
-  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" />
-  <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" />
-</p>
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38bdf8)
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/abdelmoumen-soukehal/patient-sys/main/assets/dashboard.png" alt="Patient System Dashboard" />
-</p>
+A comprehensive, enterprise-grade healthcare management platform built with **Next.js 14**, **TypeScript**, and **Tailwind CSS**. This system features role-based access control, AI-powered clinical insights, dynamic medical templating, interactive reporting dashboards, and full bilingual support (English/Arabic).
 
-This repository contains the source code for the frontend of the Patient Management System, a modern, feature-rich web application designed to help healthcare professionals manage patient information, appointments, and medical data with efficiency and ease.
+---
 
-## Table of Contents
+## 📑 Table of Contents
 
-- [✨ Key Features](#-key-features)
-- [🚀 Tech Stack](#-tech-stack)
+- [🌟 Key Features](#-key-features)
+- [🏗️ Architecture & Tech Stack](#-architecture--tech-stack)
 - [📂 Project Structure](#-project-structure)
-- [🏁 Getting Started](#-getting-started)
-- [📜 Available Scripts](#-available-scripts)
+- [⚙️ Installation & Setup](#-installation--setup)
+- [🔧 Configuration](#-configuration)
+- [📦 Core Modules](#-core-modules)
+  - [Authentication & Users](#authentication--users)
+  - [Patient Management](#patient-management)
+  - [AI Integration](#ai-integration)
+  - [Reporting Engine](#reporting-engine)
+  - [Dynamic Templates](#dynamic-templates)
+- [🌍 Internationalization (RTL/LTR)](#-internationalization)
+- [🎨 UI & Theming](#-ui--theming)
 - [🚀 Deployment](#-deployment)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 
 ---
 
-## ✨ Key Features
+## 🌟 Key Features
 
-This application provides a comprehensive suite of tools for healthcare management:
+### 🔐 Security & Administration
 
-- **👤 Patient Management**
+- **Role-Based Access Control (RBAC):** Granular permissions for `Super Admin`, `Admin`, `Doctor`, `Nurse`, and `Staff`.
+- **User Management:** Bulk actions (reset password, deactivate, delete), subscription tier management, and activity logging.
+- **System Backups:** Integrated interface for creating, restoring, and downloading database backups.
+- **Audit Logging:** Tracks user logins, profile updates, and system changes.
 
-  - Complete CRUD (Create, Read, Update, Delete) functionality for patient records.
-  - A detailed patient view that includes personal information, a timeline of medical events, clinical notes, and treatment history.
-  - Advanced search and filtering capabilities to quickly find patients.
+### 🏥 Clinical Operations
 
-- **🤖 AI-Powered Assistance**
+- **Patient Dashboard:** Real-time statistics on total patients, visits, and demographic trends.
+- **Event Timeline:** Interactive visual timeline of patient history (Medications, Surgeries, Lab Results).
+- **Visit Management:** Comprehensive visit recording with SOAP notes, vital signs, and follow-up scheduling.
+- **Patient Status Flow:** Customizable status tracking (Active, On Treatment, Discharged) with history logs.
 
-  - **AI Analysis**: An integrated AI module analyzes patient events and notes to provide insights and summaries.
-  - **Treatment Suggestions**: The system offers AI-based treatment suggestions based on the available patient data.
-  - **AI Template Generation**: Automatically generate patient data forms and templates based on a simple prompt.
+### 🤖 AI Capabilities
 
-- **🗓️ Appointment Scheduling**
+- **Clinical Assistant:** Auto-generates visit notes from raw symptoms and observations.
+- **Template Generator:** Creates complex medical forms based on natural language descriptions (e.g., "Create a cardiology template").
+- **Insight Engine:** Analyzes patient history to provide summaries and treatment suggestions.
+- **Smart Reports:** AI-driven comparative analysis and trend forecasting.
 
-  - An intuitive interface for scheduling, viewing, and managing patient appointments.
-  - Multiple views, including a comprehensive table and mobile-friendly cards.
+### 📊 Analytics & Data
 
-- **📝 Dynamic Template Engine**
-
-  - A powerful built-in template builder allows administrators to create and customize dynamic forms for patient data collection.
-  - Define sections, fields of various types (text, date, dropdown), and status options to tailor forms to specific needs.
-
-- **📊 Reporting & Analytics**
-
-  - A dedicated reporting module to visualize key healthcare metrics.
-  - Generate insightful charts, including bar, line, pie, and heatmaps, to analyze patient demographics, appointment statistics, and more.
-
-- **🔐 Admin & User Management**
-
-  - **Role-Based Access Control**: Secure user authentication with distinct roles (e.g., Admin, Clinician).
-  - **Admin Dashboard**: A central dashboard for administrators to monitor system activity, manage users, and configure system settings.
-  - **System-wide Notifications**: Admins can broadcast notifications to all users.
-  - **Data Backups**: Functionality for creating and managing system data backups.
-
-- **⚙️ User Profile & Settings**
-  - Users can manage their personal profile information and change their passwords.
-  - Personalize the application experience with theme (light/dark mode) and language settings.
+- **Interactive Charts:** Bar, Line, Pie, Scatter, and Heatmap visualizations using `Recharts`.
+- **Custom Report Builder:** Drag-and-drop report configuration with filtering by demographics, status, or date.
+- **Data Export:** robust export functionality to PDF, Excel, and CSV formats.
 
 ---
 
-## 🚀 Tech Stack
+## 🏗️ Architecture & Tech Stack
 
-The application is built with a modern and robust set of technologies to ensure a high-quality user experience and developer productivity.
+This project uses a modern frontend stack designed for scalability and performance.
 
-- **Framework**: **[Next.js](https://nextjs.org/)** is used for its powerful features like Server-Side Rendering (SSR), the App Router, and optimized performance.
-- **Language**: **[TypeScript](https://www.typescriptlang.org/)** ensures type safety, which improves code quality and long-term maintainability.
-- **Styling**: **[Tailwind CSS](https://tailwindcss.com/)** enables rapid UI development with a utility-first approach, coupled with **[Shadcn/UI](https://ui.shadcn.com/)** for a set of pre-built, accessible components.
-- **Data Fetching & State Management**: **[TanStack Query (React Query)](https://tanstack.com/query)** handles all server state, simplifying data fetching, caching, and synchronization.
-- **Forms**: **[React Hook Form](https://react-hook-form.com/)** and **[Zod](https://zod.dev/)** work together to create performant, type-safe forms with robust validation.
-- **HTTP Client**: **[Axios](https://axios-http.com/)** is used for making promise-based HTTP requests to the backend API.
-- **Charting**: **[Recharts](https://recharts.org/)** provides a rich library of composable chart components for data visualization.
+| Category          | Technology                    | Usage in Project                                          |
+| :---------------- | :---------------------------- | :-------------------------------------------------------- |
+| **Framework**     | **Next.js 14** (App Router)   | Server-side rendering, routing, layouts.                  |
+| **Language**      | **TypeScript**                | Strict typing for `User`, `Patient`, `Template`, etc.     |
+| **Styling**       | **Tailwind CSS**              | Utility-first styling with dark mode support.             |
+| **UI Library**    | **Shadcn UI**                 | Reusable components (Dialogs, Cards, Tables, Forms).      |
+| **State/Query**   | **TanStack Query (v5)**       | Server state management, caching, and optimistic updates. |
+| **Forms**         | **React Hook Form** + **Zod** | Form handling and schema validation.                      |
+| **Charts**        | **Recharts**                  | Data visualization for the Reports module.                |
+| **Date Time**     | **date-fns**                  | Date formatting and manipulation.                         |
+| **Animations**    | **Framer Motion**             | Page transitions and UI micro-interactions.               |
+| **Notifications** | **React Hot Toast**           | User feedback and alerts.                                 |
+| **HTTP Client**   | **Axios**                     | API communication with interceptors.                      |
 
 ---
 
 ## 📂 Project Structure
 
-The project follows the standard Next.js App Router structure, promoting a clean and organized codebase.
+This directory structure reflects the exact organization of the provided codebase.
 
-```
-/app
-├── (routes)                  # Application routes (e.g., admin, patients, appointments)
-│   ├── admin/                # Admin-only pages and components
-│   ├── appointments/         # Appointment management pages
-│   ├── patients/             # Patient management, including creation, details, and editing
-│   │   ├── [id]/             # Dynamic route for a single patient's detail view
-│   │   └── add-patient/      # Page for creating a new patient
+```bash
+app/
+├── _components/            # Global shared components
+│   ├── header/             # Header, SearchBar, AuthButtons, Notifications
+│   ├── Footer.tsx
+│   ├── Sidebar.tsx
+│   ├── LoadingInsights.tsx # AI Loading UI
 │   └── ...
-├── _components/              # Shared, reusable components used across multiple pages
-├── _contexts/                # Global React contexts (e.g., LanguageContext)
-├── _hooks/                   # Custom hooks for business logic and data fetching
-│   ├── patient/
-│   │   ├── patientApi.ts     # API request functions for patients
-│   │   └── usePatient.ts     # TanStack Query hooks related to patients
-│   └── ...
-├── _lib/                     # General utility functions
-├── _locales/                 # Internationalization (i18n) translation files
-├── _providers/               # Global context providers (e.g., AuthProvider, ReactQueryProvider)
-└── _types/                   # TypeScript type definitions and interfaces
-/components/ui                # Core UI components from Shadcn/UI
-/public                       # Static assets like images and icons
+├── _contexts/              # React Context Providers
+│   └── LanguageContext.tsx # RTL/LTR and Translation logic
+├── _hooks/                 # Custom Hooks & API Services
+│   ├── AI/                 # useAI.ts, AIApi.ts
+│   ├── appointment/        # Appointment logic
+│   ├── auth/               # Authentication logic
+│   ├── backup/             # System backup logic
+│   ├── patient/            # Patient CRUD
+│   ├── report/             # Reporting logic
+│   ├── template/           # Template logic
+│   └── userAdmin/          # User administration hooks
+├── _locales/               # Translation dictionaries
+│   ├── ar.ts               # Arabic translations
+│   └── en.ts               # English translations
+├── _providers/             # Context Wrappers (Auth, ReactQuery)
+├── _types/                 # TypeScript Interfaces (User, Patient, Template)
+├── admin/                  # Admin-specific routes
+│   ├── backups/            # System backup interface
+│   ├── notifications/      # System-wide notification management
+│   └── users/              # User management & Stats
+├── appointments/           # Appointment scheduling views
+├── login/                  # Authentication pages
+├── notifications/          # User notification center
+├── patients/               # Patient module
+│   ├── [id]/               # Patient Details (Tabs, History, Notes)
+│   └── add-patient/        # Multi-step creation wizard
+├── profile/                # User profile settings
+├── reports/                # Analytics & Visualization
+│   └── _components/charts/ # Recharts components (Bar, Pie, Line, Heatmap)
+├── settings/               # App configuration (Theme, Export)
+└── templates/              # Dynamic Template Builder
+    └── [id]/               # Template Editor
 ```
 
 ---
 
-## 🏁 Getting Started
+## ⚙️ Installation & Setup
 
-Follow these instructions to set up the project on your local machine.
+### 1. Prerequisites
 
-### Prerequisites
+Ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 20 or later recommended)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
+- Node.js (v18.17.0 or higher)
+- npm, yarn, or pnpm
 
-### Installation
+### 2. Clone the Repository
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    ```
-2.  **Navigate to the project directory:**
-    ```bash
-    cd frontend
-    ```
-3.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-### Environment Variables
-
-Create a `.env.local` file in the root of the project. This file will hold your environment-specific variables.
-
-```env
-# URL of the backend API
-NEXT_PUBLIC_API_URL=http://localhost:8000
-
-# Add any other required environment variables
+```bash
+git clone https://github.com/Abdelaziz79/patient-system-frontend.git
+cd patient-system-frontend
 ```
 
-### Running the Development Server
+### 3. Install Dependencies
 
-Start the Next.js development server (with Turbopack for high-performance):
+```bash
+npm install
+# or
+yarn install
+```
+
+### 4. Setup Environment Variables
+
+Create a `.env.local` file in the root directory. This is critical for the `_hooks` to connect to your backend.
+
+```env
+# The base URL for your backend API (Express/NestJS/Django)
+NEXT_PUBLIC_BACK_URL=http://localhost:5000
+
+# Optional: Analytics or other keys
+NEXT_PUBLIC_ANALYTICS_ID=
+```
+
+### 5. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
-## 📜 Available Scripts
+## 📦 Core Modules
 
-- `npm run dev`: Starts the development server.
-- `npm run build`: Creates a production-ready build of the application.
-- `npm run start`: Starts the production server.
-- `npm run lint`: Lints the codebase using ESLint to identify and fix issues.
+### Authentication & Users
+
+Located in `app/login`, `app/profile`, and `app/admin/users`.
+
+- **Auth Hooks:** `useAuth.ts` handles login/logout and token storage in localStorage.
+- **Components:** `UserTable.tsx`, `UserCards.tsx` (for mobile), `BulkActionBar.tsx`.
+- **Features:**
+  - Secure login with redirect logic.
+  - Profile updates (avatar, contact info).
+  - Super Admin capability to "Impersonate" or manage subscriptions.
+
+### Patient Management
+
+Located in `app/patients`.
+
+- **List View:** Filterable table with sorting and search (`PatientTable.tsx`).
+- **Add Patient Wizard:** A multi-step form (`TemplateSelection` -> `PersonalInfo` -> `DynamicData`).
+- **Detail View:** Uses a tabbed interface (`PatientTabs.tsx`) to show:
+  - **Info:** Dynamic fields based on the assigned template.
+  - **Visits:** Chronological list of visits with expanding details.
+  - **Events:** Medical timeline events.
+  - **AI:** Treatment suggestions and insights.
+
+### AI Integration
+
+Located in `app/_hooks/AI` and `app/templates/_components`.
+
+- **Services:** `AIApi.ts` connects to endpoints like `/api/ai/generate-template` and `/api/ai/visit-notes-assistant`.
+- **Usage:**
+  - **Template Generation:** Users type a condition ("Asthma"), AI builds the form structure.
+  - **Visit Notes:** Users input shorthand observations, AI expands them into clinical SOAP notes.
+
+### Reporting Engine
+
+Located in `app/reports`.
+
+- **Visualization:** Uses `ReportCharts.tsx` to dynamically render:
+  - `BarChartComponent`
+  - `LineChartComponent`
+  - `PieChartComponent`
+  - `HeatmapComponent` (e.g., for appointment density)
+- **Logic:** `useReport.ts` handles fetching aggregate data and applying filters.
+
+### Dynamic Templates
+
+Located in `app/templates`.
+
+- **Concept:** Allows admins to define custom medical forms without code changes.
+- **Structure:** Templates consist of `Sections`, which contain `Fields` (Text, Number, Date, Select, etc.).
+- **Components:** `FieldDialog.tsx`, `SectionDialog.tsx`, `TemplateCard.tsx`.
+
+---
+
+## 🌍 Internationalization
+
+The system is fully localized for **English** and **Arabic**.
+
+- **Context:** `LanguageContext.tsx` manages the state.
+- **Translations:** Files located in `app/_locales/en.ts` and `ar.ts`.
+- **RTL Support:** The `dir` attribute is dynamically applied to the `<body>` and specific components (like Dialogs and Tables) to ensure correct layout mirroring for Arabic users.
+
+**Usage:**
+
+```tsx
+const { t, isRTL } = useLanguage();
+return <div dir={isRTL ? "rtl" : "ltr"}>{t("welcomeMessage")}</div>;
+```
+
+---
+
+## 🎨 UI & Theming
+
+- **Dark Mode:** Built-in using `next-themes` and Tailwind's `dark:` classes. Toggled via `ThemeLanguageToggles.tsx`.
+- **Responsive:** All components, including complex tables (`UserTable.tsx` vs `UserCards.tsx`), adapt to mobile views using the `useMobileView` hook.
+- **Components:** Custom implementations of Shadcn UI components can be found in `components/ui`.
 
 ---
 
 ## 🚀 Deployment
 
-The easiest way to deploy this Next.js app is to use the [Vercel Platform](https://vercel.com).
+To build the application for production:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
+1.  **Build:**
+    ```bash
+    npm run build
+    ```
+2.  **Start:**
+    ```bash
+    npm start
+    ```
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+**Docker Support:**
+You can containerize this application using a standard Next.js Dockerfile. Ensure `NEXT_PUBLIC_BACK_URL` is passed as a build argument or environment variable at runtime.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request. For major changes, please open an issue first to discuss what you would like to change.
+**Built with ❤️ by [Abdelaziz79](https://github.com/Abdelaziz79)**
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
