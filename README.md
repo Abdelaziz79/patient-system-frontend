@@ -1,7 +1,6 @@
 # 🏥 Patient Management System (PMS)
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38bdf8)
